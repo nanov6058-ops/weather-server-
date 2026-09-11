@@ -10,7 +10,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; overflow: hidden; }
         #map { width: 100vw; height: 100vh; background: #1a1a2e; }
 
-        /* ============ ВЕРХНЯЯ ПАНЕЛЬ ============ */
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar {
             position: fixed; top: 15px; left: 15px; right: 15px;
             display: flex; align-items: center; gap: 12px; z-index: 1000;
@@ -42,10 +42,7 @@
         }
         .logo-badge span { color: #ff6b6b; }
 
-        .user-area {
-            margin-left: auto; display: flex; gap: 10px;
-            pointer-events: all;
-        }
+        .user-area { margin-left: auto; display: flex; gap: 10px; pointer-events: all; }
         .user-btn {
             background: rgba(15, 15, 30, 0.95); border-radius: 30px;
             padding: 8px 18px; color: #fff; font-size: 14px; font-weight: bold;
@@ -54,7 +51,7 @@
         }
         .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
 
-        /* ============ ПРАВАЯ ПАНЕЛЬ СЛОЁВ ============ */
+        /* ПРАВАЯ ПАНЕЛЬ СЛОЁВ */
         .layers-menu {
             position: fixed; top: 70px; right: 15px;
             background: rgba(15, 15, 30, 0.95); border-radius: 15px;
@@ -72,12 +69,9 @@
         .layer-item:hover { background: rgba(110, 181, 255, 0.2); }
         .layer-item.active { background: rgba(110, 181, 255, 0.35); }
         .layer-item .icon { font-size: 22px; margin-bottom: 2px; }
-        .layer-item .label {
-            font-size: 9px; text-align: center; color: #ccc;
-            line-height: 1.1;
-        }
+        .layer-item .label { font-size: 9px; text-align: center; color: #ccc; line-height: 1.1; }
 
-        /* ============ ЛЕВАЯ ПАНЕЛЬ ПОГОДЫ ============ */
+        /* ЛЕВАЯ ПАНЕЛЬ ПОГОДЫ */
         .weather-panel {
             position: fixed; top: 70px; left: 15px;
             background: rgba(15, 15, 30, 0.95); border-radius: 15px;
@@ -98,7 +92,7 @@
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
 
-        /* ============ АДМИНКА ============ */
+        /* АДМИНКА (ПОЛНАЯ) */
         .admin-panel {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -111,12 +105,14 @@
         }
         .admin-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
         .admin-panel h2 { margin-bottom: 20px; font-size: 22px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 15px; }
+
         .admin-section { margin-bottom: 20px; }
         .admin-section h3 { font-size: 16px; color: #6eb5ff; margin-bottom: 10px; }
         .admin-control { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
         .admin-control label { font-size: 14px; color: #aaa; }
         .admin-control input[type="range"] { width: 100%; }
         .admin-control input[type="text"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
+        .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
 
         .btn { padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
@@ -131,7 +127,7 @@
         }
         .overlay.active { opacity: 1; visibility: visible; }
 
-        /* ============ ВХОД / РЕГИСТРАЦИЯ ============ */
+        /* ВХОД */
         .auth-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -150,10 +146,7 @@
         }
         .auth-modal input:focus { border-color: #6eb5ff; }
         .auth-modal .btn { width: 100%; margin-bottom: 10px; }
-        .auth-modal .switch {
-            text-align: center; font-size: 13px; color: #888;
-            margin-top: 10px; cursor: pointer;
-        }
+        .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 10px; cursor: pointer; }
         .auth-modal .switch span { color: #6eb5ff; text-decoration: underline; }
 
         .hotkey-hint {
@@ -163,17 +156,13 @@
         }
         .hotkey-hint kbd { background: #333; padding: 3px 8px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
 
-        .custom-marker {
-            font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9));
-            cursor: pointer;
-        }
+        .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<!-- ВЕРХНЯЯ ПАНЕЛЬ -->
 <div class="top-bar">
     <div class="search-box">
         <input type="text" id="citySearch" placeholder="Поиск города...">
@@ -185,29 +174,15 @@
     </div>
 </div>
 
-<!-- ПРАВАЯ ПАНЕЛЬ СЛОЁВ -->
 <div class="layers-menu">
-    <div class="layer-item active" onclick="setLayer('temp', this)">
-        <div class="icon">🌡️</div><div class="label">Температура</div>
-    </div>
-    <div class="layer-item" onclick="setLayer('wind', this)">
-        <div class="icon">💨</div><div class="label">Ветер</div>
-    </div>
-    <div class="layer-item" onclick="setLayer('rain', this)">
-        <div class="icon">🌧️</div><div class="label">Дождь</div>
-    </div>
-    <div class="layer-item" onclick="setLayer('clouds', this)">
-        <div class="icon">☁️</div><div class="label">Облака</div>
-    </div>
-    <div class="layer-item" onclick="toggleRadar(this)">
-        <div class="icon">📡</div><div class="label">Радар</div>
-    </div>
-    <div class="layer-item" onclick="switchBaseMap('satellite', this)">
-        <div class="icon">🛰️</div><div class="label">Спутник</div>
-    </div>
+    <div class="layer-item active" onclick="setLayer('temp', this)"><div class="icon">🌡️</div><div class="label">Температура</div></div>
+    <div class="layer-item" onclick="setLayer('wind', this)"><div class="icon">💨</div><div class="label">Ветер</div></div>
+    <div class="layer-item" onclick="setLayer('rain', this)"><div class="icon">🌧️</div><div class="label">Дождь</div></div>
+    <div class="layer-item" onclick="setLayer('clouds', this)"><div class="icon">☁️</div><div class="label">Облака</div></div>
+    <div class="layer-item" onclick="toggleRadar(this)"><div class="icon">📡</div><div class="label">Радар</div></div>
+    <div class="layer-item" onclick="switchBaseMap('satellite', this)"><div class="icon">🛰️</div><div class="label">Спутник</div></div>
 </div>
 
-<!-- ЛЕВАЯ ПАНЕЛЬ ПОГОДЫ -->
 <div class="weather-panel">
     <h2>🌦️ Погода</h2>
     <div class="city" id="locationName">Определение...</div>
@@ -224,9 +199,29 @@
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-<!-- АДМИНКА -->
+<!-- ПОЛНАЯ АДМИНКА -->
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
+
+    <div class="admin-section">
+        <h3>🌧️ Осадки</h3>
+        <div class="admin-control">
+            <label>Интенсивность: <span id="rainIntensityLabel">0</span>%</label>
+            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="updateRainIntensity(this.value)">
+        </div>
+        <div class="admin-control">
+            <label>Тип явления:</label>
+            <select id="phenomenonType" onchange="updatePhenomenonType(this.value)">
+                <option value="rain">Дождь</option>
+                <option value="snow">Снег</option>
+                <option value="storm">Гроза</option>
+                <option value="hurricane">Ураган</option>
+                <option value="tornado">Торнадо</option>
+                <option value="whirlwind">Вихрь</option>
+            </select>
+        </div>
+    </div>
+
     <div class="admin-section">
         <h3>🌪️ Отправка явления</h3>
         <div class="admin-control">
@@ -242,12 +237,30 @@
             <button class="btn btn-warn" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
         </div>
     </div>
+
+    <div class="admin-section">
+        <h3>💨 Ветер</h3>
+        <div class="admin-control">
+            <label>Скорость: <span id="windSpeedLabel">0</span> м/с</label>
+            <input type="range" id="windSpeed" min="0" max="50" value="0" oninput="document.getElementById('windSpeedLabel').textContent=this.value">
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>🌡️ Температура</h3>
+        <div class="admin-control">
+            <label>Значение: <span id="tempLabel">15</span>°C</label>
+            <input type="range" id="temperature" min="-50" max="50" value="15" oninput="document.getElementById('tempLabel').textContent=this.value">
+        </div>
+    </div>
+
     <div class="btn-group">
+        <button class="btn btn-primary" onclick="applyWeather()">✅ Применить</button>
+        <button class="btn btn-danger" onclick="resetWeather()">🔄 Сбросить</button>
         <button class="btn btn-danger" onclick="closeAll()">❌ Закрыть</button>
     </div>
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
 <div class="auth-modal" id="authModal">
     <h2 id="authTitle">Вход</h2>
     <input type="text" id="authLogin" placeholder="Логин">
@@ -260,14 +273,37 @@
 
 <script>
     // ============================================
-    // КАРТА
+    // КАРТА (OpenStreetMap + CSS-фильтр для тёмной темы)
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
-        style: 'https://api.maptoolkit.org/styles/outdoor',
+        style: {
+            version: 8,
+            sources: {
+                'osm': {
+                    type: 'raster',
+                    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256,
+                    maxzoom: 19
+                }
+            },
+            layers: [
+                {
+                    id: 'osm-layer',
+                    type: 'raster',
+                    source: 'osm',
+                    paint: {
+                        'raster-brightness-min': 0.1,
+                        'raster-brightness-max': 0.7,
+                        'raster-saturation': -0.6,
+                        'raster-contrast': 0.3
+                    }
+                }
+            ]
+        },
         center: [37.6173, 55.7558],
         zoom: 3,
-        maxZoom: 22,
+        maxZoom: 19,
         pitch: 0,
         bearing: 0
     });
@@ -280,7 +316,7 @@
     let authMode = 'login';
 
     // ============================================
-    // АВТОРИЗАЦИЯ (через сервер)
+    // АВТОРИЗАЦИЯ
     // ============================================
     const API_URL = window.location.origin;
 
@@ -288,12 +324,10 @@
         document.getElementById('authModal').classList.add('active');
         document.getElementById('overlay').classList.add('active');
     }
-
     function closeAuth() {
         document.getElementById('authModal').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
     }
-
     function toggleAuthMode() {
         authMode = authMode === 'login' ? 'register' : 'login';
         if (authMode === 'login') {
@@ -310,7 +344,6 @@
     async function submitAuth() {
         const login = document.getElementById('authLogin').value.trim();
         const password = document.getElementById('authPassword').value.trim();
-
         if (!login || !password) { alert('Заполни все поля'); return; }
 
         const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
@@ -321,17 +354,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ login, password })
             });
-
             const data = await res.json();
-
-            if (!res.ok) {
-                alert('❌ ' + (data.error || 'Ошибка'));
-                return;
-            }
+            if (!res.ok) { alert('❌ ' + (data.error || 'Ошибка')); return; }
 
             localStorage.setItem('token', data.token);
             localStorage.setItem('login', data.login);
-
             updateUserUI(data.login);
             closeAuth();
             alert('✅ Добро пожаловать, ' + data.login + '!');
@@ -345,7 +372,6 @@
         document.getElementById('authBtn').textContent = login + ' (выйти)';
         document.getElementById('authBtn').onclick = logout;
     }
-
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('login');
@@ -354,11 +380,9 @@
         alert('👋 Вы вышли');
     }
 
-    // Проверка токена при загрузке
     window.addEventListener('load', async () => {
         const token = localStorage.getItem('token');
         const login = localStorage.getItem('login');
-
         if (token && login) {
             try {
                 const res = await fetch(API_URL + '/api/verify', {
@@ -369,14 +393,12 @@
                 const data = await res.json();
                 if (data.success) updateUserUI(data.login);
                 else { localStorage.removeItem('token'); localStorage.removeItem('login'); }
-            } catch (e) {
-                console.error('Ошибка проверки токена:', e);
-            }
+            } catch (e) { console.error(e); }
         }
     });
 
     // ============================================
-    // ЗАКРЫТИЕ ВСЕГО
+    // ЗАКРЫТИЕ
     // ============================================
     function closeAll() {
         document.getElementById('adminPanel').classList.remove('active');
@@ -392,7 +414,6 @@
     function searchCity() {
         const query = document.getElementById('citySearch').value.trim();
         if (!query) return;
-
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
             .then(r => r.json())
             .then(data => {
@@ -401,13 +422,10 @@
                     map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 10 });
                     loadWeather(parseFloat(lat), parseFloat(lon));
                     getLocationName(parseFloat(lat), parseFloat(lon));
-                } else {
-                    alert('Город не найден');
-                }
+                } else { alert('Город не найден'); }
             })
             .catch(err => { console.error(err); alert('Ошибка поиска'); });
     }
-
     document.getElementById('citySearch').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchCity();
     });
@@ -418,7 +436,6 @@
     function setLayer(layerType, btn) {
         document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        console.log('Выбран слой:', layerType);
     }
 
     function toggleRadar(btn) {
@@ -491,6 +508,26 @@
         el.textContent = '🌪️';
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
+    }
+
+    // ============================================
+    // АДМИНКА
+    // ============================================
+    function updateRainIntensity(v) { document.getElementById('rainIntensityLabel').textContent = v; }
+    function updatePhenomenonType(v) { console.log('Тип:', v); }
+    function applyWeather() { alert('Погода применена!'); }
+    function resetWeather() {
+        document.getElementById('rainIntensity').value = 0;
+        document.getElementById('rainIntensityLabel').textContent = '0';
+        document.getElementById('power').value = 3;
+        document.getElementById('powerLabel').textContent = '3';
+        document.getElementById('windSpeed').value = 0;
+        document.getElementById('windSpeedLabel').textContent = '0';
+        document.getElementById('temperature').value = 15;
+        document.getElementById('tempLabel').textContent = '15';
+        document.getElementById('coordsInput').value = '';
+        markers.forEach(m => m.remove());
+        markers = [];
     }
 
     // ============================================
