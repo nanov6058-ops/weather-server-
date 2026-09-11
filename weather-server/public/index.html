@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метео-Карта с Админ-Панелью</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Метео-Карта PRO 3D</title>
+
+    <!-- MapLibre GL JS CSS -->
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; overflow: hidden; }
-        #map { width: 100vw; height: 100vh; background: #1a1a2e; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; }
+        #map { width: 100vw; height: 100vh; background: #0a0a1a; }
 
-        .control-panel {
-            position: fixed; top: 20px; left: 20px;
-            background: rgba(20, 20, 40, 0.95);
+        .panel {
+            position: fixed; background: rgba(10, 10, 20, 0.95);
             border-radius: 15px; padding: 20px; color: #fff;
-            z-index: 1000; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             border: 1px solid rgba(100, 150, 255, 0.3);
-            max-width: 300px;
+            backdrop-filter: blur(6px);
         }
-        .control-panel h2 { margin-bottom: 15px; font-size: 18px; color: #6eb5ff; }
-        .weather-status { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .panel-top-left { top: 20px; left: 20px; max-width: 300px; }
+
+        .panel h2 { margin-bottom: 15px; font-size: 18px; color: #6eb5ff; }
         .weather-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .weather-item:last-child { border-bottom: none; }
         .weather-value { color: #6eb5ff; font-weight: bold; }
@@ -27,29 +30,33 @@
         .admin-panel {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 30, 0.98);
+            background: rgba(5, 5, 15, 0.98);
             border-radius: 20px; padding: 30px; color: #fff;
-            z-index: 2000; box-shadow: 0 20px 80px rgba(0,0,0,0.8);
-            border: 2px solid #ff6b6b; width: 90%; max-width: 500px;
+            z-index: 2000; box-shadow: 0 20px 80px rgba(0,0,0,0.9);
+            border: 2px solid #ff6b6b; width: 90%; max-width: 520px;
             max-height: 90vh; overflow-y: auto;
             opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
         .admin-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
         .admin-panel h2 { margin-bottom: 20px; font-size: 22px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 15px; }
+
         .admin-section { margin-bottom: 20px; }
         .admin-section h3 { font-size: 16px; color: #6eb5ff; margin-bottom: 10px; }
         .admin-control { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
         .admin-control label { font-size: 14px; color: #aaa; }
         .admin-control input[type="range"] { width: 100%; }
+        .admin-control input[type="text"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
         .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
+
         .btn { padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
         .btn-danger { background: linear-gradient(135deg, #ff6b6b, #d94a4a); color: #fff; }
+        .btn-warn { background: linear-gradient(135deg, #ffb84d, #d98a2a); color: #fff; }
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .connection-status {
             position: fixed; top: 20px; right: 20px;
-            background: rgba(20,20,40,0.95); padding: 10px 20px;
+            background: rgba(10,10,20,0.95); padding: 10px 20px;
             border-radius: 10px; color: #fff; font-size: 14px;
             z-index: 1000; display: flex; align-items: center; gap: 10px;
             border: 1px solid rgba(100,150,255,0.3);
@@ -59,85 +66,91 @@
 
         .hotkey-hint {
             position: fixed; bottom: 20px; right: 20px;
-            background: rgba(20,20,40,0.9); padding: 10px 15px;
+            background: rgba(10,10,20,0.9); padding: 10px 15px;
             border-radius: 10px; color: #888; font-size: 12px; z-index: 1000;
         }
         .hotkey-hint kbd { background: #333; padding: 3px 8px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
 
-        .tornado-icon { font-size: 40px; animation: spin 2s linear infinite; filter: drop-shadow(0 0 20px rgba(255,107,107,0.8)); }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1500;
+            background: rgba(0,0,0,0.8); z-index: 1500;
             opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
         .overlay.active { opacity: 1; visibility: visible; }
+
+        .custom-marker {
+            font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9));
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
+<div class="panel panel-top-left">
+    <h2>🌦️ Погода</h2>
+    <div class="weather-item"><span>Осадки:</span><span class="weather-value" id="precipValue">0%</span></div>
+    <div class="weather-item"><span>Ветер:</span><span class="weather-value" id="windValue">0 м/с</span></div>
+    <div class="weather-item"><span>Явление:</span><span class="weather-value" id="phenomenonValue">Нет</span></div>
+    <div class="weather-item"><span>Температура:</span><span class="weather-value" id="tempValue">15°C</span></div>
+</div>
+
 <div class="connection-status">
     <div class="status-dot"></div>
-    <span>Синхронизация активна</span>
+    <span>Онлайн</span>
 </div>
 
-<div class="control-panel">
-    <h2>🌦️ Текущая погода</h2>
-    <div class="weather-status">
-        <div class="weather-item"><span>Осадки:</span><span class="weather-value" id="precipValue">0%</span></div>
-        <div class="weather-item"><span>Ветер:</span><span class="weather-value" id="windValue">0 м/с</span></div>
-        <div class="weather-item"><span>Торнадо:</span><span class="weather-value" id="tornadoValue">Нет</span></div>
-        <div class="weather-item"><span>Температура:</span><span class="weather-value" id="tempValue">15°C</span></div>
-    </div>
-    <div class="btn-group">
-        <button class="btn btn-primary" onclick="togglePrecipitation()">🌧️ Осадки</button>
-        <button class="btn btn-primary" onclick="toggleSnow()">❄️ Снег</button>
-    </div>
-</div>
-
-<div class="hotkey-hint"><kbd>Alt</kbd> + <kbd>U</kbd> — Админ-панель</div>
+<div class="hotkey-hint"><kbd>Alt</kbd> + <kbd>U</kbd> — Админка</div>
 
 <div class="overlay" id="overlay" onclick="closeAdmin()"></div>
 
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
+
     <div class="admin-section">
-        <h3>🌧️ Управление осадками</h3>
+        <h3>🌧️ Осадки</h3>
         <div class="admin-control">
-            <label>Интенсивность: <span id="rainIntensityLabel">50</span>%</label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="50" oninput="updateRainIntensity(this.value)">
+            <label>Интенсивность: <span id="rainIntensityLabel">0</span>%</label>
+            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="updateRainIntensity(this.value)">
         </div>
         <div class="admin-control">
-            <label>Тип осадков:</label>
-            <select id="precipType" onchange="updatePrecipType(this.value)">
+            <label>Тип явления:</label>
+            <select id="phenomenonType" onchange="updatePhenomenonType(this.value)">
                 <option value="rain">Дождь</option>
                 <option value="snow">Снег</option>
-                <option value="sleet">Мокрый снег</option>
-                <option value="hail">Град</option>
+                <option value="storm">Гроза</option>
+                <option value="hurricane">Ураган</option>
+                <option value="tornado">Торнадо</option>
+                <option value="whirlwind">Вихрь</option>
             </select>
         </div>
     </div>
+
     <div class="admin-section">
-        <h3>🌪️ Вихри торнадо</h3>
+        <h3>🌪️ Отправка явления</h3>
         <div class="admin-control">
-            <label>Количество: <span id="tornadoCountLabel">0</span></label>
-            <input type="range" id="tornadoCount" min="0" max="10" value="0" oninput="updateTornadoCount(this.value)">
+            <label>Координаты (ш, д):</label>
+            <input type="text" id="coordsInput" placeholder="55.7558, 37.6173" readonly>
         </div>
         <div class="admin-control">
-            <label>Сила: <span id="tornadoPowerLabel">3</span></label>
-            <input type="range" id="tornadoPower" min="1" max="10" value="3" oninput="updateTornadoPower(this.value)">
+            <label>Сила: <span id="powerLabel">3</span></label>
+            <input type="range" id="power" min="1" max="10" value="3" oninput="updatePower(this.value)">
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="enableClickMode()">📍 Выбрать на карте</button>
+            <button class="btn btn-warn" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
         </div>
     </div>
+
     <div class="admin-section">
         <h3>💨 Ветер</h3>
         <div class="admin-control">
-            <label>Скорость: <span id="windSpeedLabel">5</span> м/с</label>
-            <input type="range" id="windSpeed" min="0" max="50" value="5" oninput="updateWindSpeed(this.value)">
+            <label>Скорость: <span id="windSpeedLabel">0</span> м/с</label>
+            <input type="range" id="windSpeed" min="0" max="50" value="0" oninput="updateWindSpeed(this.value)">
         </div>
     </div>
+
     <div class="admin-section">
         <h3>🌡️ Температура</h3>
         <div class="admin-control">
@@ -145,6 +158,7 @@
             <input type="range" id="temperature" min="-50" max="50" value="15" oninput="updateTemperature(this.value)">
         </div>
     </div>
+
     <div class="btn-group">
         <button class="btn btn-primary" onclick="applyWeather()">✅ Применить</button>
         <button class="btn btn-danger" onclick="resetWeather()">🔄 Сбросить</button>
@@ -152,122 +166,82 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
 <script>
     // ============================================
-    // ВАЖНО: адрес твоего WebSocket-сервера
+    // НАСТРОЙКИ
     // ============================================
     const SERVER_URL = 'wss://weather-server.relaxdev.ru';
 
     // ============================================
-    // КАРТА (тёмная тема)
+    // КАРТА MAPLIBRE (OpenFreeMap Liberty — бесплатный, без ключей)
     // ============================================
-    const map = L.map('map', {
-        center: [55.7558, 37.6173],
-        zoom: 6,
-        zoomControl: false
+    const map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://tiles.openfreemap.org/styles/liberty', // Бесплатный векторный стиль
+        center: [37.6173, 55.7558], // Москва [долгота, широта]
+        zoom: 5,
+        maxZoom: 22,
+        pitch: 0,
+        maxPitch: 85
     });
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-    // Тёмная карта (CartoDB Dark Matter)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© CartoDB © OpenStreetMap',
-        maxZoom: 19
-    }).addTo(map);
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
     // ============================================
-    // СОСТОЯНИЕ ПОГОДЫ
+    // СОСТОЯНИЕ
     // ============================================
     let weatherState = {
         rainIntensity: 0,
-        precipType: 'rain',
-        tornadoCount: 0,
-        tornadoPower: 3,
+        phenomenonType: 'rain',
+        power: 3,
         windSpeed: 0,
         temperature: 15,
-        isPrecipActive: false,
-        isSnowActive: false
+        isPrecipActive: false
     };
 
-    let tornadoMarkers = [];
-    let precipitationOverlays = [];
+    let markers = [];
     let ws = null;
-    let myClientId = null;
     let isAdmin = false;
-    let reconnectAttempts = 0;
+    let clickMode = false;
 
     // ============================================
     // WEBSOCKET
     // ============================================
     function connect() {
-        console.log('🔌 Подключение к:', SERVER_URL);
         ws = new WebSocket(SERVER_URL);
 
         ws.onopen = () => {
             console.log('✅ Подключено');
-            reconnectAttempts = 0;
-            updateConnectionStatus(true);
             ws.send(JSON.stringify({ type: 'get_state' }));
         };
 
         ws.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data);
-                handleServerMessage(message);
-            } catch (e) { console.error('Ошибка:', e); }
+                if (message.type === 'init' || message.type === 'state' || message.type === 'weather_update') {
+                    weatherState = message.state;
+                    updateWeatherDisplay();
+                }
+            } catch (e) { console.error(e); }
         };
 
-        ws.onclose = () => {
-            console.log('❌ Отключено, переподключение...');
-            updateConnectionStatus(false);
-            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-            reconnectAttempts++;
-            setTimeout(connect, delay);
-        };
-
-        ws.onerror = (error) => console.error('WebSocket ошибка:', error);
-    }
-
-    function handleServerMessage(message) {
-        switch (message.type) {
-            case 'init':
-                myClientId = message.clientId;
-                weatherState = message.state;
-                updateWeatherDisplay();
-                applyWeatherState();
-                break;
-            case 'state':
-            case 'weather_update':
-                weatherState = message.state;
-                updateWeatherDisplay();
-                applyWeatherState();
-                break;
-            case 'admin_changed':
-                console.log('👑 Смена админа');
-                break;
-            case 'error':
-                showNotification('❌ ' + message.message);
-                break;
-        }
+        ws.onclose = () => setTimeout(connect, 5000);
+        ws.onerror = (e) => console.error(e);
     }
 
     function sendWeatherUpdate() {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            showNotification('❌ Нет соединения');
-            return;
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
         }
-        ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
     }
 
     // ============================================
-    // АДМИН-ПАНЕЛЬ
+    // АДМИНКА
     // ============================================
     document.addEventListener('keydown', (e) => {
-        if (e.altKey && e.code === 'KeyU') {
-            e.preventDefault();
-            openAdmin();
-        }
+        if (e.altKey && e.code === 'KeyU') { e.preventDefault(); openAdmin(); }
         if (e.code === 'Escape') closeAdmin();
     });
 
@@ -275,18 +249,16 @@
         document.getElementById('adminPanel').classList.add('active');
         document.getElementById('overlay').classList.add('active');
         isAdmin = true;
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'admin_login' }));
-        }
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'admin_login' }));
     }
 
     function closeAdmin() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        if (isAdmin && ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'admin_logout' }));
-        }
+        if (isAdmin && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'admin_logout' }));
         isAdmin = false;
+        clickMode = false;
+        map.getCanvas().style.cursor = '';
     }
 
     function updateRainIntensity(value) {
@@ -295,15 +267,10 @@
         weatherState.isPrecipActive = parseInt(value) > 0;
         sendWeatherUpdate();
     }
-    function updatePrecipType(value) { weatherState.precipType = value; sendWeatherUpdate(); }
-    function updateTornadoCount(value) {
-        document.getElementById('tornadoCountLabel').textContent = value;
-        weatherState.tornadoCount = parseInt(value);
-        sendWeatherUpdate();
-    }
-    function updateTornadoPower(value) {
-        document.getElementById('tornadoPowerLabel').textContent = value;
-        weatherState.tornadoPower = parseInt(value);
+    function updatePhenomenonType(value) { weatherState.phenomenonType = value; sendWeatherUpdate(); }
+    function updatePower(value) {
+        document.getElementById('powerLabel').textContent = value;
+        weatherState.power = parseInt(value);
         sendWeatherUpdate();
     }
     function updateWindSpeed(value) {
@@ -317,98 +284,87 @@
         sendWeatherUpdate();
     }
 
-    function applyWeather() {
-        clearWeatherEffects();
-        updateWeatherDisplay();
-        if (weatherState.tornadoCount > 0) createTornadoes();
-        if (weatherState.isPrecipActive && weatherState.rainIntensity > 0) createPrecipitation();
+    // ============================================
+    // ВЫБОР МЕСТА НА КАРТЕ
+    // ============================================
+    function enableClickMode() {
+        clickMode = true;
+        map.getCanvas().style.cursor = 'crosshair';
+        console.log('📍 Режим выбора места активирован');
+    }
+
+    map.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+
+        if (clickMode) {
+            document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            addMarker(lat, lng, weatherState.phenomenonType);
+            clickMode = false;
+            map.getCanvas().style.cursor = '';
+            return;
+        }
+    });
+
+    function sendPhenomenonToCoords() {
+        const coordsStr = document.getElementById('coordsInput').value;
+        if (!coordsStr) { alert('Сначала выбери место'); return; }
+        const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
+        addMarker(lat, lng, weatherState.phenomenonType);
         sendWeatherUpdate();
-        showNotification('Погода применена!');
+        alert(`🌪️ ${weatherState.phenomenonType} отправлен в ${lat}, ${lng}`);
+    }
+
+    // ============================================
+    // МАРКЕРЫ
+    // ============================================
+    function addMarker(lat, lng, type) {
+        const el = document.createElement('div');
+        el.className = 'custom-marker';
+
+        const icons = {
+            rain: '🌧️', snow: '❄️', storm: '⛈️',
+            hurricane: '🌀', tornado: '🌪️', whirlwind: '💨'
+        };
+
+        el.textContent = icons[type] || '🌪️';
+        el.style.fontSize = `${20 + weatherState.power * 4}px`;
+
+        const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([lng, lat])
+            .addTo(map);
+
+        markers.push(marker);
+    }
+
+    function clearMarkers() {
+        markers.forEach(m => m.remove());
+        markers = [];
+    }
+
+    function applyWeather() {
+        clearMarkers();
+        updateWeatherDisplay();
+        sendWeatherUpdate();
+        alert('Погода применена!');
     }
 
     function resetWeather() {
-        weatherState = { rainIntensity: 0, precipType: 'rain', tornadoCount: 0, tornadoPower: 3, windSpeed: 0, temperature: 15, isPrecipActive: false, isSnowActive: false };
+        weatherState = {
+            rainIntensity: 0, phenomenonType: 'rain', power: 3,
+            windSpeed: 0, temperature: 15, isPrecipActive: false
+        };
         document.getElementById('rainIntensity').value = 0;
         document.getElementById('rainIntensityLabel').textContent = '0';
-        document.getElementById('tornadoCount').value = 0;
-        document.getElementById('tornadoCountLabel').textContent = '0';
+        document.getElementById('power').value = 3;
+        document.getElementById('powerLabel').textContent = '3';
         document.getElementById('windSpeed').value = 0;
         document.getElementById('windSpeedLabel').textContent = '0';
         document.getElementById('temperature').value = 15;
         document.getElementById('tempLabel').textContent = '15';
-        clearWeatherEffects();
+        document.getElementById('coordsInput').value = '';
+        clearMarkers();
         updateWeatherDisplay();
         sendWeatherUpdate();
-        showNotification('Сброшено');
-    }
-
-    function clearWeatherEffects() {
-        tornadoMarkers.forEach(m => map.removeLayer(m));
-        tornadoMarkers = [];
-        precipitationOverlays.forEach(o => map.removeLayer(o));
-        precipitationOverlays = [];
-    }
-
-    function applyWeatherState() {
-        clearWeatherEffects();
-        if (weatherState.tornadoCount > 0) createTornadoes();
-        if (weatherState.isPrecipActive && weatherState.rainIntensity > 0) createPrecipitation();
-    }
-
-    // ============================================
-    // ТОРНАДО
-    // ============================================
-    function createTornadoes() {
-        const center = map.getCenter();
-        for (let i = 0; i < weatherState.tornadoCount; i++) {
-            const lat = center.lat + (Math.random() - 0.5) * 4;
-            const lng = center.lng + (Math.random() - 0.5) * 6;
-            const tornadoIcon = L.divIcon({
-                className: 'tornado-overlay',
-                html: `<div class="tornado-icon" style="font-size: ${20 + weatherState.tornadoPower * 4}px;">🌪️</div>`,
-                iconSize: [50, 50], iconAnchor: [25, 25]
-            });
-            const marker = L.marker([lat, lng], { icon: tornadoIcon, interactive: false }).addTo(map);
-            animateTornado(marker);
-            tornadoMarkers.push(marker);
-        }
-    }
-
-    function animateTornado(marker) {
-        let angle = Math.random() * Math.PI * 2;
-        const speed = 0.0001 * weatherState.tornadoPower;
-        const interval = setInterval(() => {
-            if (!map.hasLayer(marker)) { clearInterval(interval); return; }
-            const pos = marker.getLatLng();
-            angle += (Math.random() - 0.5) * 0.1;
-            marker.setLatLng([pos.lat + Math.sin(angle) * speed, pos.lng + Math.cos(angle) * speed]);
-        }, 100);
-    }
-
-    // ============================================
-    // ОСАДКИ
-    // ============================================
-    function createPrecipitation() {
-        const center = map.getCenter();
-        const count = Math.floor(weatherState.rainIntensity / 10) + 1;
-        for (let i = 0; i < count; i++) {
-            const lat = center.lat + (Math.random() - 0.5) * 5;
-            const lng = center.lng + (Math.random() - 0.5) * 8;
-            const size = 50000 + Math.random() * 100000;
-            let color;
-            switch(weatherState.precipType) {
-                case 'snow': color = 'rgba(255,255,255,0.6)'; break;
-                case 'sleet': color = 'rgba(200,220,255,0.5)'; break;
-                case 'hail': color = 'rgba(150,200,255,0.5)'; break;
-                default: color = 'rgba(100,150,255,0.4)';
-            }
-            const opacity = 0.3 + weatherState.rainIntensity / 200;
-            const circle = L.circle([lat, lng], {
-                radius: size, color: 'transparent',
-                fillColor: color, fillOpacity: opacity, interactive: false
-            }).addTo(map);
-            precipitationOverlays.push(circle);
-        }
     }
 
     // ============================================
@@ -417,50 +373,22 @@
     function updateWeatherDisplay() {
         document.getElementById('precipValue').textContent = weatherState.isPrecipActive ? weatherState.rainIntensity + '%' : '0%';
         document.getElementById('windValue').textContent = weatherState.windSpeed + ' м/с';
-        document.getElementById('tornadoValue').textContent = weatherState.tornadoCount > 0 ? weatherState.tornadoCount + ' шт' : 'Нет';
+        document.getElementById('phenomenonValue').textContent = weatherState.phenomenonType || 'Нет';
         document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
-    }
-
-    function updateConnectionStatus(online) {
-        const status = document.querySelector('.connection-status');
-        const dot = status.querySelector('.status-dot');
-        const text = status.querySelector('span');
-        if (online) { dot.style.background = '#4ade80'; text.textContent = 'Синхронизация активна'; }
-        else { dot.style.background = '#ff6b6b'; text.textContent = 'Переподключение...'; }
-    }
-
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.style.cssText = `position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6eb5ff,#4a90d9);color:white;padding:15px 30px;border-radius:10px;font-weight:bold;z-index:3000;box-shadow:0 10px 30px rgba(0,0,0,0.3);`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2000);
-    }
-
-    function togglePrecipitation() {
-        weatherState.isPrecipActive = !weatherState.isPrecipActive;
-        if (weatherState.isPrecipActive && weatherState.rainIntensity === 0) weatherState.rainIntensity = 50;
-        sendWeatherUpdate();
-    }
-
-    function toggleSnow() {
-        weatherState.isSnowActive = !weatherState.isSnowActive;
-        if (weatherState.isSnowActive) {
-            weatherState.precipType = 'snow';
-            weatherState.isPrecipActive = true;
-            if (weatherState.rainIntensity === 0) weatherState.rainIntensity = 50;
-        } else { weatherState.precipType = 'rain'; }
-        sendWeatherUpdate();
     }
 
     // ============================================
     // ЗАПУСК
     // ============================================
-    connect();
-    updateWeatherDisplay();
-    setInterval(() => { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' })); }, 30000);
-    console.log('🌦️ Метео-карта загружена');
-    console.log('⌨️ Alt + U — админ-панель');
+    map.on('load', () => {
+        console.log('🗺️ Карта OpenFreeMap Liberty загружена');
+        connect();
+        updateWeatherDisplay();
+    });
+
+    setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' }));
+    }, 30000);
 </script>
 
 </body>
