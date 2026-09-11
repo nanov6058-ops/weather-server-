@@ -92,7 +92,7 @@
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
 
-        /* АДМИНКА (ПОЛНАЯ) */
+        /* АДМИНКА */
         .admin-panel {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -199,7 +199,7 @@
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-<!-- ПОЛНАЯ АДМИНКА -->
+<!-- АДМИНКА -->
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
 
@@ -207,11 +207,11 @@
         <h3>🌧️ Осадки</h3>
         <div class="admin-control">
             <label>Интенсивность: <span id="rainIntensityLabel">0</span>%</label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="updateRainIntensity(this.value)">
+            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="document.getElementById('rainIntensityLabel').textContent=this.value">
         </div>
         <div class="admin-control">
             <label>Тип явления:</label>
-            <select id="phenomenonType" onchange="updatePhenomenonType(this.value)">
+            <select id="phenomenonType">
                 <option value="rain">Дождь</option>
                 <option value="snow">Снег</option>
                 <option value="storm">Гроза</option>
@@ -261,6 +261,7 @@
     </div>
 </div>
 
+<!-- ВХОД -->
 <div class="auth-modal" id="authModal">
     <h2 id="authTitle">Вход</h2>
     <input type="text" id="authLogin" placeholder="Логин">
@@ -273,29 +274,30 @@
 
 <script>
     // ============================================
-    // КАРТА (OpenStreetMap + CSS-фильтр для тёмной темы)
+    // КАРТА (CARTO Voyager — работает стабильно)
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
         style: {
             version: 8,
             sources: {
-                'osm': {
+                'carto': {
                     type: 'raster',
-                    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tiles: ['https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'],
                     tileSize: 256,
-                    maxzoom: 19
+                    maxzoom: 19,
+                    attribution: '© CARTO © OpenStreetMap'
                 }
             },
             layers: [
                 {
-                    id: 'osm-layer',
+                    id: 'carto-layer',
                     type: 'raster',
-                    source: 'osm',
+                    source: 'carto',
                     paint: {
-                        'raster-brightness-min': 0.1,
+                        'raster-brightness-min': 0.05,
                         'raster-brightness-max': 0.7,
-                        'raster-saturation': -0.6,
+                        'raster-saturation': -0.7,
                         'raster-contrast': 0.3
                     }
                 }
@@ -513,8 +515,6 @@
     // ============================================
     // АДМИНКА
     // ============================================
-    function updateRainIntensity(v) { document.getElementById('rainIntensityLabel').textContent = v; }
-    function updatePhenomenonType(v) { console.log('Тип:', v); }
     function applyWeather() { alert('Погода применена!'); }
     function resetWeather() {
         document.getElementById('rainIntensity').value = 0;
@@ -608,7 +608,7 @@
     // ЗАПУСК
     // ============================================
     map.on('load', () => {
-        console.log('🗺️ Карта загружена');
+        console.log('🗺️ Карта CARTO загружена');
         autoDetectLocation();
     });
 </script>
