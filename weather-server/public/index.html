@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сахалин — Карта и Камеры</title>
+    <title>Метео-Карта Мир</title>
 
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
 
@@ -19,12 +19,22 @@
             border: 1px solid rgba(100, 150, 255, 0.3);
             backdrop-filter: blur(6px);
         }
-        .panel-top-left { top: 20px; left: 20px; max-width: 300px; }
+        .panel-top-left { top: 20px; left: 20px; max-width: 320px; }
+        .panel-top-right { top: 20px; right: 20px; max-width: 220px; }
 
         .panel h2 { margin-bottom: 15px; font-size: 18px; color: #6eb5ff; }
         .weather-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .weather-item:last-child { border-bottom: none; }
         .weather-value { color: #6eb5ff; font-weight: bold; }
+
+        .map-switcher { display: flex; flex-direction: column; gap: 8px; }
+        .map-btn {
+            padding: 10px 14px; border: 1px solid #444; border-radius: 8px;
+            background: #1a1a3e; color: #fff; font-size: 13px; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; text-align: left;
+        }
+        .map-btn:hover { background: #2a2a5e; border-color: #6eb5ff; }
+        .map-btn.active { background: #6eb5ff; color: #000; border-color: #6eb5ff; }
 
         .admin-panel {
             position: fixed; top: 50%; left: 50%;
@@ -82,23 +92,14 @@
             cursor: pointer;
         }
 
-        /* Попап с камерой */
-        .cam-popup {
-            font-family: Arial, sans-serif;
-            color: #000;
-            padding: 5px;
-        }
+        .cam-popup { font-family: Arial, sans-serif; color: #000; padding: 5px; }
         .cam-popup h4 { margin: 0 0 10px 0; color: #333; }
         .cam-popup p { margin: 0 0 10px 0; font-size: 13px; color: #666; }
+        .cam-popup img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
         .cam-popup a {
-            display: inline-block;
-            background: #6eb5ff;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
+            display: inline-block; background: #6eb5ff; color: #fff;
+            padding: 8px 16px; border-radius: 8px; text-decoration: none;
+            font-weight: bold; font-size: 14px;
         }
     </style>
 </head>
@@ -107,11 +108,20 @@
 <div id="map"></div>
 
 <div class="panel panel-top-left">
-    <h2>🌦️ Погода</h2>
-    <div class="weather-item"><span>Осадки:</span><span class="weather-value" id="precipValue">0%</span></div>
-    <div class="weather-item"><span>Ветер:</span><span class="weather-value" id="windValue">0 м/с</span></div>
-    <div class="weather-item"><span>Явление:</span><span class="weather-value" id="phenomenonValue">Нет</span></div>
-    <div class="weather-item"><span>Температура:</span><span class="weather-value" id="tempValue">15°C</span></div>
+    <h2>🌦️ Погода (Мир)</h2>
+    <div class="weather-item"><span>Температура:</span><span class="weather-value" id="tempValue">--°C</span></div>
+    <div class="weather-item"><span>Ветер:</span><span class="weather-value" id="windValue">-- м/с</span></div>
+    <div class="weather-item"><span>Осадки:</span><span class="weather-value" id="precipValue">-- мм</span></div>
+</div>
+
+<div class="panel panel-top-right">
+    <h2>🗺️ Слои</h2>
+    <div class="map-switcher">
+        <button class="map-btn active" onclick="switchBaseMap('streets', this)">🛣️ Улицы</button>
+        <button class="map-btn" onclick="switchBaseMap('satellite', this)">🛰️ Спутник</button>
+        <button class="map-btn" onclick="toggleRadar(this)">🌧️ Осадки</button>
+        <button class="map-btn" onclick="toggleCameras(this)">📷 Камеры</button>
+    </div>
 </div>
 
 <div class="connection-status">
@@ -125,61 +135,18 @@
 
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
-
-    <div class="admin-section">
-        <h3>🌧️ Осадки</h3>
-        <div class="admin-control">
-            <label>Интенсивность: <span id="rainIntensityLabel">0</span>%</label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="updateRainIntensity(this.value)">
-        </div>
-        <div class="admin-control">
-            <label>Тип явления:</label>
-            <select id="phenomenonType" onchange="updatePhenomenonType(this.value)">
-                <option value="rain">Дождь</option>
-                <option value="snow">Снег</option>
-                <option value="storm">Гроза</option>
-                <option value="hurricane">Ураган</option>
-                <option value="tornado">Торнадо</option>
-                <option value="whirlwind">Вихрь</option>
-            </select>
-        </div>
-    </div>
-
     <div class="admin-section">
         <h3>🌪️ Отправка явления</h3>
         <div class="admin-control">
             <label>Координаты (ш, д):</label>
             <input type="text" id="coordsInput" placeholder="55.7558, 37.6173" readonly>
         </div>
-        <div class="admin-control">
-            <label>Сила: <span id="powerLabel">3</span></label>
-            <input type="range" id="power" min="1" max="10" value="3" oninput="updatePower(this.value)">
-        </div>
         <div class="btn-group">
             <button class="btn btn-primary" onclick="enableClickMode()">📍 Выбрать на карте</button>
             <button class="btn btn-warn" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
         </div>
     </div>
-
-    <div class="admin-section">
-        <h3>💨 Ветер</h3>
-        <div class="admin-control">
-            <label>Скорость: <span id="windSpeedLabel">0</span> м/с</label>
-            <input type="range" id="windSpeed" min="0" max="50" value="0" oninput="updateWindSpeed(this.value)">
-        </div>
-    </div>
-
-    <div class="admin-section">
-        <h3>🌡️ Температура</h3>
-        <div class="admin-control">
-            <label>Значение: <span id="tempLabel">15</span>°C</label>
-            <input type="range" id="temperature" min="-50" max="50" value="15" oninput="updateTemperature(this.value)">
-        </div>
-    </div>
-
     <div class="btn-group">
-        <button class="btn btn-primary" onclick="applyWeather()">✅ Применить</button>
-        <button class="btn btn-danger" onclick="resetWeather()">🔄 Сбросить</button>
         <button class="btn btn-danger" onclick="closeAdmin()">❌ Закрыть</button>
     </div>
 </div>
@@ -191,15 +158,16 @@
     // НАСТРОЙКИ
     // ============================================
     const SERVER_URL = 'wss://weather-server.relaxdev.ru';
+    const WINDY_API_KEY = '3fU5uP184ZjSS8KhE1xQx9QHrutoaKtR'; // Твой ключ Windy
 
     // ============================================
-    // КАРТА MAPLIBRE (OpenFreeMap Liberty)
+    // КАРТА
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
         style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [142.738, 46.959], // Центр Сахалина (Южно-Сахалинск)
-        zoom: 7,
+        center: [37.6173, 55.7558],
+        zoom: 3,
         maxZoom: 22,
         pitch: 0,
         bearing: 0
@@ -207,53 +175,11 @@
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
-    // ============================================
-    // СОСТОЯНИЕ
-    // ============================================
-    let weatherState = {
-        rainIntensity: 0,
-        phenomenonType: 'rain',
-        power: 3,
-        windSpeed: 0,
-        temperature: 15,
-        isPrecipActive: false
-    };
-
-    let markers = [];
-    let ws = null;
+    let currentBaseType = 'streets';
+    let radarActive = false;
+    let camerasActive = false;
     let isAdmin = false;
     let clickMode = false;
-
-    // ============================================
-    // WEBSOCKET
-    // ============================================
-    function connect() {
-        ws = new WebSocket(SERVER_URL);
-
-        ws.onopen = () => {
-            console.log('✅ Подключено');
-            ws.send(JSON.stringify({ type: 'get_state' }));
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
-                if (message.type === 'init' || message.type === 'state' || message.type === 'weather_update') {
-                    weatherState = message.state;
-                    updateWeatherDisplay();
-                }
-            } catch (e) { console.error(e); }
-        };
-
-        ws.onclose = () => setTimeout(connect, 5000);
-        ws.onerror = (e) => console.error(e);
-    }
-
-    function sendWeatherUpdate() {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
-        }
-    }
 
     // ============================================
     // АДМИНКА
@@ -267,263 +193,179 @@
         document.getElementById('adminPanel').classList.add('active');
         document.getElementById('overlay').classList.add('active');
         isAdmin = true;
-        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'admin_login' }));
     }
-
     function closeAdmin() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        if (isAdmin && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'admin_logout' }));
-        isAdmin = false;
-        clickMode = false;
-        map.getCanvas().style.cursor = '';
+        isAdmin = false; clickMode = false; map.getCanvas().style.cursor = '';
     }
 
-    function updateRainIntensity(value) {
-        document.getElementById('rainIntensityLabel').textContent = value;
-        weatherState.rainIntensity = parseInt(value);
-        weatherState.isPrecipActive = parseInt(value) > 0;
-        sendWeatherUpdate();
-    }
-    function updatePhenomenonType(value) { weatherState.phenomenonType = value; sendWeatherUpdate(); }
-    function updatePower(value) {
-        document.getElementById('powerLabel').textContent = value;
-        weatherState.power = parseInt(value);
-        sendWeatherUpdate();
-    }
-    function updateWindSpeed(value) {
-        document.getElementById('windSpeedLabel').textContent = value;
-        weatherState.windSpeed = parseInt(value);
-        sendWeatherUpdate();
-    }
-    function updateTemperature(value) {
-        document.getElementById('tempLabel').textContent = value;
-        weatherState.temperature = parseInt(value);
-        sendWeatherUpdate();
+    function enableClickMode() { clickMode = true; map.getCanvas().style.cursor = 'crosshair'; }
+
+    map.on('click', (e) => {
+        if (!clickMode) return;
+        const { lng, lat } = e.lngLat;
+        document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        clickMode = false; map.getCanvas().style.cursor = '';
+    });
+
+    function sendPhenomenonToCoords() { alert('Отправлено (симуляция)'); }
+
+    // ============================================
+    // ПЕРЕКЛЮЧАТЕЛЬ БАЗОВЫХ КАРТ
+    // ============================================
+    function switchBaseMap(type, btn) {
+        if (currentBaseType === type) return;
+        currentBaseType = type;
+        if (map.getLayer('base-layer')) map.removeLayer('base-layer');
+        if (map.getSource('base-source')) map.removeSource('base-source');
+
+        if (type === 'satellite') {
+            map.addSource('base-source', {
+                type: 'raster',
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                tileSize: 256
+            });
+            map.addLayer({ id: 'base-layer', type: 'raster', source: 'base-source' });
+        }
+        document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     }
 
     // ============================================
-    // ВЫБОР МЕСТА НА КАРТЕ
+    // РАДАР ОСАДКОВ (RainViewer)
     // ============================================
-    function enableClickMode() {
-        clickMode = true;
-        map.getCanvas().style.cursor = 'crosshair';
-        console.log('📍 Режим выбора места активирован');
+    function toggleRadar(btn) {
+        radarActive = !radarActive;
+        if (radarActive) {
+            fetch('https://api.rainviewer.com/public/weather-maps.json')
+                .then(res => res.json())
+                .then(data => {
+                    const host = data.host;
+                    const latest = data.radar.past[data.radar.past.length - 1];
+                    map.addSource('radar-source', {
+                        type: 'raster',
+                        tiles: [`${host}${latest.path}/512/{z}/{x}/{y}/2/1_1.png`],
+                        tileSize: 512
+                    });
+                    map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.6 } });
+                    btn.classList.add('active');
+                });
+        } else {
+            if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
+            if (map.getSource('radar-source')) map.removeSource('radar-source');
+            btn.classList.remove('active');
+        }
+    }
+
+    // ============================================
+    // КАМЕРЫ ПО ВСЕМУ МИРУ (Windy API v3)
+    // ============================================
+    function toggleCameras(btn) {
+        camerasActive = !camerasActive;
+        if (camerasActive) {
+            loadWorldCameras();
+            btn.classList.add('active');
+        } else {
+            if (map.getLayer('world-cams')) map.removeLayer('world-cams');
+            if (map.getSource('world-cams')) map.removeSource('world-cams');
+            btn.classList.remove('active');
+        }
+    }
+
+    async function loadWorldCameras() {
+        const bounds = map.getBounds();
+        // API v3 для веб-камер
+        const url = `https://api.windy.com/webcams/api/v3/webcams?limit=100&bbox=${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}&include=location,images,urls&lang=ru`;
+
+        try {
+            const res = await fetch(url, {
+                headers: { 'x-windy-api-key': WINDY_API_KEY }
+            });
+
+            if (!res.ok) {
+                throw new Error(`Ошибка API: ${res.status}`);
+            }
+
+            const data = await res.json();
+            const features = data.webcams.map(cam => ({
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [cam.location.longitude, cam.location.latitude] },
+                properties: {
+                    id: cam.id,
+                    title: cam.title,
+                    preview: cam.images.current.preview,
+                    url: cam.urls.detail
+                }
+            }));
+
+            // Удаляем старый источник, если есть
+            if (map.getSource('world-cams')) {
+                map.getSource('world-cams').setData({ type: 'FeatureCollection', features });
+            } else {
+                map.addSource('world-cams', { type: 'geojson', data: { type: 'FeatureCollection', features } });
+                map.addLayer({
+                    id: 'world-cams',
+                    type: 'circle',
+                    source: 'world-cams',
+                    paint: {
+                        'circle-radius': 6,
+                        'circle-color': '#00d4ff',
+                        'circle-stroke-width': 2,
+                        'circle-stroke-color': '#fff'
+                    }
+                });
+
+                // Клик по камере
+                map.on('click', 'world-cams', (e) => {
+                    const coords = e.features[0].geometry.coordinates.slice();
+                    const props = e.features[0].properties;
+
+                    new maplibregl.Popup({ maxWidth: '320px' })
+                        .setLngLat(coords)
+                        .setHTML(`
+                            <div class="cam-popup">
+                                <h4>📷 ${props.title}</h4>
+                                <img src="${props.preview}" alt="preview">
+                                <a href="${props.url}" target="_blank">▶ Смотреть</a>
+                            </div>
+                        `)
+                        .addTo(map);
+                });
+
+                map.on('mouseenter', 'world-cams', () => { map.getCanvas().style.cursor = 'pointer'; });
+                map.on('mouseleave', 'world-cams', () => { map.getCanvas().style.cursor = ''; });
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки камер:', e);
+            alert('Не удалось загрузить камеры Windy. Возможно, API заблокирован или ключ неверный.');
+        }
+    }
+
+    // ============================================
+    // ПОГОДА (Open-Meteo — без ключа)
+    // ============================================
+    async function loadWeather(lat, lng) {
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+            const data = await res.json();
+            const w = data.current_weather;
+            document.getElementById('tempValue').textContent = `${w.temperature}°C`;
+            document.getElementById('windValue').textContent = `${w.windspeed} м/с`;
+            document.getElementById('precipValue').textContent = `${w.precipitation || 0} мм`;
+        } catch (e) {
+            console.error('Ошибка погоды:', e);
+        }
     }
 
     map.on('click', (e) => {
-        const { lng, lat } = e.lngLat;
-
-        if (clickMode) {
-            document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-            addMarker(lat, lng, weatherState.phenomenonType);
-            clickMode = false;
-            map.getCanvas().style.cursor = '';
-            return;
-        }
+        loadWeather(e.lngLat.lat, e.lngLat.lng);
     });
 
-    function sendPhenomenonToCoords() {
-        const coordsStr = document.getElementById('coordsInput').value;
-        if (!coordsStr) { alert('Сначала выбери место'); return; }
-        const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
-        addMarker(lat, lng, weatherState.phenomenonType);
-        sendWeatherUpdate();
-        alert(`🌪️ ${weatherState.phenomenonType} отправлен в ${lat}, ${lng}`);
-    }
-
-    // ============================================
-    // МАРКЕРЫ (явления)
-    // ============================================
-    function addMarker(lat, lng, type) {
-        const el = document.createElement('div');
-        el.className = 'custom-marker';
-
-        const icons = {
-            rain: '🌧️', snow: '❄️', storm: '⛈️',
-            hurricane: '🌀', tornado: '🌪️', whirlwind: '💨'
-        };
-
-        el.textContent = icons[type] || '🌪️';
-        el.style.fontSize = `${20 + weatherState.power * 4}px`;
-
-        const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([lng, lat])
-            .addTo(map);
-
-        markers.push(marker);
-    }
-
-    function clearMarkers() {
-        markers.forEach(m => m.remove());
-        markers = [];
-    }
-
-    function applyWeather() {
-        clearMarkers();
-        updateWeatherDisplay();
-        sendWeatherUpdate();
-        alert('Погода применена!');
-    }
-
-    function resetWeather() {
-        weatherState = {
-            rainIntensity: 0, phenomenonType: 'rain', power: 3,
-            windSpeed: 0, temperature: 15, isPrecipActive: false
-        };
-        document.getElementById('rainIntensity').value = 0;
-        document.getElementById('rainIntensityLabel').textContent = '0';
-        document.getElementById('power').value = 3;
-        document.getElementById('powerLabel').textContent = '3';
-        document.getElementById('windSpeed').value = 0;
-        document.getElementById('windSpeedLabel').textContent = '0';
-        document.getElementById('temperature').value = 15;
-        document.getElementById('tempLabel').textContent = '15';
-        document.getElementById('coordsInput').value = '';
-        clearMarkers();
-        updateWeatherDisplay();
-        sendWeatherUpdate();
-    }
-
-    // ============================================
-    // UI
-    // ============================================
-    function updateWeatherDisplay() {
-        document.getElementById('precipValue').textContent = weatherState.isPrecipActive ? weatherState.rainIntensity + '%' : '0%';
-        document.getElementById('windValue').textContent = weatherState.windSpeed + ' м/с';
-        document.getElementById('phenomenonValue').textContent = weatherState.phenomenonType || 'Нет';
-        document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
-    }
-
-    // ============================================
-    // ЗАПУСК + ДОБАВЛЕНИЕ КАМЕР
-    // ============================================
     map.on('load', () => {
         console.log('🗺️ Карта загружена');
-
-        // ============================================
-        // КАМЕРЫ САХАЛИНА (РАБОЧИЕ)
-        // ============================================
-        const sakhalinCameras = [
-            // Рабочие камеры (открываются в новой вкладке)
-            { name: 'Южно-Сахалинск (Парк Гагарина)', lat: 46.959, lng: 142.738, url: 'https://www.geocam.ru/in/yuzhno-sakhalinsk/', type: 'working' },
-            { name: 'Северо-Курильск', lat: 50.683, lng: 156.117, url: 'https://www.geocam.ru/online/severo-kurilsk/', type: 'working' },
-            { name: 'Оха', lat: 53.583, lng: 142.933, url: 'https://livescamera.com/ru-1/1369-oha.html', type: 'working' },
-            { name: 'Невельск', lat: 46.679, lng: 141.856, url: 'https://livescamera.com/ru-1/1269-nevelsk.html', type: 'working' },
-
-            // Города Сахалина (только погода, камер нет)
-            { name: 'Ноглики', lat: 51.816, lng: 143.133, url: 'https://yandex.ru/pogoda/nogliki', type: 'weather' },
-            { name: 'Александровск-Сахалинский', lat: 50.921, lng: 142.155, url: 'https://yandex.ru/pogoda/aleksandrovsk-sakhalinskiy', type: 'weather' },
-            { name: 'Углегорск', lat: 49.083, lng: 142.050, url: 'https://yandex.ru/pogoda/uglegorsk', type: 'weather' },
-            { name: 'Холмск', lat: 47.050, lng: 142.050, url: 'https://yandex.ru/pogoda/kholmsk', type: 'weather' },
-            { name: 'Корсаков', lat: 46.633, lng: 142.767, url: 'https://yandex.ru/pogoda/korsakov', type: 'weather' },
-            { name: 'Долинск', lat: 47.317, lng: 142.800, url: 'https://yandex.ru/pogoda/dolinsk', type: 'weather' },
-            { name: 'Томари', lat: 47.767, lng: 142.067, url: 'https://yandex.ru/pogoda/tomari', type: 'weather' },
-            { name: 'Анива', lat: 46.717, lng: 142.517, url: 'https://yandex.ru/pogoda/aniva', type: 'weather' },
-            { name: 'Поронайск', lat: 49.217, lng: 143.100, url: 'https://yandex.ru/pogoda/poronaysk', type: 'weather' },
-            { name: 'Макаров', lat: 48.617, lng: 142.783, url: 'https://yandex.ru/pogoda/makarov', type: 'weather' },
-            { name: 'Тымовское', lat: 50.850, lng: 142.650, url: 'https://yandex.ru/pogoda/tymovskoye', type: 'weather' },
-            { name: 'Смирных', lat: 49.750, lng: 142.833, url: 'https://yandex.ru/pogoda/smirnykh', type: 'weather' },
-            { name: 'Курильск', lat: 45.233, lng: 147.883, url: 'https://yandex.ru/pogoda/kurilsk', type: 'weather' },
-            { name: 'Южно-Курильск', lat: 44.033, lng: 145.850, url: 'https://yandex.ru/pogoda/yuzhno-kurilsk', type: 'weather' },
-            { name: 'Шахтерск', lat: 49.150, lng: 142.100, url: 'https://yandex.ru/pogoda/shakhtersk', type: 'weather' }
-        ];
-
-        // Создаём источник для камер
-        map.addSource('sakhalin-cams', {
-            type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: sakhalinCameras.map(cam => ({
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: [cam.lng, cam.lat] },
-                    properties: { name: cam.name, url: cam.url, type: cam.type }
-                }))
-            }
-        });
-
-        // Слой с маркерами камер (красные точки для рабочих)
-        map.addLayer({
-            id: 'sakhalin-cams-working',
-            type: 'circle',
-            source: 'sakhalin-cams',
-            filter: ['==', ['get', 'type'], 'working'],
-            paint: {
-                'circle-radius': 12,
-                'circle-color': '#ff6b6b',
-                'circle-stroke-width': 3,
-                'circle-stroke-color': '#fff',
-                'circle-opacity': 0.9
-            }
-        });
-
-        // Слой с маркерами городов (жёлтые точки)
-        map.addLayer({
-            id: 'sakhalin-cams-weather',
-            type: 'circle',
-            source: 'sakhalin-cams',
-            filter: ['==', ['get', 'type'], 'weather'],
-            paint: {
-                'circle-radius': 8,
-                'circle-color': '#ffb84d',
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#fff',
-                'circle-opacity': 0.8
-            }
-        });
-
-        // Попап при клике
-        const camPopup = new maplibregl.Popup({
-            closeButton: true,
-            closeOnClick: false,
-            maxWidth: '320px'
-        });
-
-        map.on('click', 'sakhalin-cams-working', (e) => {
-            const coords = e.features[0].geometry.coordinates.slice();
-            const props = e.features[0].properties;
-
-            camPopup
-                .setLngLat(coords)
-                .setHTML(`
-                    <div class="cam-popup">
-                        <h4>📷 ${props.name}</h4>
-                        <p>Нажми, чтобы открыть трансляцию</p>
-                        <a href="${props.url}" target="_blank">▶ Смотреть камеру</a>
-                    </div>
-                `)
-                .addTo(map);
-        });
-
-        map.on('click', 'sakhalin-cams-weather', (e) => {
-            const coords = e.features[0].geometry.coordinates.slice();
-            const props = e.features[0].properties;
-
-            camPopup
-                .setLngLat(coords)
-                .setHTML(`
-                    <div class="cam-popup">
-                        <h4>📍 ${props.name}</h4>
-                        <p>Публичных камер нет. Только погода.</p>
-                        <a href="${props.url}" target="_blank">🌤 Посмотреть погоду</a>
-                    </div>
-                `)
-                .addTo(map);
-        });
-
-        // Курсор
-        map.on('mouseenter', 'sakhalin-cams-working', () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', 'sakhalin-cams-working', () => { map.getCanvas().style.cursor = ''; });
-        map.on('mouseenter', 'sakhalin-cams-weather', () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', 'sakhalin-cams-weather', () => { map.getCanvas().style.cursor = ''; });
-
-        connect();
-        updateWeatherDisplay();
+        loadWeather(55.7558, 37.6173); // Москва по умолчанию
     });
-
-    setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' }));
-    }, 30000);
 </script>
 
 </body>
