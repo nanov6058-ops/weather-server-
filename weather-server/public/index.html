@@ -8,12 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; overflow: hidden; }
-        #map { width: 100vw; height: 100vh; background: #1a1a2e; }
-
-        /* Тёмная тема для карты через CSS-фильтр */
-        .dark-tiles {
-            filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
-        }
+        #map { width: 100vw; height: 100vh; background: #0a0a1a; }
 
         .top-bar {
             position: fixed; top: 15px; left: 15px; right: 15px;
@@ -62,7 +57,6 @@
             box-shadow: 0 4px 30px rgba(0,0,0,0.6);
             border: 1px solid rgba(100,150,255,0.2);
             display: flex; flex-direction: column; gap: 6px;
-            max-height: calc(100vh - 100px); overflow-y: auto;
         }
         .layer-item {
             display: flex; flex-direction: column; align-items: center;
@@ -158,7 +152,6 @@
 
         .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
 
-        /* Индикатор режима выбора */
         .click-mode-indicator {
             position: fixed; top: 15px; left: 50%;
             transform: translateX(-50%);
@@ -167,13 +160,8 @@
             font-weight: bold; font-size: 14px; z-index: 4000;
             box-shadow: 0 4px 20px rgba(255,184,77,0.5);
             display: none;
-            animation: pulseYellow 1.5s infinite;
         }
         .click-mode-indicator.active { display: block; }
-        @keyframes pulseYellow {
-            0%,100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-        }
     </style>
 </head>
 <body>
@@ -244,7 +232,7 @@
         <h3>🌪️ Отправка явления</h3>
         <div class="admin-control">
             <label>Координаты (ш, д):</label>
-            <input type="text" id="coordsInput" placeholder="Нажми 'Выбрать на карте' → кликни по карте" readonly>
+            <input type="text" id="coordsInput" placeholder="Нажми 'Выбрать на карте'" readonly>
         </div>
         <div class="admin-control">
             <label>Сила: <span id="powerLabel">3</span></label>
@@ -291,38 +279,14 @@
 
 <script>
     // ============================================
-    // КАРТА (Stadia Maps Stamen Toner — без API-ключа, тёмная)
+    // СОВРЕМЕННАЯ КАРТА — OpenFreeMap Liberty (3D-здания, без ключей)
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
-        style: {
-            version: 8,
-            sources: {
-                'stadia': {
-                    type: 'raster',
-                    tiles: ['https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png'],
-                    tileSize: 256,
-                    maxzoom: 20,
-                    attribution: '© Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap'
-                }
-            },
-            layers: [
-                {
-                    id: 'stadia-layer',
-                    type: 'raster',
-                    source: 'stadia',
-                    paint: {
-                        'raster-brightness-min': 0.15,
-                        'raster-brightness-max': 0.75,
-                        'raster-saturation': -0.3,
-                        'raster-contrast': 0.4
-                    }
-                }
-            ]
-        },
-        center: [142.738, 46.959],
-        zoom: 7,
-        maxZoom: 20,
+        style: 'https://tiles.openfreemap.org/styles/liberty', // Современный векторный стиль
+        center: [142.738, 46.959], // Сахалин
+        zoom: 6,
+        maxZoom: 22,
         pitch: 0,
         bearing: 0
     });
@@ -417,8 +381,18 @@
     });
 
     // ============================================
-    // ЗАКРЫТИЕ
+    // АДМИНКА — ALT+U
     // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.altKey && e.code === 'KeyU') {
+            e.preventDefault();
+            console.log('🎛️ Открываю админку');
+            document.getElementById('adminPanel').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+        if (e.code === 'Escape') closeAll();
+    });
+
     function closeAll() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
@@ -427,11 +401,10 @@
         map.getCanvas().style.cursor = '';
         document.getElementById('clickIndicator').classList.remove('active');
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-        document.getElementById('pickBtn').classList.remove('active');
     }
 
     // ============================================
-    // ПОИСК ГОРОДА
+    // ПОИСК
     // ============================================
     function searchCity() {
         const query = document.getElementById('citySearch').value.trim();
@@ -496,33 +469,24 @@
     }
 
     // ============================================
-    // КЛИК ПО КАРТЕ (ИСПРАВЛЕНО)
+    // КЛИК ПО КАРТЕ
     // ============================================
     map.on('click', (e) => {
-        // ВАЖНО: сначала проверяем режим выбора места
         if (clickMode) {
             const { lng, lat } = e.lngLat;
             document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-
-            // Создаём маркер
             const el = document.createElement('div');
             el.className = 'custom-marker';
             el.textContent = '📍';
             const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
             markers.push(marker);
-
-            // Выключаем режим
             clickMode = false;
             map.getCanvas().style.cursor = '';
             document.getElementById('clickIndicator').classList.remove('active');
             document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-            document.getElementById('pickBtn').style.background = '';
-
             console.log('✅ Место выбрано:', lat, lng);
-            return; // ВАЖНО: не грузим погоду в этом режиме
+            return;
         }
-
-        // Обычный клик — загрузка погоды
         loadWeather(e.lngLat.lat, e.lngLat.lng);
         getLocationName(e.lngLat.lat, e.lngLat.lng);
     });
@@ -532,16 +496,12 @@
         map.getCanvas().style.cursor = 'crosshair';
         document.getElementById('clickIndicator').classList.add('active');
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
-        document.getElementById('pickBtn').style.background = 'linear-gradient(135deg, #ffb84d, #d98a2a)';
-        console.log('📍 Режим выбора места активирован');
     }
 
     function sendPhenomenonToCoords() {
         const coordsStr = document.getElementById('coordsInput').value;
         if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
-
-        // Добавляем маркер явления
         const el = document.createElement('div');
         el.className = 'custom-marker';
         const type = document.getElementById('phenomenonType').value;
@@ -549,7 +509,6 @@
         el.textContent = icons[type] || '🌪️';
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
-
         alert(`✅ ${type} отправлен в ${lat}, ${lng}`);
     }
 
@@ -620,4 +579,27 @@
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const lat = position.coords.latitude;
-                const lng = position.co
+                const lng = position.coords.longitude;
+                map.flyTo({ center: [lng, lat], zoom: 10 });
+                loadWeather(lat, lng);
+                getLocationName(lat, lng);
+            },
+            () => {
+                loadWeather(46.959, 142.738);
+                getLocationName(46.959, 142.738);
+            },
+            { timeout: 5000 }
+        );
+    }
+
+    // ============================================
+    // ЗАПУСК
+    // ============================================
+    map.on('load', () => {
+        console.log('🗺️ Карта OpenFreeMap Liberty загружена');
+        autoDetectLocation();
+    });
+</script>
+
+</body>
+</html>
