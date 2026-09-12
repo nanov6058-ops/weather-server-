@@ -196,6 +196,17 @@
         .status-dot.offline { background: #ff6b6b; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        .radar-time {
+            position: fixed; bottom: 50px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 15, 30, 0.95);
+            padding: 6px 16px; border-radius: 20px;
+            font-size: 13px; color: #6eb5ff; font-weight: bold;
+            z-index: 1000; display: none;
+            border: 1px solid rgba(100,150,255,0.3);
+        }
+        .radar-time.active { display: block; }
+
         @media (max-width: 1024px) {
             .search-box { max-width: 260px; }
         }
@@ -238,6 +249,7 @@
             .click-mode-indicator { top: auto; bottom: 90px; font-size: 12px; padding: 8px 16px; }
             .custom-marker { font-size: 28px; }
             .connection-status { bottom: 90px; }
+            .radar-time { bottom: 130px; }
         }
 
         @media (max-width: 380px) {
@@ -264,6 +276,8 @@
 <div id="map"></div>
 
 <div class="click-mode-indicator" id="clickIndicator">📍 Кликни по карте</div>
+
+<div class="radar-time" id="radarTime">🌧️ Радар</div>
 
 <div class="top-bar">
     <div class="search-box">
@@ -400,6 +414,12 @@
     let authMode = 'login';
     let ws = null;
 
+    // Переменные для анимированного радара
+    let radarFrames = [];
+    let radarFrameIndex = 0;
+    let radarAnimationTimer = null;
+    let radarHost = '';
+
     // ============================================
     // АДМИН-ДОСТУП
     // ============================================
@@ -482,7 +502,6 @@
     }
 
     function applyWeatherFromServer() {
-        // Обновляем цифры в панели
         if (weatherState.isPrecipActive) {
             document.getElementById('precipValue').textContent = weatherState.rainIntensity + '%';
         }
@@ -493,7 +512,6 @@
             document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
         }
 
-        // Показываем маркер торнадо
         if (weatherState.lastLat && weatherState.lastLng) {
             const icons = { rain: '🌧️', snow: '❄️', storm: '⛈️', hurricane: '🌀', tornado: '🌪️', whirlwind: '💨' };
             const el = document.createElement('div');
@@ -673,27 +691,114 @@
         btn.classList.add('active');
     }
 
+    // ============================================
+    // РАДАР ОСАДКОВ С АНИМАЦИЕЙ (как в Windy)
+    // ============================================
     function toggleRadar(btn) {
         radarActive = !radarActive;
         if (radarActive) {
-            fetch('https://api.rainviewer.com/public/weather-maps.json')
-                .then(res => res.json())
-                .then(data => {
-                    const host = data.host;
-                    const latest = data.radar.past[data.radar.past.length - 1];
-                    const tileUrl = `${host}${latest.path}/512/{z}/{x}/{y}/2/1_1.png`;
-                    map.addSource('radar-source', { type: 'raster', tiles: [tileUrl], tileSize: 512, maxzoom: 6 });
-                    map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.7 } });
-                    btn.classList.add('active');
-                })
-                .catch(err => { console.error('Радар:', err); });
+            loadRadarFrames(btn);
         } else {
+            stopRadarAnimation();
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
             if (map.getSource('radar-source')) map.removeSource('radar-source');
+            document.getElementById('radarTime').classList.remove('active');
             btn.classList.remove('active');
+            console.log('🌧️ Радар выключен');
         }
     }
 
+    async function loadRadarFrames(btn) {
+        try {
+            console.log('🌧️ Загружаю кадры радара...');
+            const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+            const data = await res.json();
+
+            radarHost = data.host;
+            radarFrames = [
+                ...data.radar.past,
+                ...(data.radar.nowcast || [])
+            ];
+
+            if (radarFrames.length === 0) {
+                alert('Нет данных радара');
+                radarActive = false;
+                return;
+            }
+
+            console.log(`✅ Загружено ${radarFrames.length} кадров`);
+
+            // Создаём источник с первым кадром
+            const firstFrame = radarFrames[0];
+            const tileUrl = `${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/4/1_1.png`;
+
+            if (map.getSource('radar-source')) map.removeSource('radar-source');
+            if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
+
+            map.addSource('radar-source', {
+                type: 'raster',
+                tiles: [tileUrl],
+                tileSize: 512,
+                maxzoom: 7
+            });
+
+            map.addLayer({
+                id: 'radar-layer',
+                type: 'raster',
+                source: 'radar-source',
+                paint: {
+                    'raster-opacity': 0.75,
+                    'raster-fade-duration': 0
+                }
+            });
+
+            btn.classList.add('active');
+            document.getElementById('radarTime').classList.add('active');
+            startRadarAnimation();
+
+        } catch (err) {
+            console.error('Ошибка радара:', err);
+            alert('Не удалось загрузить радар');
+            radarActive = false;
+        }
+    }
+
+    function startRadarAnimation() {
+        if (radarAnimationTimer) clearInterval(radarAnimationTimer);
+        radarFrameIndex = 0;
+
+        radarAnimationTimer = setInterval(() => {
+            if (!radarActive || radarFrames.length === 0) return;
+
+            radarFrameIndex = (radarFrameIndex + 1) % radarFrames.length;
+            const frame = radarFrames[radarFrameIndex];
+            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/4/1_1.png`;
+
+            const source = map.getSource('radar-source');
+            if (source) {
+                source.setTiles([tileUrl]);
+            }
+
+            // Показываем время кадра
+            const time = new Date(frame.time * 1000);
+            const timeStr = time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            const isForecast = radarFrameIndex >= radarFrames.length - (radarFrames.length / 3);
+            document.getElementById('radarTime').textContent =
+                `🌧️ ${isForecast ? 'Прогноз' : 'Радар'}: ${timeStr}`;
+
+        }, 500);
+    }
+
+    function stopRadarAnimation() {
+        if (radarAnimationTimer) {
+            clearInterval(radarAnimationTimer);
+            radarAnimationTimer = null;
+        }
+    }
+
+    // ============================================
+    // СПУТНИК
+    // ============================================
     function toggleSatellite(btn) {
         satelliteActive = !satelliteActive;
         if (satelliteActive) {
