@@ -10,7 +10,11 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; overflow: hidden; }
         #map { width: 100vw; height: 100vh; background: #1a1a2e; }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        /* Тёмная тема для карты через CSS-фильтр */
+        .dark-tiles {
+            filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+        }
+
         .top-bar {
             position: fixed; top: 15px; left: 15px; right: 15px;
             display: flex; align-items: center; gap: 12px; z-index: 1000;
@@ -51,7 +55,6 @@
         }
         .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
 
-        /* ПРАВАЯ ПАНЕЛЬ СЛОЁВ */
         .layers-menu {
             position: fixed; top: 70px; right: 15px;
             background: rgba(15, 15, 30, 0.95); border-radius: 15px;
@@ -71,7 +74,6 @@
         .layer-item .icon { font-size: 22px; margin-bottom: 2px; }
         .layer-item .label { font-size: 9px; text-align: center; color: #ccc; line-height: 1.1; }
 
-        /* ЛЕВАЯ ПАНЕЛЬ ПОГОДЫ */
         .weather-panel {
             position: fixed; top: 70px; left: 15px;
             background: rgba(15, 15, 30, 0.95); border-radius: 15px;
@@ -92,7 +94,6 @@
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
 
-        /* АДМИНКА */
         .admin-panel {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -127,7 +128,6 @@
         }
         .overlay.active { opacity: 1; visibility: visible; }
 
-        /* ВХОД */
         .auth-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -157,11 +157,30 @@
         .hotkey-hint kbd { background: #333; padding: 3px 8px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
 
         .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
+
+        /* Индикатор режима выбора */
+        .click-mode-indicator {
+            position: fixed; top: 15px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 184, 77, 0.95);
+            color: #000; padding: 10px 24px; border-radius: 30px;
+            font-weight: bold; font-size: 14px; z-index: 4000;
+            box-shadow: 0 4px 20px rgba(255,184,77,0.5);
+            display: none;
+            animation: pulseYellow 1.5s infinite;
+        }
+        .click-mode-indicator.active { display: block; }
+        @keyframes pulseYellow {
+            0%,100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<div class="click-mode-indicator" id="clickIndicator">📍 Кликни по карте, чтобы выбрать место</div>
 
 <div class="top-bar">
     <div class="search-box">
@@ -199,7 +218,6 @@
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-<!-- АДМИНКА -->
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
 
@@ -226,14 +244,14 @@
         <h3>🌪️ Отправка явления</h3>
         <div class="admin-control">
             <label>Координаты (ш, д):</label>
-            <input type="text" id="coordsInput" placeholder="55.7558, 37.6173" readonly>
+            <input type="text" id="coordsInput" placeholder="Нажми 'Выбрать на карте' → кликни по карте" readonly>
         </div>
         <div class="admin-control">
             <label>Сила: <span id="powerLabel">3</span></label>
             <input type="range" id="power" min="1" max="10" value="3" oninput="document.getElementById('powerLabel').textContent=this.value">
         </div>
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="enableClickMode()">📍 Выбрать на карте</button>
+            <button class="btn btn-primary" id="pickBtn" onclick="enableClickMode()">📍 Выбрать на карте</button>
             <button class="btn btn-warn" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
         </div>
     </div>
@@ -261,7 +279,6 @@
     </div>
 </div>
 
-<!-- ВХОД -->
 <div class="auth-modal" id="authModal">
     <h2 id="authTitle">Вход</h2>
     <input type="text" id="authLogin" placeholder="Логин">
@@ -274,38 +291,38 @@
 
 <script>
     // ============================================
-    // КАРТА (CARTO Voyager — работает стабильно)
+    // КАРТА (Stadia Maps Stamen Toner — без API-ключа, тёмная)
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
         style: {
             version: 8,
             sources: {
-                'carto': {
+                'stadia': {
                     type: 'raster',
-                    tiles: ['https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'],
+                    tiles: ['https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png'],
                     tileSize: 256,
-                    maxzoom: 19,
-                    attribution: '© CARTO © OpenStreetMap'
+                    maxzoom: 20,
+                    attribution: '© Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap'
                 }
             },
             layers: [
                 {
-                    id: 'carto-layer',
+                    id: 'stadia-layer',
                     type: 'raster',
-                    source: 'carto',
+                    source: 'stadia',
                     paint: {
-                        'raster-brightness-min': 0.05,
-                        'raster-brightness-max': 0.7,
-                        'raster-saturation': -0.7,
-                        'raster-contrast': 0.3
+                        'raster-brightness-min': 0.15,
+                        'raster-brightness-max': 0.75,
+                        'raster-saturation': -0.3,
+                        'raster-contrast': 0.4
                     }
                 }
             ]
         },
-        center: [37.6173, 55.7558],
-        zoom: 3,
-        maxZoom: 19,
+        center: [142.738, 46.959],
+        zoom: 7,
+        maxZoom: 20,
         pitch: 0,
         bearing: 0
     });
@@ -408,6 +425,9 @@
         closeAuth();
         clickMode = false;
         map.getCanvas().style.cursor = '';
+        document.getElementById('clickIndicator').classList.remove('active');
+        document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
+        document.getElementById('pickBtn').classList.remove('active');
     }
 
     // ============================================
@@ -476,17 +496,33 @@
     }
 
     // ============================================
-    // КЛИК ПО КАРТЕ
+    // КЛИК ПО КАРТЕ (ИСПРАВЛЕНО)
     // ============================================
     map.on('click', (e) => {
+        // ВАЖНО: сначала проверяем режим выбора места
         if (clickMode) {
             const { lng, lat } = e.lngLat;
             document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-            addMarker(lat, lng);
+
+            // Создаём маркер
+            const el = document.createElement('div');
+            el.className = 'custom-marker';
+            el.textContent = '📍';
+            const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
+            markers.push(marker);
+
+            // Выключаем режим
             clickMode = false;
             map.getCanvas().style.cursor = '';
-            return;
+            document.getElementById('clickIndicator').classList.remove('active');
+            document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
+            document.getElementById('pickBtn').style.background = '';
+
+            console.log('✅ Место выбрано:', lat, lng);
+            return; // ВАЖНО: не грузим погоду в этом режиме
         }
+
+        // Обычный клик — загрузка погоды
         loadWeather(e.lngLat.lat, e.lngLat.lng);
         getLocationName(e.lngLat.lat, e.lngLat.lng);
     });
@@ -494,28 +530,33 @@
     function enableClickMode() {
         clickMode = true;
         map.getCanvas().style.cursor = 'crosshair';
+        document.getElementById('clickIndicator').classList.add('active');
+        document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
+        document.getElementById('pickBtn').style.background = 'linear-gradient(135deg, #ffb84d, #d98a2a)';
+        console.log('📍 Режим выбора места активирован');
     }
 
     function sendPhenomenonToCoords() {
         const coordsStr = document.getElementById('coordsInput').value;
-        if (!coordsStr) { alert('Сначала выбери место'); return; }
+        if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
-        addMarker(lat, lng);
-        alert(`🌪️ Отправлено в ${lat}, ${lng}`);
-    }
 
-    function addMarker(lat, lng) {
+        // Добавляем маркер явления
         const el = document.createElement('div');
         el.className = 'custom-marker';
-        el.textContent = '🌪️';
+        const type = document.getElementById('phenomenonType').value;
+        const icons = { rain: '🌧️', snow: '❄️', storm: '⛈️', hurricane: '🌀', tornado: '🌪️', whirlwind: '💨' };
+        el.textContent = icons[type] || '🌪️';
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
+
+        alert(`✅ ${type} отправлен в ${lat}, ${lng}`);
     }
 
     // ============================================
     // АДМИНКА
     // ============================================
-    function applyWeather() { alert('Погода применена!'); }
+    function applyWeather() { alert('✅ Погода применена!'); }
     function resetWeather() {
         document.getElementById('rainIntensity').value = 0;
         document.getElementById('rainIntensityLabel').textContent = '0';
@@ -572,46 +613,11 @@
 
     function autoDetectLocation() {
         if (!navigator.geolocation) {
-            loadWeather(55.7558, 37.6173);
-            getLocationName(55.7558, 37.6173);
+            loadWeather(46.959, 142.738);
+            getLocationName(46.959, 142.738);
             return;
         }
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.flyTo({ center: [lng, lat], zoom: 10 });
-                loadWeather(lat, lng);
-                getLocationName(lat, lng);
-            },
-            () => {
-                loadWeather(55.7558, 37.6173);
-                getLocationName(55.7558, 37.6173);
-            },
-            { timeout: 5000 }
-        );
-    }
-
-    // ============================================
-    // ГОРЯЧИЕ КЛАВИШИ
-    // ============================================
-    document.addEventListener('keydown', (e) => {
-        if (e.altKey && e.code === 'KeyU') {
-            e.preventDefault();
-            document.getElementById('adminPanel').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
-        }
-        if (e.code === 'Escape') closeAll();
-    });
-
-    // ============================================
-    // ЗАПУСК
-    // ============================================
-    map.on('load', () => {
-        console.log('🗺️ Карта CARTO загружена');
-        autoDetectLocation();
-    });
-</script>
-
-</body>
-</html>
+                const lng = position.co
