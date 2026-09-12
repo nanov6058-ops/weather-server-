@@ -89,35 +89,38 @@
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
 
         .admin-panel {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
+            position: fixed; top: 0; right: 0; height: 100vh;
+            width: 340px; max-width: 90vw;
             background: rgba(5, 5, 15, 0.98);
-            border-radius: 20px; padding: 30px; color: #fff;
-            z-index: 2000; box-shadow: 0 20px 80px rgba(0,0,0,0.9);
-            border: 2px solid #ff6b6b; width: 90%; max-width: 520px;
-            max-height: 90vh; overflow-y: auto;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+            padding: 25px 20px; color: #fff;
+            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+            border-left: 2px solid #ff6b6b;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         }
-        .admin-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-        .admin-panel h2 { margin-bottom: 20px; font-size: 22px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 15px; }
+        .admin-panel.active { transform: translateX(0); }
+        .admin-panel h2 { margin-bottom: 20px; font-size: 20px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 15px; }
 
-        .admin-section { margin-bottom: 20px; }
-        .admin-section h3 { font-size: 16px; color: #6eb5ff; margin-bottom: 10px; }
-        .admin-control { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-        .admin-control label { font-size: 14px; color: #aaa; }
+        .admin-section { margin-bottom: 18px; }
+        .admin-section h3 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
+        .admin-control { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .admin-control label { font-size: 13px; color: #aaa; }
         .admin-control input[type="range"] { width: 100%; }
-        .admin-control input[type="text"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
-        .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; }
+        .admin-control input[type="text"] { padding: 9px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
+        .admin-control select { padding: 9px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
 
-        .btn { padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
         .btn-danger { background: linear-gradient(135deg, #ff6b6b, #d94a4a); color: #fff; }
         .btn-warn { background: linear-gradient(135deg, #ffb84d, #d98a2a); color: #fff; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-success { background: linear-gradient(135deg, #4ade80, #22a855); color: #fff; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-full { width: 100%; }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1500;
+            background: rgba(0,0,0,0.6); z-index: 1500;
             opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
         .overlay.active { opacity: 1; visibility: visible; }
@@ -187,7 +190,7 @@
     <div class="layer-item" onclick="setLayer('rain', this)"><div class="icon">🌧️</div><div class="label">Дождь</div></div>
     <div class="layer-item" onclick="setLayer('clouds', this)"><div class="icon">☁️</div><div class="label">Облака</div></div>
     <div class="layer-item" onclick="toggleRadar(this)"><div class="icon">📡</div><div class="label">Радар</div></div>
-    <div class="layer-item" onclick="switchBaseMap('satellite', this)"><div class="icon">🛰️</div><div class="label">Спутник</div></div>
+    <div class="layer-item" onclick="toggleSatellite(this)"><div class="icon">🛰️</div><div class="label">Спутник</div></div>
 </div>
 
 <div class="weather-panel">
@@ -239,8 +242,8 @@
             <input type="range" id="power" min="1" max="10" value="3" oninput="document.getElementById('powerLabel').textContent=this.value">
         </div>
         <div class="btn-group">
-            <button class="btn btn-primary" id="pickBtn" onclick="enableClickMode()">📍 Выбрать на карте</button>
-            <button class="btn btn-warn" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
+            <button class="btn btn-primary btn-full" id="pickBtn" onclick="enableClickMode()">📍 Выбрать на карте</button>
+            <button class="btn btn-warn btn-full" onclick="sendPhenomenonToCoords()">🌪️ Отправить</button>
         </div>
     </div>
 
@@ -261,9 +264,9 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn btn-primary" onclick="applyWeather()">✅ Применить</button>
-        <button class="btn btn-danger" onclick="resetWeather()">🔄 Сбросить</button>
-        <button class="btn btn-danger" onclick="closeAll()">❌ Закрыть</button>
+        <button class="btn btn-success btn-full" onclick="applyWeather()">✅ Применить</button>
+        <button class="btn btn-danger btn-full" onclick="resetWeather()">🔄 Сбросить</button>
+        <button class="btn btn-danger btn-full" onclick="closeAll()">❌ Закрыть</button>
     </div>
 </div>
 
@@ -279,12 +282,12 @@
 
 <script>
     // ============================================
-    // СОВРЕМЕННАЯ КАРТА — OpenFreeMap Liberty (3D-здания, без ключей)
+    // КАРТА — OpenFreeMap Liberty + слой подписей на спутнике
     // ============================================
     const map = new maplibregl.Map({
         container: 'map',
-        style: 'https://tiles.openfreemap.org/styles/liberty', // Современный векторный стиль
-        center: [142.738, 46.959], // Сахалин
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [142.738, 46.959],
         zoom: 6,
         maxZoom: 22,
         pitch: 0,
@@ -294,6 +297,8 @@
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
     let radarActive = false;
+    let satelliteActive = false;
+    let labelsActive = false;
     let clickMode = false;
     let markers = [];
     let authMode = 'login';
@@ -309,7 +314,9 @@
     }
     function closeAuth() {
         document.getElementById('authModal').classList.remove('active');
-        document.getElementById('overlay').classList.remove('active');
+        if (!document.getElementById('adminPanel').classList.contains('active')) {
+            document.getElementById('overlay').classList.remove('active');
+        }
     }
     function toggleAuthMode() {
         authMode = authMode === 'login' ? 'register' : 'login';
@@ -328,9 +335,7 @@
         const login = document.getElementById('authLogin').value.trim();
         const password = document.getElementById('authPassword').value.trim();
         if (!login || !password) { alert('Заполни все поля'); return; }
-
         const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
-
         try {
             const res = await fetch(API_URL + endpoint, {
                 method: 'POST',
@@ -339,16 +344,12 @@
             });
             const data = await res.json();
             if (!res.ok) { alert('❌ ' + (data.error || 'Ошибка')); return; }
-
             localStorage.setItem('token', data.token);
             localStorage.setItem('login', data.login);
             updateUserUI(data.login);
             closeAuth();
             alert('✅ Добро пожаловать, ' + data.login + '!');
-        } catch (e) {
-            console.error(e);
-            alert('❌ Ошибка соединения с сервером');
-        }
+        } catch (e) { console.error(e); alert('❌ Ошибка соединения с сервером'); }
     }
 
     function updateUserUI(login) {
@@ -381,14 +382,17 @@
     });
 
     // ============================================
-    // АДМИНКА — ALT+U
+    // АДМИНКА — ALT+U (боковая панель)
     // ============================================
     document.addEventListener('keydown', function(e) {
         if (e.altKey && e.code === 'KeyU') {
             e.preventDefault();
-            console.log('🎛️ Открываю админку');
-            document.getElementById('adminPanel').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
+            const panel = document.getElementById('adminPanel');
+            if (panel.classList.contains('active')) {
+                closeAll();
+            } else {
+                panel.classList.add('active');
+            }
         }
         if (e.code === 'Escape') closeAll();
     });
@@ -401,6 +405,7 @@
         map.getCanvas().style.cursor = '';
         document.getElementById('clickIndicator').classList.remove('active');
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
+        document.getElementById('pickBtn').classList.remove('active');
     }
 
     // ============================================
@@ -433,6 +438,7 @@
         btn.classList.add('active');
     }
 
+    // РАДАР
     function toggleRadar(btn) {
         radarActive = !radarActive;
         if (radarActive) {
@@ -442,10 +448,21 @@
                     const host = data.host;
                     const latest = data.radar.past[data.radar.past.length - 1];
                     const tileUrl = `${host}${latest.path}/512/{z}/{x}/{y}/2/1_1.png`;
-                    map.addSource('radar-source', { type: 'raster', tiles: [tileUrl], tileSize: 512, maxzoom: 6 });
-                    map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.6 } });
+                    map.addSource('radar-source', {
+                        type: 'raster',
+                        tiles: [tileUrl],
+                        tileSize: 512,
+                        maxzoom: 6
+                    });
+                    map.addLayer({
+                        id: 'radar-layer',
+                        type: 'raster',
+                        source: 'radar-source',
+                        paint: { 'raster-opacity': 0.7 }
+                    });
                     btn.classList.add('active');
-                });
+                })
+                .catch(err => { console.error('Радар:', err); });
         } else {
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
             if (map.getSource('radar-source')) map.removeSource('radar-source');
@@ -453,19 +470,49 @@
         }
     }
 
-    function switchBaseMap(type, btn) {
-        if (map.getLayer('satellite-layer')) map.removeLayer('satellite-layer');
-        if (map.getSource('satellite')) map.removeSource('satellite');
-        if (type === 'satellite') {
-            map.addSource('satellite', {
+    // СПУТНИК С ПОДПИСЯМИ
+    function toggleSatellite(btn) {
+        satelliteActive = !satelliteActive;
+        if (satelliteActive) {
+            // 1. Спутник (Esri)
+            map.addSource('satellite-source', {
                 type: 'raster',
                 tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256
             });
-            map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite' });
+            map.addLayer({
+                id: 'satellite-layer',
+                type: 'raster',
+                source: 'satellite-source',
+                paint: { 'raster-opacity': 1 }
+            });
+
+            // 2. Подписи городов и регионов (CARTO Dark Labels, поверх спутника)
+            map.addSource('labels-source', {
+                type: 'raster',
+                tiles: ['https://basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'],
+                tileSize: 256
+            });
+            map.addLayer({
+                id: 'labels-layer',
+                type: 'raster',
+                source: 'labels-source',
+                paint: { 'raster-opacity': 0.9 }
+            });
+
+            labelsActive = true;
+            btn.classList.add('active');
+            console.log('🛰️ Спутник + подписи включены');
+        } else {
+            // Выключаем всё
+            if (map.getLayer('satellite-layer')) map.removeLayer('satellite-layer');
+            if (map.getSource('satellite-source')) map.removeSource('satellite-source');
+            if (map.getLayer('labels-layer')) map.removeLayer('labels-layer');
+            if (map.getSource('labels-source')) map.removeSource('labels-source');
+            labelsActive = false;
+            btn.classList.remove('active');
+            console.log('🛰️ Спутник выключен');
         }
-        document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
     }
 
     // ============================================
@@ -484,7 +531,7 @@
             map.getCanvas().style.cursor = '';
             document.getElementById('clickIndicator').classList.remove('active');
             document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-            console.log('✅ Место выбрано:', lat, lng);
+            document.getElementById('pickBtn').classList.remove('active');
             return;
         }
         loadWeather(e.lngLat.lat, e.lngLat.lng);
@@ -496,6 +543,7 @@
         map.getCanvas().style.cursor = 'crosshair';
         document.getElementById('clickIndicator').classList.add('active');
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
+        document.getElementById('pickBtn').classList.add('active');
     }
 
     function sendPhenomenonToCoords() {
@@ -592,14 +640,8 @@
         );
     }
 
-    // ============================================
-    // ЗАПУСК
-    // ============================================
     map.on('load', () => {
-        console.log('🗺️ Карта OpenFreeMap Liberty загружена');
+        console.log('🗺️ Карта готова');
         autoDetectLocation();
     });
 </script>
-
-</body>
-</html>
