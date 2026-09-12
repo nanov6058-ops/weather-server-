@@ -3,271 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Метео-Карта — Weather App</title>
-    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <title>Метео-Карта PRO — Weather App</title>
+
+    <!-- MapTiler CSS -->
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.0.0/maptiler-sdk.css" rel="stylesheet" />
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #0a0a1a;
-            overflow: hidden;
-            height: 100%;
-            width: 100%;
-            touch-action: manipulation;
-        }
+        html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; height: 100%; width: 100%; }
         #map { width: 100vw; height: 100vh; background: #0a0a1a; }
 
-        .top-bar {
-            position: fixed; top: 10px; left: 10px; right: 10px;
-            display: flex; align-items: center; gap: 8px; z-index: 1000;
-            pointer-events: none;
-        }
-        .search-box {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            border: 1px solid rgba(100,150,255,0.2);
-            pointer-events: all; flex: 1; max-width: 320px;
-        }
-        .search-box input {
-            flex: 1; background: transparent; border: none; color: #fff;
-            font-size: 14px; outline: none; min-width: 0;
-        }
-        .search-box input::placeholder { color: #888; }
-        .search-box button {
-            background: transparent; border: none; color: #6eb5ff;
-            font-size: 18px; cursor: pointer; padding: 0 4px;
-        }
-
-        .logo-badge {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all;
-            border: 1px solid rgba(100,150,255,0.2);
-            white-space: nowrap;
-        }
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1000; pointer-events: none; }
+        .search-box { display: flex; align-items: center; gap: 8px; background: rgba(10, 10, 20, 0.95); border-radius: 30px; padding: 8px 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); border: 1px solid rgba(100,150,255,0.2); pointer-events: all; flex: 1; max-width: 340px; }
+        .search-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; outline: none; min-width: 0; }
+        .search-box input::placeholder { color: #666; }
+        .search-box button { background: transparent; border: none; color: #6eb5ff; font-size: 18px; cursor: pointer; padding: 0 4px; }
+        .logo-badge { display: flex; align-items: center; gap: 6px; background: rgba(10, 10, 20, 0.95); border-radius: 30px; padding: 8px 18px; color: #fff; font-weight: bold; font-size: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); pointer-events: all; border: 1px solid rgba(100,150,255,0.2); white-space: nowrap; }
         .logo-badge span { color: #ff6b6b; }
-
-        .user-area { margin-left: auto; display: flex; gap: 8px; pointer-events: all; }
-        .user-btn {
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; color: #fff; font-size: 13px; font-weight: bold;
-            border: 1px solid rgba(100,150,255,0.2); cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            white-space: nowrap;
-        }
-        .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
+        .user-area { margin-left: auto; display: flex; gap: 10px; pointer-events: all; }
+        .user-btn { background: rgba(10, 10, 20, 0.95); border-radius: 30px; padding: 8px 18px; color: #fff; font-size: 13px; font-weight: bold; border: 1px solid rgba(100,150,255,0.2); cursor: pointer; box-shadow: 0 8px 30px rgba(0,0,0,0.7); white-space: nowrap; }
+        .user-btn:hover { background: rgba(20, 20, 40, 0.95); }
         .user-btn.admin-btn { border-color: #ff6b6b; color: #ff6b6b; }
 
-        .layers-menu {
-            position: fixed; top: 65px; right: 10px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 15px;
-            padding: 8px; z-index: 1000; width: 68px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.6);
-            border: 1px solid rgba(100,150,255,0.2);
-            display: flex; flex-direction: column; gap: 5px;
-        }
-        .layer-item {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 5px 3px; border-radius: 10px; cursor: pointer;
-            transition: background 0.2s; color: #fff;
-        }
-        .layer-item:hover { background: rgba(110, 181, 255, 0.2); }
-        .layer-item.active { background: rgba(110, 181, 255, 0.35); }
-        .layer-item .icon { font-size: 20px; margin-bottom: 1px; }
-        .layer-item .label { font-size: 8px; text-align: center; color: #ccc; line-height: 1.1; }
-
-        .weather-panel {
-            position: fixed; top: 65px; left: 10px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 15px;
-            padding: 15px; z-index: 1000; width: 240px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.6);
-            border: 1px solid rgba(100,150,255,0.2);
-            color: #fff;
-        }
-        .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
-        .weather-panel .city { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
-        .weather-panel .temp-big { font-size: 38px; font-weight: bold; color: #fff; margin: 5px 0; }
-        .weather-panel .desc { color: #aaa; font-size: 12px; margin-bottom: 10px; }
-        .weather-panel .details { font-size: 12px; }
-        .weather-panel .details div {
-            display: flex; justify-content: space-between;
-            padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
+        /* ПАНЕЛЬ ПОГОДЫ */
+        .weather-panel { position: fixed; top: 65px; left: 10px; background: rgba(10, 10, 20, 0.95); border-radius: 18px; padding: 20px; z-index: 1000; width: 280px; box-shadow: 0 15px 50px rgba(0,0,0,0.8); border: 1px solid rgba(100,150,255,0.15); color: #fff; backdrop-filter: blur(10px); }
+        .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .weather-panel .city { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .weather-panel .temp-big { font-size: 48px; font-weight: bold; color: #fff; margin: 8px 0; }
+        .weather-panel .desc { color: #888; font-size: 14px; margin-bottom: 15px; }
+        .weather-panel .details { font-size: 13px; }
+        .weather-panel .details div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
 
-        .admin-panel {
-            position: fixed; top: 0; right: 0; height: 100vh;
-            width: 340px; max-width: 95vw;
-            background: rgba(5, 5, 15, 0.98);
-            padding: 20px 18px; color: #fff;
-            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8);
-            border-left: 2px solid #ff6b6b;
-            overflow-y: auto;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            -webkit-overflow-scrolling: touch;
-            display: none;
-        }
+        /* МЕНЮ СЛОЁВ */
+        .layers-menu { position: fixed; top: 65px; right: 10px; background: rgba(10, 10, 20, 0.95); border-radius: 15px; padding: 8px; z-index: 1000; width: 70px; box-shadow: 0 15px 50px rgba(0,0,0,0.8); border: 1px solid rgba(100,150,255,0.15); display: flex; flex-direction: column; gap: 6px; backdrop-filter: blur(10px); }
+        .layer-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 12px; cursor: pointer; transition: all 0.2s; color: #fff; }
+        .layer-item:hover { background: rgba(110, 181, 255, 0.15); }
+        .layer-item.active { background: rgba(110, 181, 255, 0.3); }
+        .layer-item .icon { font-size: 22px; margin-bottom: 2px; }
+        .layer-item .label { font-size: 9px; text-align: center; color: #aaa; line-height: 1.1; }
+
+        /* РАДАР ВРЕМЯ */
+        .radar-time { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 20, 0.95); padding: 8px 20px; border-radius: 25px; font-size: 14px; color: #6eb5ff; font-weight: bold; z-index: 1000; display: none; border: 1px solid rgba(100,150,255,0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+        .radar-time.active { display: block; }
+
+        /* АДМИНКА */
+        .admin-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 360px; max-width: 95vw; background: rgba(5, 5, 15, 0.98); padding: 25px 20px; color: #fff; z-index: 2000; box-shadow: -15px 0 50px rgba(0,0,0,0.9); border-left: 2px solid #ff6b6b; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease; display: none; }
         .admin-panel.allowed { display: block; }
         .admin-panel.active { transform: translateX(0); }
-        .admin-panel h2 { margin-bottom: 18px; font-size: 18px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 12px; }
-
-        .admin-section { margin-bottom: 16px; }
-        .admin-section h3 { font-size: 13px; color: #6eb5ff; margin-bottom: 8px; }
-        .admin-control { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .admin-control label { font-size: 12px; color: #aaa; }
+        .admin-panel h2 { margin-bottom: 20px; font-size: 20px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 15px; }
+        .admin-section { margin-bottom: 20px; }
+        .admin-section h3 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
+        .admin-control { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .admin-control label { font-size: 13px; color: #aaa; }
         .admin-control input[type="range"] { width: 100%; height: 6px; }
-        .admin-control input[type="text"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
-        .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
+        .admin-control input[type="text"] { padding: 12px; border-radius: 10px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
+        .admin-control select { padding: 12px; border-radius: 10px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
 
-        .btn { padding: 12px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn { padding: 14px 18px; border: none; border-radius: 10px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
         .btn-danger { background: linear-gradient(135deg, #ff6b6b, #d94a4a); color: #fff; }
         .btn-warn { background: linear-gradient(135deg, #ffb84d, #d98a2a); color: #fff; }
         .btn-success { background: linear-gradient(135deg, #4ade80, #22a855); color: #fff; }
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn-full { width: 100%; }
 
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1500;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1500; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .overlay.active { opacity: 1; visibility: visible; }
 
-        .auth-modal {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 25, 0.98);
-            border-radius: 20px; padding: 28px; color: #fff;
-            z-index: 3000; box-shadow: 0 20px 80px rgba(0,0,0,0.9);
-            border: 2px solid #6eb5ff; width: 90%; max-width: 380px;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
-        }
+        /* АВТОРИЗАЦИЯ */
+        .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(5, 5, 15, 0.98); border-radius: 25px; padding: 35px; color: #fff; z-index: 3000; box-shadow: 0 25px 100px rgba(0,0,0,0.9); border: 2px solid #6eb5ff; width: 90%; max-width: 400px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .auth-modal.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-        .auth-modal h2 { margin-bottom: 18px; font-size: 20px; color: #6eb5ff; text-align: center; }
-        .auth-modal input {
-            width: 100%; padding: 14px 16px; margin-bottom: 12px;
-            border-radius: 10px; background: #1a1a3e; color: #fff;
-            border: 1px solid #444; font-size: 15px; outline: none;
-        }
+        .auth-modal h2 { margin-bottom: 20px; font-size: 22px; color: #6eb5ff; text-align: center; }
+        .auth-modal input { width: 100%; padding: 16px 18px; margin-bottom: 14px; border-radius: 12px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 15px; outline: none; }
         .auth-modal input:focus { border-color: #6eb5ff; }
-        .auth-modal .btn { width: 100%; margin-bottom: 10px; padding: 14px; font-size: 15px; }
-        .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 10px; cursor: pointer; }
+        .auth-modal .btn { width: 100%; margin-bottom: 12px; padding: 16px; font-size: 15px; }
+        .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 12px; cursor: pointer; }
         .auth-modal .switch span { color: #6eb5ff; text-decoration: underline; }
 
-        .hotkey-hint {
-            position: fixed; bottom: 15px; right: 15px;
-            background: rgba(10,10,20,0.9); padding: 8px 12px;
-            border-radius: 10px; color: #888; font-size: 11px; z-index: 1000;
-            display: none;
-        }
+        .hotkey-hint { position: fixed; bottom: 15px; right: 15px; background: rgba(10,10,20,0.9); padding: 10px 16px; border-radius: 12px; color: #888; font-size: 12px; z-index: 1000; display: none; }
         .hotkey-hint.allowed { display: block; }
-        .hotkey-hint kbd { background: #333; padding: 2px 6px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
+        .hotkey-hint kbd { background: #333; padding: 3px 8px; border-radius: 6px; font-family: monospace; color: #6eb5ff; }
 
-        .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
+        .custom-marker { font-size: 36px; filter: drop-shadow(0 0 15px rgba(255,107,107,1)); cursor: pointer; }
 
-        .click-mode-indicator {
-            position: fixed; top: 12px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 184, 77, 0.95);
-            color: #000; padding: 10px 20px; border-radius: 25px;
-            font-weight: bold; font-size: 13px; z-index: 4000;
-            box-shadow: 0 4px 20px rgba(255,184,77,0.5);
-            display: none;
-        }
+        .click-mode-indicator { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(255, 184, 77, 0.95); color: #000; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 14px; z-index: 4000; box-shadow: 0 8px 30px rgba(255,184,77,0.6); display: none; }
         .click-mode-indicator.active { display: block; }
 
-        .connection-status {
-            position: fixed; bottom: 15px; left: 15px;
-            background: rgba(15, 15, 30, 0.95);
-            padding: 6px 14px; border-radius: 20px;
-            font-size: 12px; color: #fff; z-index: 1000;
-            display: flex; align-items: center; gap: 8px;
-            border: 1px solid rgba(100,150,255,0.2);
-        }
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #4ade80; animation: pulse 2s infinite;
-        }
+        .connection-status { position: fixed; bottom: 15px; left: 15px; background: rgba(10, 10, 20, 0.95); padding: 8px 16px; border-radius: 25px; font-size: 12px; color: #fff; z-index: 1000; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(100,150,255,0.2); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
         .status-dot.offline { background: #ff6b6b; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        .radar-time {
-            position: fixed; bottom: 50px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15, 15, 30, 0.95);
-            padding: 6px 16px; border-radius: 20px;
-            font-size: 13px; color: #6eb5ff; font-weight: bold;
-            z-index: 1000; display: none;
-            border: 1px solid rgba(100,150,255,0.3);
-        }
-        .radar-time.active { display: block; }
-
-        @media (max-width: 1024px) {
-            .search-box { max-width: 260px; }
-        }
 
         @media (max-width: 600px) {
             .top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
             .logo-badge { display: none; }
-            .search-box { max-width: none; padding: 8px 14px; }
-            .search-box input { font-size: 13px; }
-            .user-btn { padding: 8px 14px; font-size: 12px; }
-
-            .layers-menu {
-                top: auto; bottom: 10px; right: 10px; left: 10px;
-                width: auto; flex-direction: row;
-                overflow-x: auto; justify-content: flex-start;
-                padding: 8px; gap: 4px;
-                -webkit-overflow-scrolling: touch;
-            }
+            .search-box { max-width: none; padding: 10px 16px; }
+            .layers-menu { top: auto; bottom: 10px; right: 10px; left: 10px; width: auto; flex-direction: row; overflow-x: auto; padding: 10px; gap: 5px; }
             .layers-menu::-webkit-scrollbar { display: none; }
-            .layer-item { flex-shrink: 0; min-width: 60px; padding: 6px 4px; }
-            .layer-item .icon { font-size: 22px; }
-            .layer-item .label { font-size: 9px; }
-
-            .weather-panel {
-                top: 55px; left: 8px;
-                width: calc(100% - 16px); max-width: 320px;
-                padding: 12px;
-            }
-            .weather-panel .city { font-size: 18px; }
-            .weather-panel .temp-big { font-size: 34px; }
-
-            .admin-panel {
-                width: 100%; max-width: 100%;
-                padding: 20px 16px 80px 16px;
-                border-left: none;
-                border-top: 2px solid #ff6b6b;
-            }
-
+            .layer-item { flex-shrink: 0; min-width: 65px; padding: 8px 6px; }
+            .weather-panel { top: 60px; left: 8px; width: calc(100% - 16px); max-width: 340px; padding: 15px; }
+            .weather-panel .temp-big { font-size: 40px; }
+            .admin-panel { width: 100%; max-width: 100%; padding: 20px 16px 100px 16px; border-left: none; border-top: 2px solid #ff6b6b; }
             .hotkey-hint { display: none !important; }
-            .click-mode-indicator { top: auto; bottom: 90px; font-size: 12px; padding: 8px 16px; }
-            .custom-marker { font-size: 28px; }
-            .connection-status { bottom: 90px; }
-            .radar-time { bottom: 130px; }
-        }
-
-        @media (max-width: 380px) {
-            .search-box { padding: 6px 12px; }
-            .search-box input { font-size: 12px; }
-            .layer-item { min-width: 54px; }
-            .layer-item .icon { font-size: 20px; }
-            .layer-item .label { font-size: 8px; }
-        }
-
-        @media (max-height: 500px) and (orientation: landscape) {
-            .layers-menu {
-                top: 55px; bottom: auto; right: 8px; left: auto;
-                flex-direction: column; width: 60px;
-                overflow-x: visible; overflow-y: auto;
-            }
-            .weather-panel { top: 55px; left: 8px; width: 200px; padding: 10px; }
-            .weather-panel .temp-big { font-size: 28px; }
+            .radar-time { bottom: 100px; font-size: 12px; padding: 6px 14px; }
+            .connection-status { bottom: 100px; }
         }
     </style>
 </head>
@@ -276,15 +118,14 @@
 <div id="map"></div>
 
 <div class="click-mode-indicator" id="clickIndicator">📍 Кликни по карте</div>
-
-<div class="radar-time" id="radarTime">🌧️ Радар</div>
+<div class="radar-time" id="radarTime">🌧️ Радар: загрузка...</div>
 
 <div class="top-bar">
     <div class="search-box">
         <input type="text" id="citySearch" placeholder="Поиск города...">
         <button onclick="searchCity()">🔍</button>
     </div>
-    <div class="logo-badge">🌍 <span>Weather</span>App</div>
+    <div class="logo-badge">🌍 <span>Weather</span>PRO</div>
     <div class="user-area">
         <button class="user-btn" id="authBtn" onclick="openAuth()">Войти</button>
     </div>
@@ -292,9 +133,7 @@
 
 <div class="layers-menu">
     <div class="layer-item active" onclick="setLayer('temp', this)"><div class="icon">🌡️</div><div class="label">Темп.</div></div>
-    <div class="layer-item" onclick="setLayer('wind', this)"><div class="icon">💨</div><div class="label">Ветер</div></div>
-    <div class="layer-item" onclick="setLayer('rain', this)"><div class="icon">🌧️</div><div class="label">Дождь</div></div>
-    <div class="layer-item" onclick="setLayer('clouds', this)"><div class="icon">☁️</div><div class="label">Облака</div></div>
+    <div class="layer-item" onclick="toggleWindParticles(this)"><div class="icon">💨</div><div class="label">Ветер</div></div>
     <div class="layer-item" onclick="toggleRadar(this)"><div class="icon">📡</div><div class="label">Радар</div></div>
     <div class="layer-item" onclick="toggleSatellite(this)"><div class="icon">🛰️</div><div class="label">Спутник</div></div>
 </div>
@@ -324,19 +163,16 @@
     <h2>🔧 Админ-панель</h2>
 
     <div class="admin-section">
-        <h3>🌧️ Осадки</h3>
+        <h3>🌧️ Тип осадков</h3>
         <div class="admin-control">
-            <label>Интенсивность: <span id="rainIntensityLabel">0</span>%</label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="document.getElementById('rainIntensityLabel').textContent=this.value">
-        </div>
-        <div class="admin-control">
-            <label>Тип осадков (цвет радара):</label>
+            <label>Выбор типа:</label>
             <select id="precipType" onchange="onPrecipTypeChange(this.value)">
                 <option value="rain">🌧️ Дождь (синий)</option>
                 <option value="snow">❄️ Снег (белый)</option>
                 <option value="storm">⛈️ Гроза (фиолетовый)</option>
                 <option value="hail">🧊 Град (красный)</option>
                 <option value="sleet">🌨️ Мокрый снег (голубой)</option>
+                <option value="hurricane">🌀 Ураган (оранжевый)</option>
             </select>
         </div>
     </div>
@@ -357,22 +193,6 @@
         </div>
     </div>
 
-    <div class="admin-section">
-        <h3>💨 Ветер</h3>
-        <div class="admin-control">
-            <label>Скорость: <span id="windSpeedLabel">0</span> м/с</label>
-            <input type="range" id="windSpeed" min="0" max="50" value="0" oninput="document.getElementById('windSpeedLabel').textContent=this.value">
-        </div>
-    </div>
-
-    <div class="admin-section">
-        <h3>🌡️ Температура</h3>
-        <div class="admin-control">
-            <label>Значение: <span id="tempLabel">15</span>°C</label>
-            <input type="range" id="temperature" min="-50" max="50" value="15" oninput="document.getElementById('tempLabel').textContent=this.value">
-        </div>
-    </div>
-
     <div class="btn-group">
         <button class="btn btn-success btn-full" onclick="applyWeather()">✅ Применить для всех</button>
         <button class="btn btn-danger btn-full" onclick="resetWeather()">🔄 Сбросить у всех</button>
@@ -388,149 +208,74 @@
     <div class="switch" id="authSwitch">Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span></div>
 </div>
 
-<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<!-- MAPTILER SDK -->
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.0.0/maptiler-sdk.js"></script>
+<script src="https://cdn.maptiler.com/maptiler-weather/v3.0.0/maptiler-weather.js"></script>
 
 <script>
     // ============================================
-    // КАРТА
+    // НАСТРОЙКИ
     // ============================================
-    const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [142.738, 46.959],
-        zoom: 6,
-        maxZoom: 22,
-        pitch: 0,
-        bearing: 0
-    });
+    const MAPTILER_KEY = 'fmeyxDoUo8sqbqe6CoQQ';
+    maptilersdk.config.apiKey = MAPTILER_KEY;
 
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+    // ============================================
+    // КАРТА MAPTILER
+    // ============================================
+    const map = new maptilersdk.Map({
+        container: 'map',
+        style: maptilersdk.MapStyle.BACKDROP,
+        center: [142.738, 46.959],
+        zoom: 5,
+        projection: 'mercator'
+    });
 
     let radarActive = false;
     let satelliteActive = false;
+    let windParticlesActive = false;
     let clickMode = false;
     let markers = [];
     let authMode = 'login';
     let ws = null;
-
-    // Переменные для анимированного радара
     let radarFrames = [];
     let radarFrameIndex = 0;
     let radarAnimationTimer = null;
     let radarHost = '';
+    let windLayer = null;
 
     // ============================================
     // АДМИН-ДОСТУП
     // ============================================
     const ADMIN_LOGIN = 'weather';
-
-    function isAdmin() {
-        return localStorage.getItem('login') === ADMIN_LOGIN;
-    }
+    function isAdmin() { return localStorage.getItem('login') === ADMIN_LOGIN; }
 
     function updateAdminVisibility() {
         const admin = isAdmin();
-        const adminPanel = document.getElementById('adminPanel');
-        const hotkeyHint = document.getElementById('hotkeyHint');
-
-        if (admin) {
-            adminPanel.classList.add('allowed');
-            hotkeyHint.classList.add('allowed');
-            console.log('👑 Админ-режим активирован');
-        } else {
-            adminPanel.classList.remove('allowed');
-            hotkeyHint.classList.remove('allowed');
-            adminPanel.classList.remove('active');
-        }
+        document.getElementById('adminPanel').classList.toggle('allowed', admin);
+        document.getElementById('hotkeyHint').classList.toggle('allowed', admin);
     }
 
     // ============================================
     // WEBSOCKET
     // ============================================
     const SERVER_URL = 'wss://' + window.location.host;
-    let weatherState = {
-        rainIntensity: 0,
-        phenomenonType: 'rain',
-        precipColor: 4,          // цветовая схема радара
-        power: 3,
-        windSpeed: 0,
-        temperature: 15,
-        isPrecipActive: false,
-        tornadoCount: 0,
-        lastLat: null,
-        lastLng: null
-    };
+    let weatherState = { rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false, tornadoCount: 0, lastLat: null, lastLng: null };
 
     function connectWS() {
         ws = new WebSocket(SERVER_URL);
-
-        ws.onopen = () => {
-            console.log('✅ WebSocket подключён');
-            document.getElementById('statusDot').classList.remove('offline');
-            document.getElementById('statusText').textContent = 'Онлайн';
-            ws.send(JSON.stringify({ type: 'get_state' }));
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data);
-                if (msg.type === 'init' || msg.type === 'state' || msg.type === 'weather_update') {
-                    weatherState = msg.state;
-                    applyWeatherFromServer();
-                }
-            } catch (e) { console.error('WS parse:', e); }
-        };
-
-        ws.onclose = () => {
-            console.log('❌ WS отключён');
-            document.getElementById('statusDot').classList.add('offline');
-            document.getElementById('statusText').textContent = 'Переподключение...';
-            setTimeout(connectWS, 3000);
-        };
-
-        ws.onerror = (e) => console.error('WS error:', e);
+        ws.onopen = () => { document.getElementById('statusDot').classList.remove('offline'); document.getElementById('statusText').textContent = 'Онлайн'; ws.send(JSON.stringify({ type: 'get_state' })); };
+        ws.onmessage = (event) => { try { const msg = JSON.parse(event.data); if (msg.type === 'init' || msg.type === 'state' || msg.type === 'weather_update') { weatherState = msg.state; applyWeatherFromServer(); } } catch (e) {} };
+        ws.onclose = () => { document.getElementById('statusDot').classList.add('offline'); document.getElementById('statusText').textContent = 'Переподключение...'; setTimeout(connectWS, 3000); };
     }
 
-    function sendWeatherToServer() {
-        if (!isAdmin()) return;
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('❌ Нет соединения с сервером');
-            return;
-        }
-        ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
-        console.log('📤 Отправлено всем:', weatherState);
-    }
+    function sendWeatherToServer() { if (!isAdmin() || !ws || ws.readyState !== WebSocket.OPEN) return; ws.send(JSON.stringify({ type: 'weather_update', state: weatherState })); }
 
     function applyWeatherFromServer() {
-        if (weatherState.isPrecipActive) {
-            document.getElementById('precipValue').textContent = weatherState.rainIntensity + '%';
-        }
-        if (weatherState.windSpeed > 0) {
-            document.getElementById('windValue').textContent = weatherState.windSpeed + ' м/с';
-        }
-        if (weatherState.temperature !== 15) {
-            document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
-        }
-
-        // Обновляем цвет радара если он активен
-        if (radarActive && radarFrames.length > 0) {
-            const frame = radarFrames[radarFrameIndex];
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`;
-            const source = map.getSource('radar-source');
-            if (source) source.setTiles([tileUrl]);
-        }
-
-        if (weatherState.lastLat && weatherState.lastLng) {
-            const icons = { rain: '🌧️', snow: '❄️', storm: '⛈️', hurricane: '🌀', tornado: '🌪️', whirlwind: '💨' };
-            const el = document.createElement('div');
-            el.className = 'custom-marker';
-            el.textContent = icons[weatherState.phenomenonType] || '🌪️';
-            el.style.fontSize = (20 + weatherState.power * 4) + 'px';
-            const marker = new maplibregl.Marker({ element: el })
-                .setLngLat([weatherState.lastLng, weatherState.lastLat])
-                .addTo(map);
-            markers.push(marker);
-        }
+        if (weatherState.isPrecipActive) document.getElementById('precipValue').textContent = weatherState.rainIntensity + '%';
+        if (weatherState.windSpeed > 0) document.getElementById('windValue').textContent = weatherState.windSpeed + ' м/с';
+        if (weatherState.temperature !== 15) document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
+        if (radarActive && radarFrames.length > 0) { const frame = radarFrames[radarFrameIndex]; const source = map.getSource('radar-source'); if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`]); }
+        if (weatherState.lastLat && weatherState.lastLng) { const icons = { rain: '🌧️', snow: '❄️', storm: '⛈️', hurricane: '🌀', tornado: '🌪️', whirlwind: '💨' }; const el = document.createElement('div'); el.className = 'custom-marker'; el.textContent = icons[weatherState.phenomenonType] || '🌪️'; el.style.fontSize = (20 + weatherState.power * 4) + 'px'; markers.push(new maptilersdk.Marker({ element: el }).setLngLat([weatherState.lastLng, weatherState.lastLat]).addTo(map)); }
     }
 
     connectWS();
@@ -539,324 +284,130 @@
     // АВТОРИЗАЦИЯ
     // ============================================
     const API_URL = window.location.origin;
+    function openAuth() { document.getElementById('authModal').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
+    function closeAuth() { document.getElementById('authModal').classList.remove('active'); if (!document.getElementById('adminPanel').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
+    function toggleAuthMode() { authMode = authMode === 'login' ? 'register' : 'login'; document.getElementById('authTitle').textContent = authMode === 'login' ? 'Вход' : 'Регистрация'; document.getElementById('authSubmit').textContent = authMode === 'login' ? 'Войти' : 'Зарегистрироваться'; document.getElementById('authSwitch').innerHTML = authMode === 'login' ? 'Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span>' : 'Уже есть аккаунт? <span onclick="toggleAuthMode()">Войти</span>'; }
 
-    function openAuth() {
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('overlay').classList.add('active');
-    }
-    function closeAuth() {
-        document.getElementById('authModal').classList.remove('active');
-        if (!document.getElementById('adminPanel').classList.contains('active')) {
-            document.getElementById('overlay').classList.remove('active');
-        }
-    }
-    function toggleAuthMode() {
-        authMode = authMode === 'login' ? 'register' : 'login';
-        if (authMode === 'login') {
-            document.getElementById('authTitle').textContent = 'Вход';
-            document.getElementById('authSubmit').textContent = 'Войти';
-            document.getElementById('authSwitch').innerHTML = 'Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span>';
-        } else {
-            document.getElementById('authTitle').textContent = 'Регистрация';
-            document.getElementById('authSubmit').textContent = 'Зарегистрироваться';
-            document.getElementById('authSwitch').innerHTML = 'Уже есть аккаунт? <span onclick="toggleAuthMode()">Войти</span>';
-        }
-    }
+    async function submitAuth() { const login = document.getElementById('authLogin').value.trim(); const password = document.getElementById('authPassword').value.trim(); if (!login || !password) return; try { const res = await fetch(API_URL + (authMode === 'register' ? '/api/register' : '/api/login'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ login, password }) }); const data = await res.json(); if (!res.ok) { alert('❌ ' + (data.error || 'Ошибка')); return; } localStorage.setItem('token', data.token); localStorage.setItem('login', data.login); updateUserUI(data.login); updateAdminVisibility(); closeAuth(); alert('✅ Добро пожаловать!'); } catch (e) { alert('❌ Ошибка соединения'); } }
 
-    async function submitAuth() {
-        const login = document.getElementById('authLogin').value.trim();
-        const password = document.getElementById('authPassword').value.trim();
-        if (!login || !password) { alert('Заполни все поля'); return; }
-        const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
-        try {
-            const res = await fetch(API_URL + endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ login, password })
-            });
-            const data = await res.json();
-            if (!res.ok) { alert('❌ ' + (data.error || 'Ошибка')); return; }
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('login', data.login);
-            updateUserUI(data.login);
-            updateAdminVisibility();
-            closeAuth();
-            alert('✅ Добро пожаловать, ' + data.login + '!');
-        } catch (e) { console.error(e); alert('❌ Ошибка соединения'); }
-    }
+    function updateUserUI(login) { const btn = document.getElementById('authBtn'); btn.textContent = login + ' (выйти)'; btn.onclick = logout; btn.classList.toggle('admin-btn', login === ADMIN_LOGIN); if (login === ADMIN_LOGIN) btn.textContent = '👑 ' + login + ' (выйти)'; }
+    function logout() { localStorage.removeItem('token'); localStorage.removeItem('login'); document.getElementById('authBtn').textContent = 'Войти'; document.getElementById('authBtn').onclick = openAuth; document.getElementById('authBtn').classList.remove('admin-btn'); updateAdminVisibility(); closeAll(); }
 
-    function updateUserUI(login) {
-        const btn = document.getElementById('authBtn');
-        btn.textContent = login + ' (выйти)';
-        btn.onclick = logout;
-        if (login === ADMIN_LOGIN) {
-            btn.classList.add('admin-btn');
-            btn.textContent = '👑 ' + login + ' (выйти)';
-        } else {
-            btn.classList.remove('admin-btn');
-        }
-    }
-    function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('login');
-        document.getElementById('authBtn').textContent = 'Войти';
-        document.getElementById('authBtn').onclick = openAuth;
-        document.getElementById('authBtn').classList.remove('admin-btn');
-        updateAdminVisibility();
-        closeAll();
-        alert('👋 Вы вышли');
-    }
-
-    window.addEventListener('load', async () => {
-        const token = localStorage.getItem('token');
-        const login = localStorage.getItem('login');
-        if (token && login) {
-            try {
-                const res = await fetch(API_URL + '/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    updateUserUI(data.login);
-                    updateAdminVisibility();
-                } else {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('login');
-                }
-            } catch (e) { console.error(e); }
-        }
-    });
+    window.addEventListener('load', async () => { const token = localStorage.getItem('token'); const login = localStorage.getItem('login'); if (token && login) { try { const res = await fetch(API_URL + '/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }); const data = await res.json(); if (data.success) { updateUserUI(data.login); updateAdminVisibility(); } else { localStorage.removeItem('token'); localStorage.removeItem('login'); } } catch (e) {} } });
 
     // ============================================
     // АДМИНКА — ALT+U
     // ============================================
-    document.addEventListener('keydown', function(e) {
-        if (e.altKey && e.code === 'KeyU') {
-            e.preventDefault();
-            if (!isAdmin()) return;
-            const panel = document.getElementById('adminPanel');
-            if (panel.classList.contains('active')) closeAll();
-            else panel.classList.add('active');
-        }
-        if (e.code === 'Escape') closeAll();
-    });
+    document.addEventListener('keydown', (e) => { if (e.altKey && e.code === 'KeyU') { e.preventDefault(); if (!isAdmin()) return; const panel = document.getElementById('adminPanel'); panel.classList.toggle('active'); document.getElementById('overlay').classList.toggle('active', panel.classList.contains('active')); } if (e.code === 'Escape') closeAll(); });
 
-    let logoClicks = 0;
-    let logoTimer = null;
-    document.querySelector('.logo-badge').addEventListener('click', () => {
-        if (!isAdmin()) return;
-        logoClicks++;
-        if (logoClicks === 3) {
-            const panel = document.getElementById('adminPanel');
-            if (panel.classList.contains('active')) closeAll();
-            else panel.classList.add('active');
-            logoClicks = 0;
-        }
-        clearTimeout(logoTimer);
-        logoTimer = setTimeout(() => { logoClicks = 0; }, 1000);
-    });
-
-    function closeAll() {
-        document.getElementById('adminPanel').classList.remove('active');
-        document.getElementById('overlay').classList.remove('active');
-        closeAuth();
-        clickMode = false;
-        map.getCanvas().style.cursor = '';
-        document.getElementById('clickIndicator').classList.remove('active');
-        document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-        document.getElementById('pickBtn').classList.remove('active');
-    }
+    function closeAll() { document.getElementById('adminPanel').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); closeAuth(); clickMode = false; map.getCanvas().style.cursor = ''; document.getElementById('clickIndicator').classList.remove('active'); document.getElementById('pickBtn').textContent = '📍 Выбрать на карте'; }
 
     // ============================================
     // ПОИСК
     // ============================================
-    function searchCity() {
+    async function searchCity() {
         const query = document.getElementById('citySearch').value.trim();
         if (!query) return;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.length > 0) {
-                    const { lat, lon } = data[0];
-                    map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 10 });
-                    loadWeather(parseFloat(lat), parseFloat(lon));
-                    getLocationName(parseFloat(lat), parseFloat(lon));
-                } else { alert('Город не найден'); }
-            })
-            .catch(err => { console.error(err); alert('Ошибка поиска'); });
+        try {
+            const res = await maptilersdk.geocoding.forward(query, { limit: 1 });
+            if (res.features.length > 0) {
+                const [lng, lat] = res.features[0].center;
+                map.flyTo({ center: [lng, lat], zoom: 10 });
+                loadWeather(lat, lng);
+                getLocationName(lat, lng);
+            } else { alert('Город не найден'); }
+        } catch (e) { console.error(e); }
     }
-    document.getElementById('citySearch').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchCity();
-    });
+    document.getElementById('citySearch').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCity(); });
 
     // ============================================
     // СЛОИ
     // ============================================
-    function setLayer(layerType, btn) {
-        document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
+    function setLayer(layerType, btn) { document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 
-    // ============================================
-    // СМЕНА ТИПА ОСАДКОВ (меняет цвет радара)
-    // ============================================
+    // ТИП ОСАДКОВ
     function onPrecipTypeChange(type) {
-        const colorMap = {
-            rain: 4,      // Синяя (дождь)
-            snow: 6,      // Белая (снег)
-            storm: 3,     // Фиолетовая (гроза)
-            hail: 5,      // Красная (град)
-            sleet: 2      // Голубая (мокрый снег)
-        };
-
+        const colorMap = { rain: 4, snow: 6, storm: 3, hail: 5, sleet: 2, hurricane: 7 };
         weatherState.precipColor = colorMap[type] || 4;
         weatherState.phenomenonType = type === 'hail' ? 'storm' : type;
-
-        console.log(`🎨 Тип осадков: ${type}, схема: ${weatherState.precipColor}`);
-
-        // Меняем тайлы на лету
-        if (radarActive && radarFrames.length > 0) {
-            const frame = radarFrames[radarFrameIndex];
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`;
-            const source = map.getSource('radar-source');
-            if (source) {
-                source.setTiles([tileUrl]);
-                console.log('🎨 Цвет радара обновлён');
-            }
-        }
-
+        if (radarActive && radarFrames.length > 0) { const frame = radarFrames[radarFrameIndex]; const source = map.getSource('radar-source'); if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`]); }
         if (isAdmin()) sendWeatherToServer();
     }
 
-    // ============================================
-    // РАДАР ОСАДКОВ С АНИМАЦИЕЙ
-    // ============================================
+    // ЧАСТИЦЫ ВЕТРА MAPTILER
+    function toggleWindParticles(btn) {
+        windParticlesActive = !windParticlesActive;
+        if (windParticlesActive) {
+            try {
+                windLayer = new maptilerweather.WindLayer();
+                map.addLayer(windLayer, 'Water');
+                windLayer.animateByFactor(3600);
+                btn.classList.add('active');
+                console.log('💨 Частицы ветра включены');
+            } catch (e) {
+                console.error('Ошибка частиц:', e);
+                alert('Не удалось загрузить частицы ветра');
+                windParticlesActive = false;
+            }
+        } else {
+            if (windLayer) { map.removeLayer(windLayer.id); windLayer = null; }
+            btn.classList.remove('active');
+            console.log('💨 Частицы ветра выключены');
+        }
+    }
+
+    // РАДАР
     function toggleRadar(btn) {
         radarActive = !radarActive;
         if (radarActive) {
-            loadRadarFrames(btn);
+            fetch('https://api.rainviewer.com/public/weather-maps.json').then(r => r.json()).then(data => {
+                radarHost = data.host;
+                radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
+                if (radarFrames.length === 0) { radarActive = false; return; }
+                const firstFrame = radarFrames[0];
+                if (map.getSource('radar-source')) map.removeSource('radar-source');
+                if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
+                map.addSource('radar-source', { type: 'raster', tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`], tileSize: 512, maxzoom: 7 });
+                map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.75, 'raster-fade-duration': 0 } });
+                btn.classList.add('active');
+                document.getElementById('radarTime').classList.add('active');
+                startRadarAnimation();
+            });
         } else {
-            stopRadarAnimation();
+            if (radarAnimationTimer) clearInterval(radarAnimationTimer);
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
             if (map.getSource('radar-source')) map.removeSource('radar-source');
             document.getElementById('radarTime').classList.remove('active');
             btn.classList.remove('active');
-            console.log('🌧️ Радар выключен');
-        }
-    }
-
-    async function loadRadarFrames(btn) {
-        try {
-            console.log('🌧️ Загружаю кадры радара...');
-            const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-            const data = await res.json();
-
-            radarHost = data.host;
-            radarFrames = [
-                ...data.radar.past,
-                ...(data.radar.nowcast || [])
-            ];
-
-            if (radarFrames.length === 0) {
-                alert('Нет данных радара');
-                radarActive = false;
-                return;
-            }
-
-            console.log(`✅ Загружено ${radarFrames.length} кадров`);
-
-            const firstFrame = radarFrames[0];
-            const colorScheme = weatherState.precipColor || 4;
-            const tileUrl = `${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
-
-            if (map.getSource('radar-source')) map.removeSource('radar-source');
-            if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
-
-            map.addSource('radar-source', {
-                type: 'raster',
-                tiles: [tileUrl],
-                tileSize: 512,
-                maxzoom: 7
-            });
-
-            map.addLayer({
-                id: 'radar-layer',
-                type: 'raster',
-                source: 'radar-source',
-                paint: {
-                    'raster-opacity': 0.75,
-                    'raster-fade-duration': 0
-                }
-            });
-
-            btn.classList.add('active');
-            document.getElementById('radarTime').classList.add('active');
-            startRadarAnimation();
-
-        } catch (err) {
-            console.error('Ошибка радара:', err);
-            alert('Не удалось загрузить радар');
-            radarActive = false;
         }
     }
 
     function startRadarAnimation() {
         if (radarAnimationTimer) clearInterval(radarAnimationTimer);
         radarFrameIndex = 0;
-
         radarAnimationTimer = setInterval(() => {
             if (!radarActive || radarFrames.length === 0) return;
-
             radarFrameIndex = (radarFrameIndex + 1) % radarFrames.length;
             const frame = radarFrames[radarFrameIndex];
-            const colorScheme = weatherState.precipColor || 4;
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
-
             const source = map.getSource('radar-source');
-            if (source) source.setTiles([tileUrl]);
-
+            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`]);
             const time = new Date(frame.time * 1000);
             const timeStr = time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             const isForecast = radarFrameIndex >= radarFrames.length - (radarFrames.length / 3);
-            document.getElementById('radarTime').textContent =
-                `🌧️ ${isForecast ? 'Прогноз' : 'Радар'}: ${timeStr}`;
-
+            document.getElementById('radarTime').textContent = `🌧️ ${isForecast ? 'Прогноз' : 'Радар'}: ${timeStr}`;
         }, 500);
     }
 
-    function stopRadarAnimation() {
-        if (radarAnimationTimer) {
-            clearInterval(radarAnimationTimer);
-            radarAnimationTimer = null;
-        }
-    }
-
-    // ============================================
     // СПУТНИК
-    // ============================================
     function toggleSatellite(btn) {
         satelliteActive = !satelliteActive;
         if (satelliteActive) {
-            map.addSource('satellite-source', {
-                type: 'raster',
-                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                tileSize: 256
-            });
+            map.addSource('satellite-source', { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256 });
             map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite-source', paint: { 'raster-opacity': 1 } });
-            map.addSource('labels-source', {
-                type: 'raster',
-                tiles: ['https://basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'],
-                tileSize: 256
-            });
-            map.addLayer({ id: 'labels-layer', type: 'raster', source: 'labels-source', paint: { 'raster-opacity': 0.9 } });
             btn.classList.add('active');
         } else {
             if (map.getLayer('satellite-layer')) map.removeLayer('satellite-layer');
             if (map.getSource('satellite-source')) map.removeSource('satellite-source');
-            if (map.getLayer('labels-layer')) map.removeLayer('labels-layer');
-            if (map.getSource('labels-source')) map.removeSource('labels-source');
             btn.classList.remove('active');
         }
     }
@@ -868,16 +419,13 @@
         if (clickMode) {
             const { lng, lat } = e.lngLat;
             document.getElementById('coordsInput').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-            const el = document.createElement('div');
-            el.className = 'custom-marker';
-            el.textContent = '📍';
-            const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
+            const el = document.createElement('div'); el.className = 'custom-marker'; el.textContent = '📍';
+            const marker = new maptilersdk.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
             markers.push(marker);
             clickMode = false;
             map.getCanvas().style.cursor = '';
             document.getElementById('clickIndicator').classList.remove('active');
             document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-            document.getElementById('pickBtn').classList.remove('active');
             return;
         }
         loadWeather(e.lngLat.lat, e.lngLat.lng);
@@ -890,80 +438,27 @@
         map.getCanvas().style.cursor = 'crosshair';
         document.getElementById('clickIndicator').classList.add('active');
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
-        document.getElementById('pickBtn').classList.add('active');
     }
 
     function sendPhenomenonToCoords() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
         if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
-
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
         const type = document.getElementById('precipType').value;
         const power = parseInt(document.getElementById('power').value);
-
         weatherState.phenomenonType = type;
         weatherState.power = power;
         weatherState.lastLat = lat;
         weatherState.lastLng = lng;
         weatherState.tornadoCount = (weatherState.tornadoCount || 0) + 1;
-
         sendWeatherToServer();
         applyWeatherFromServer();
-        alert(`✅ ${type} отправлен ВСЕМ пользователям в ${lat}, ${lng}`);
+        alert(`✅ ${type} отправлен ВСЕМ в ${lat}, ${lng}`);
     }
 
-    // ============================================
-    // АДМИНКА
-    // ============================================
-    function applyWeather() {
-        if (!isAdmin()) return;
-
-        weatherState.rainIntensity = parseInt(document.getElementById('rainIntensity').value);
-        weatherState.isPrecipActive = weatherState.rainIntensity > 0;
-        weatherState.power = parseInt(document.getElementById('power').value);
-        weatherState.windSpeed = parseInt(document.getElementById('windSpeed').value);
-        weatherState.temperature = parseInt(document.getElementById('temperature').value);
-
-        // precipColor и phenomenonType уже в weatherState (из onPrecipTypeChange)
-
-        sendWeatherToServer();
-        alert('✅ Погода отправлена ВСЕМ пользователям!');
-    }
-
-    function resetWeather() {
-        if (!isAdmin()) return;
-
-        weatherState = {
-            rainIntensity: 0,
-            phenomenonType: 'rain',
-            precipColor: 4,
-            power: 3,
-            windSpeed: 0,
-            temperature: 15,
-            isPrecipActive: false,
-            tornadoCount: 0,
-            lastLat: null,
-            lastLng: null
-        };
-
-        document.getElementById('rainIntensity').value = 0;
-        document.getElementById('rainIntensityLabel').textContent = '0';
-        document.getElementById('precipType').value = 'rain';
-        document.getElementById('power').value = 3;
-        document.getElementById('powerLabel').textContent = '3';
-        document.getElementById('windSpeed').value = 0;
-        document.getElementById('windSpeedLabel').textContent = '0';
-        document.getElementById('temperature').value = 15;
-        document.getElementById('tempLabel').textContent = '15';
-        document.getElementById('coordsInput').value = '';
-
-        markers.forEach(m => m.remove());
-        markers = [];
-
-        sendWeatherToServer();
-        alert('🔄 Погода сброшена для ВСЕХ');
-    }
+    function applyWeather() { if (!isAdmin()) return; sendWeatherToServer(); alert('✅ Погода отправлена ВСЕМ!'); }
+    function resetWeather() { if (!isAdmin()) return; weatherState = { rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false, tornadoCount: 0, lastLat: null, lastLng: null }; markers.forEach(m => m.remove()); markers = []; sendWeatherToServer(); alert('🔄 Сброшено для ВСЕХ'); }
 
     // ============================================
     // ПОГОДА
@@ -977,72 +472,43 @@
             document.getElementById('windValue').textContent = `${w.windspeed} м/с`;
             document.getElementById('precipValue').textContent = `${w.precipitation || 0} мм`;
             document.getElementById('weatherDesc').textContent = getWeatherDesc(w.weathercode);
-            if (data.hourly && data.hourly.relativehumidity_2m) {
-                document.getElementById('humidityValue').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
-            }
-        } catch (e) { console.error('Ошибка погоды:', e); }
+            if (data.hourly && data.hourly.relativehumidity_2m) document.getElementById('humidityValue').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
+        } catch (e) { console.error(e); }
     }
 
     function getWeatherDesc(code) {
-        const codes = {
-            0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно',
-            45: 'Туман', 48: 'Туман с изморозью', 51: 'Лёгкая морось', 53: 'Морось',
-            55: 'Сильная морось', 61: 'Небольшой дождь', 63: 'Дождь', 65: 'Сильный дождь',
-            71: 'Небольшой снег', 73: 'Снег', 75: 'Сильный снег', 80: 'Ливень',
-            95: 'Гроза', 96: 'Гроза с градом', 99: 'Сильная гроза с градом'
-        };
+        const codes = { 0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно', 45: 'Туман', 48: 'Туман с изморозью', 51: 'Лёгкая морось', 53: 'Морось', 55: 'Сильная морось', 61: 'Небольшой дождь', 63: 'Дождь', 65: 'Сильный дождь', 71: 'Небольшой снег', 73: 'Снег', 75: 'Сильный снег', 80: 'Ливень', 95: 'Гроза', 96: 'Гроза с градом', 99: 'Сильная гроза с градом' };
         return codes[code] || 'Неизвестно';
     }
 
     async function getLocationName(lat, lng) {
         try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&accept-language=ru`);
-            const data = await res.json();
-            const city = data.address.city || data.address.town || data.address.village || data.address.state || 'Неизвестно';
-            document.getElementById('locationName').textContent = city;
-        } catch (e) {
-            document.getElementById('locationName').textContent = 'Локация';
-        }
+            const res = await maptilersdk.geocoding.reverse([lng, lat]);
+            if (res.features.length > 0) {
+                const place = res.features[0].place_name_ru || res.features[0].place_name;
+                document.getElementById('locationName').textContent = place.split(',')[0];
+            }
+        } catch (e) { document.getElementById('locationName').textContent = 'Локация'; }
     }
 
     function autoDetectLocation() {
-        if (!navigator.geolocation) {
-            loadWeather(46.959, 142.738);
-            getLocationName(46.959, 142.738);
-            return;
-        }
+        if (!navigator.geolocation) { loadWeather(46.959, 142.738); getLocationName(46.959, 142.738); return; }
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.flyTo({ center: [lng, lat], zoom: 10 });
-                loadWeather(lat, lng);
-                getLocationName(lat, lng);
-            },
-            () => {
-                loadWeather(46.959, 142.738);
-                getLocationName(46.959, 142.738);
-            },
+            (position) => { const lat = position.coords.latitude; const lng = position.coords.longitude; map.flyTo({ center: [lng, lat], zoom: 10 }); loadWeather(lat, lng); getLocationName(lat, lng); },
+            () => { loadWeather(46.959, 142.738); getLocationName(46.959, 142.738); },
             { timeout: 5000 }
         );
     }
 
-    // ============================================
-    // ЗАПУСК + АВТО-РАДАР
-    // ============================================
     map.on('load', () => {
-        console.log('🗺️ Карта готова');
+        console.log('🗺️ Карта MapTiler готова');
         updateAdminVisibility();
         autoDetectLocation();
-
-        // АВТОМАТИЧЕСКИ ВКЛЮЧАЕМ РАДАР ОСАДКОВ
+        // Автоматически включаем частицы ветра
         setTimeout(() => {
-            const radarBtn = document.querySelector('.layer-item[onclick*="toggleRadar"]');
-            if (radarBtn && !radarActive) {
-                toggleRadar(radarBtn);
-                console.log('🌧️ Радар осадков включён автоматически');
-            }
-        }, 1500);
+            const windBtn = document.querySelector('.layer-item[onclick*="toggleWindParticles"]');
+            if (windBtn && !windParticlesActive) toggleWindParticles(windBtn);
+        }, 2000);
     });
 </script>
 
