@@ -330,14 +330,13 @@
             <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="document.getElementById('rainIntensityLabel').textContent=this.value">
         </div>
         <div class="admin-control">
-            <label>Тип явления:</label>
-            <select id="phenomenonType">
-                <option value="rain">Дождь</option>
-                <option value="snow">Снег</option>
-                <option value="storm">Гроза</option>
-                <option value="hurricane">Ураган</option>
-                <option value="tornado">Торнадо</option>
-                <option value="whirlwind">Вихрь</option>
+            <label>Тип осадков (цвет радара):</label>
+            <select id="precipType" onchange="onPrecipTypeChange(this.value)">
+                <option value="rain">🌧️ Дождь (синий)</option>
+                <option value="snow">❄️ Снег (белый)</option>
+                <option value="storm">⛈️ Гроза (фиолетовый)</option>
+                <option value="hail">🧊 Град (красный)</option>
+                <option value="sleet">🌨️ Мокрый снег (голубой)</option>
             </select>
         </div>
     </div>
@@ -452,6 +451,7 @@
     let weatherState = {
         rainIntensity: 0,
         phenomenonType: 'rain',
+        precipColor: 4,          // цветовая схема радара
         power: 3,
         windSpeed: 0,
         temperature: 15,
@@ -510,6 +510,14 @@
         }
         if (weatherState.temperature !== 15) {
             document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
+        }
+
+        // Обновляем цвет радара если он активен
+        if (radarActive && radarFrames.length > 0) {
+            const frame = radarFrames[radarFrameIndex];
+            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`;
+            const source = map.getSource('radar-source');
+            if (source) source.setTiles([tileUrl]);
         }
 
         if (weatherState.lastLat && weatherState.lastLng) {
@@ -692,7 +700,38 @@
     }
 
     // ============================================
-    // РАДАР ОСАДКОВ С АНИМАЦИЕЙ (как в Windy)
+    // СМЕНА ТИПА ОСАДКОВ (меняет цвет радара)
+    // ============================================
+    function onPrecipTypeChange(type) {
+        const colorMap = {
+            rain: 4,      // Синяя (дождь)
+            snow: 6,      // Белая (снег)
+            storm: 3,     // Фиолетовая (гроза)
+            hail: 5,      // Красная (град)
+            sleet: 2      // Голубая (мокрый снег)
+        };
+
+        weatherState.precipColor = colorMap[type] || 4;
+        weatherState.phenomenonType = type === 'hail' ? 'storm' : type;
+
+        console.log(`🎨 Тип осадков: ${type}, схема: ${weatherState.precipColor}`);
+
+        // Меняем тайлы на лету
+        if (radarActive && radarFrames.length > 0) {
+            const frame = radarFrames[radarFrameIndex];
+            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`;
+            const source = map.getSource('radar-source');
+            if (source) {
+                source.setTiles([tileUrl]);
+                console.log('🎨 Цвет радара обновлён');
+            }
+        }
+
+        if (isAdmin()) sendWeatherToServer();
+    }
+
+    // ============================================
+    // РАДАР ОСАДКОВ С АНИМАЦИЕЙ
     // ============================================
     function toggleRadar(btn) {
         radarActive = !radarActive;
@@ -728,9 +767,9 @@
 
             console.log(`✅ Загружено ${radarFrames.length} кадров`);
 
-            // Создаём источник с первым кадром
             const firstFrame = radarFrames[0];
-            const tileUrl = `${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/4/1_1.png`;
+            const colorScheme = weatherState.precipColor || 4;
+            const tileUrl = `${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
 
             if (map.getSource('radar-source')) map.removeSource('radar-source');
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
@@ -772,14 +811,12 @@
 
             radarFrameIndex = (radarFrameIndex + 1) % radarFrames.length;
             const frame = radarFrames[radarFrameIndex];
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/4/1_1.png`;
+            const colorScheme = weatherState.precipColor || 4;
+            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
 
             const source = map.getSource('radar-source');
-            if (source) {
-                source.setTiles([tileUrl]);
-            }
+            if (source) source.setTiles([tileUrl]);
 
-            // Показываем время кадра
             const time = new Date(frame.time * 1000);
             const timeStr = time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             const isForecast = radarFrameIndex >= radarFrames.length - (radarFrames.length / 3);
@@ -862,7 +899,7 @@
         if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
 
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
-        const type = document.getElementById('phenomenonType').value;
+        const type = document.getElementById('precipType').value;
         const power = parseInt(document.getElementById('power').value);
 
         weatherState.phenomenonType = type;
@@ -884,10 +921,11 @@
 
         weatherState.rainIntensity = parseInt(document.getElementById('rainIntensity').value);
         weatherState.isPrecipActive = weatherState.rainIntensity > 0;
-        weatherState.phenomenonType = document.getElementById('phenomenonType').value;
         weatherState.power = parseInt(document.getElementById('power').value);
         weatherState.windSpeed = parseInt(document.getElementById('windSpeed').value);
         weatherState.temperature = parseInt(document.getElementById('temperature').value);
+
+        // precipColor и phenomenonType уже в weatherState (из onPrecipTypeChange)
 
         sendWeatherToServer();
         alert('✅ Погода отправлена ВСЕМ пользователям!');
@@ -899,6 +937,7 @@
         weatherState = {
             rainIntensity: 0,
             phenomenonType: 'rain',
+            precipColor: 4,
             power: 3,
             windSpeed: 0,
             temperature: 15,
@@ -910,6 +949,7 @@
 
         document.getElementById('rainIntensity').value = 0;
         document.getElementById('rainIntensityLabel').textContent = '0';
+        document.getElementById('precipType').value = 'rain';
         document.getElementById('power').value = 3;
         document.getElementById('powerLabel').textContent = '3';
         document.getElementById('windSpeed').value = 0;
@@ -987,10 +1027,22 @@
         );
     }
 
+    // ============================================
+    // ЗАПУСК + АВТО-РАДАР
+    // ============================================
     map.on('load', () => {
         console.log('🗺️ Карта готова');
         updateAdminVisibility();
         autoDetectLocation();
+
+        // АВТОМАТИЧЕСКИ ВКЛЮЧАЕМ РАДАР ОСАДКОВ
+        setTimeout(() => {
+            const radarBtn = document.querySelector('.layer-item[onclick*="toggleRadar"]');
+            if (radarBtn && !radarActive) {
+                toggleRadar(radarBtn);
+                console.log('🌧️ Радар осадков включён автоматически');
+            }
+        }, 1500);
     });
 </script>
 
