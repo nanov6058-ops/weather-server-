@@ -14,6 +14,7 @@
         @keyframes chernobylPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.7; } }
         body.chernobyl::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 901; animation: scanlines 8s linear infinite; }
         @keyframes scanlines { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+
         .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 8px; z-index: 1000; pointer-events: none; }
         .search-box { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid rgba(100,150,255,0.2); pointer-events: all; flex: 1; max-width: 320px; }
         body.chernobyl .search-box { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
@@ -21,14 +22,17 @@
         .search-box input::placeholder { color: #888; }
         .search-box button { background: transparent; border: none; color: #6eb5ff; font-size: 18px; cursor: pointer; padding: 0 4px; }
         body.chernobyl .search-box button { color: #00ff00; }
+
         .logo-badge { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all; border: 1px solid rgba(100,150,255,0.2); white-space: nowrap; }
         .logo-badge span { color: #ff6b6b; }
         body.chernobyl .logo-badge { border-color: #00ff00; }
         body.chernobyl .logo-badge span { color: #00ff00; }
+
         .user-area { margin-left: auto; display: flex; gap: 8px; pointer-events: all; }
         .user-btn { background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-size: 13px; font-weight: bold; border: 1px solid rgba(100,150,255,0.2); cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.5); white-space: nowrap; }
         .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
         .user-btn.admin-btn { border-color: #ff6b6b; color: #ff6b6b; }
+
         .layers-menu { position: fixed; top: 65px; right: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 8px; z-index: 1000; width: 68px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); display: flex; flex-direction: column; gap: 5px; }
         body.chernobyl .layers-menu { border-color: #00ff00; }
         .layer-item { display: flex; flex-direction: column; align-items: center; padding: 5px 3px; border-radius: 10px; cursor: pointer; transition: background 0.2s; color: #fff; }
@@ -38,6 +42,7 @@
         body.chernobyl .layer-item.active { background: rgba(0, 255, 0, 0.3); }
         .layer-item .icon { font-size: 20px; margin-bottom: 1px; }
         .layer-item .label { font-size: 8px; text-align: center; color: #ccc; line-height: 1.1; }
+
         .weather-panel { position: fixed; top: 65px; left: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 15px; z-index: 1000; width: 240px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); color: #fff; }
         body.chernobyl .weather-panel { border-color: #00ff00; }
         .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
@@ -51,10 +56,17 @@
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
         body.chernobyl .weather-panel .details .val { color: #00ff00; }
+
+        .precip-panel { position: fixed; top: 290px; left: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 15px; z-index: 1000; width: 240px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); color: #fff; }
+        body.chernobyl .precip-panel { border-color: #00ff00; }
+        .precip-panel h3 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
+        body.chernobyl .precip-panel h3 { color: #00ff00; }
+
         .intensity-bar { width: 100%; height: 12px; background: linear-gradient(to right, #00ff00 0%, #88ff00 25%, #ffff00 50%, #ff8800 75%, #ff0000 100%); border-radius: 6px; margin: 6px 0; position: relative; overflow: hidden; }
         .intensity-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: rgba(255, 255, 255, 0.3); border-right: 3px solid #fff; transition: width 0.2s ease; }
         .intensity-scale { display: flex; justify-content: space-between; font-size: 9px; color: #888; margin-top: 4px; }
         .intensity-value { text-align: center; font-size: 12px; color: #fff; font-weight: bold; margin-top: 6px; padding: 6px; border-radius: 6px; background: rgba(0, 0, 0, 0.3); }
+
         .admin-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 340px; max-width: 95vw; background: rgba(5, 5, 15, 0.98); padding: 20px 18px; color: #fff; z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8); border-left: 2px solid #ff6b6b; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease; display: none; }
         .admin-panel.allowed { display: block; }
         .admin-panel.active { transform: translateX(0); }
@@ -66,6 +78,7 @@
         .admin-control input[type="range"] { width: 100%; height: 6px; }
         .admin-control input[type="text"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
         .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
+
         .btn { padding: 12px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
         .btn-danger { background: linear-gradient(135deg, #ff6b6b, #d94a4a); color: #fff; }
@@ -73,6 +86,7 @@
         .btn-success { background: linear-gradient(135deg, #4ade80, #22a855); color: #fff; }
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-full { width: 100%; }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .overlay.active { opacity: 1; visibility: visible; }
         .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(10, 10, 25, 0.98); border-radius: 20px; padding: 28px; color: #fff; z-index: 3000; box-shadow: 0 20px 80px rgba(0,0,0,0.9); border: 2px solid #6eb5ff; width: 90%; max-width: 380px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -83,9 +97,11 @@
         .auth-modal .btn { width: 100%; margin-bottom: 10px; padding: 14px; font-size: 15px; }
         .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 10px; cursor: pointer; }
         .auth-modal .switch span { color: #6eb5ff; text-decoration: underline; }
+
         .hotkey-hint { position: fixed; bottom: 15px; right: 15px; background: rgba(10,10,20,0.9); padding: 8px 12px; border-radius: 10px; color: #888; font-size: 11px; z-index: 1000; display: none; }
         .hotkey-hint.allowed { display: block; }
         .hotkey-hint kbd { background: #333; padding: 2px 6px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
+
         .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
         .vortex-marker { font-size: 40px; filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.9)); animation: vortexSpin 1s linear infinite; cursor: pointer; }
         .vortex-marker.tornado { filter: drop-shadow(0 0 25px rgba(255, 100, 0, 0.9)); }
@@ -94,6 +110,7 @@
         .vortex-marker.dust_devil { filter: drop-shadow(0 0 20px rgba(200, 180, 100, 0.9)); }
         @keyframes vortexSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .vortex-info { position: fixed; background: rgba(10, 10, 20, 0.95); border: 2px solid #00ccff; border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 13px; z-index: 4500; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.7); max-width: 240px; }
+
         .click-mode-indicator { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255, 184, 77, 0.95); color: #000; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 13px; z-index: 4000; box-shadow: 0 4px 20px rgba(255,184,77,0.5); display: none; }
         .click-mode-indicator.active { display: block; }
         .connection-status { position: fixed; bottom: 15px; left: 15px; background: rgba(15, 15, 30, 0.95); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #fff; z-index: 1000; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(100,150,255,0.2); }
@@ -102,6 +119,7 @@
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
         .radar-time { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 30, 0.95); padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #6eb5ff; font-weight: bold; z-index: 1000; display: none; border: 1px solid rgba(100,150,255,0.3); }
         .radar-time.active { display: block; }
+
         .falling-nuke { position: fixed; top: -120px; font-size: 60px; z-index: 5000; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0, 255, 0, 0.9)); transition: top 1.5s cubic-bezier(0.5, 0, 1, 1), opacity 0.3s; left: 50%; transform: translateX(-50%); opacity: 0; }
         .falling-nuke.falling { top: 50vh; opacity: 1; }
         .falling-nuke.gone { opacity: 0; }
@@ -113,6 +131,7 @@
         .alert-box h2 { color: #00ff00; margin-bottom: 15px; font-size: 22px; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .alert-box p { font-size: 14px; line-height: 1.5; margin-bottom: 10px; color: #ddd; }
         .alert-box .warning-text { background: rgba(0, 255, 0, 0.15); padding: 12px; border-radius: 10px; font-size: 13px; color: #88ff88; margin: 15px 0; border: 1px solid #00ff00; }
+
         .explosion-particle { position: fixed; pointer-events: none; z-index: 4998; border-radius: 50%; animation: explodeParticle 2s ease-out forwards; }
         @keyframes explodeParticle { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
         .shockwave { position: fixed; border: 4px solid rgba(0, 255, 0, 0.8); border-radius: 50%; pointer-events: none; z-index: 4997; width: 0; height: 0; animation: shockwaveAnim 1.5s ease-out forwards; }
@@ -125,6 +144,7 @@
         .radiation-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; pointer-events: none; z-index: 4994; opacity: 0; filter: drop-shadow(0 0 40px #00ff00); }
         .radiation-indicator.active { animation: radiationPulse 2s ease-out; }
         @keyframes radiationPulse { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2); } }
+
         @media (max-width: 600px) {
             .top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
             .logo-badge { display: none; }
@@ -134,6 +154,7 @@
             .layer-item { flex-shrink: 0; min-width: 60px; padding: 6px 4px; }
             .weather-panel { top: 55px; left: 8px; width: calc(100% - 16px); max-width: 320px; padding: 12px; }
             .weather-panel .temp-big { font-size: 34px; }
+            .precip-panel { top: auto; bottom: 180px; left: 8px; width: calc(100% - 16px); max-width: 320px; padding: 12px; }
             .admin-panel { width: 100%; max-width: 100%; padding: 20px 16px 80px 16px; border-left: none; }
             .hotkey-hint { display: none !important; }
             .connection-status { bottom: 90px; }
@@ -196,6 +217,40 @@
     </div>
 </div>
 
+<div class="precip-panel">
+    <h3>🌧️ Осадки</h3>
+    <div class="admin-control">
+        <label>Тип:</label>
+        <select id="precipTypeMain" onchange="onPrecipTypeChange(this.value)">
+            <option value="rain">🌧️ Дождь (мм)</option>
+            <option value="snow">❄️ Снег (см)</option>
+            <option value="snow_depth">📏 Глубина снега (см)</option>
+            <option value="hail">🧊 Град (мм)</option>
+            <option value="sleet">🌨️ Мокрый снег (мм)</option>
+            <option value="storm">⛈️ Гроза</option>
+            <option value="blizzard">🌬️ Метель</option>
+            <option value="ice">🧊 Гололёд (мм)</option>
+            <option value="fog">🌫️ Туман</option>
+            <option value="dust">💨 Пыльная буря</option>
+        </select>
+    </div>
+    <div class="admin-control">
+        <label>Интенсивность: <span id="rainIntensityLabel">0</span> <span id="rainUnit">мм</span></label>
+        <input type="range" id="rainIntensity" min="0" max="100" value="0"
+               oninput="document.getElementById('rainIntensityLabel').textContent=this.value; updateIntensityColor();">
+        <div class="intensity-bar">
+            <div class="intensity-fill" id="intensityFill"></div>
+        </div>
+        <div class="intensity-scale">
+            <span>🟢 Слабо</span>
+            <span>🟡 Умеренно</span>
+            <span>🟠 Сильно</span>
+            <span>🔴 Экстрим</span>
+        </div>
+        <div class="intensity-value" id="intensityValue">0 мм — нет осадков</div>
+    </div>
+</div>
+
 <div class="hotkey-hint" id="hotkeyHint"><kbd>Alt</kbd> + <kbd>U</kbd> — Админка</div>
 <div class="connection-status">
     <div class="status-dot" id="statusDot"></div>
@@ -205,8 +260,9 @@
 
 <div class="admin-panel" id="adminPanel">
     <h2>🔧 Админ-панель</h2>
+
     <div class="admin-section">
-        <h3>🌧️ Типы осадков</h3>
+        <h3>🌧️ Типы осадков (синхр. с главной)</h3>
         <div class="admin-control">
             <label>Тип осадков:</label>
             <select id="precipType" onchange="onPrecipTypeChange(this.value)">
@@ -221,15 +277,6 @@
                 <option value="fog">🌫️ Туман</option>
                 <option value="dust">💨 Пыльная буря</option>
             </select>
-        </div>
-        <div class="admin-control">
-            <label>Интенсивность: <span id="rainIntensityLabel">0</span> <span id="rainUnit">мм</span></label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="document.getElementById('rainIntensityLabel').textContent=this.value; updateIntensityColor();">
-            <div class="intensity-bar"><div class="intensity-fill" id="intensityFill"></div></div>
-            <div class="intensity-scale">
-                <span>🟢 Слабо</span><span>🟡 Умеренно</span><span>🟠 Сильно</span><span>🔴 Экстрим</span>
-            </div>
-            <div class="intensity-value" id="intensityValue">0 мм — нет осадков</div>
         </div>
     </div>
 
@@ -247,7 +294,8 @@
         </div>
         <div class="admin-control">
             <label>Сила вихря: <span id="vortexPowerLabel">3</span></label>
-            <input type="range" id="vortexPower" min="1" max="10" value="3" oninput="document.getElementById('vortexPowerLabel').textContent=this.value">
+            <input type="range" id="vortexPower" min="1" max="10" value="3"
+                   oninput="document.getElementById('vortexPowerLabel').textContent=this.value">
         </div>
         <div class="btn-group">
             <button class="btn btn-primary btn-full" onclick="enableVortexClickMode()">📍 Выбрать место для вихря</button>
@@ -425,12 +473,26 @@
         document.body.classList.remove('chernobyl');
     }
 
+    function getZoneColorByIntensity(value) {
+        if (value === 0) return '#666666';
+        if (value < 25) return '#00ff00';
+        if (value < 50) return '#88ff00';
+        if (value < 75) return '#ffcc00';
+        return '#ff0000';
+    }
+
     function onPrecipTypeChange(type) {
         const colorMap = { rain: 4, snow: 6, snow_depth: 6, hail: 5, sleet: 2, storm: 3, blizzard: 6, ice: 5, fog: 7, dust: 7 };
         const unitMap = { rain: 'мм', snow: 'см', snow_depth: 'см', hail: 'мм', sleet: 'мм', storm: 'мм', blizzard: 'см', ice: 'мм', fog: 'м', dust: 'мкг/м³' };
         weatherState.precipColor = colorMap[type] || 4;
         weatherState.phenomenonType = type;
         weatherState.precipUnit = unitMap[type] || 'мм';
+
+        const mainSel = document.getElementById('precipTypeMain');
+        const admSel = document.getElementById('precipType');
+        if (mainSel) mainSel.value = type;
+        if (admSel) admSel.value = type;
+
         document.getElementById('rainUnit').textContent = weatherState.precipUnit;
         if (isAdmin()) sendWeatherToServer();
         updateIntensityColor();
@@ -574,9 +636,7 @@
         const info = document.createElement('div');
         info.className = 'vortex-info';
         info.innerHTML = `<b style="color:${v.color}">${v.name}</b><br>Сила: ${v.power}/10<br>Радиус: ${v.radius.toFixed(1)} км<br>Урон: ${v.damage} ед.`;
-        info.style.left = '50%';
-        info.style.top = '50%';
-        info.style.transform = 'translate(-50%, -50%)';
+        info.style.left = '50%'; info.style.top = '50%'; info.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(info);
         setTimeout(() => info.remove(), 3000);
     }
@@ -629,15 +689,7 @@
         }, 2000);
     }
 
-    function getZoomForRadius(r) {
-        if (r < 10) return 11;
-        if (r < 30) return 10;
-        if (r < 80) return 9;
-        if (r < 200) return 8;
-        if (r < 500) return 7;
-        if (r < 1000) return 6;
-        return 4;
-    }
+    function getZoomForRadius(r) { if (r < 10) return 11; if (r < 30) return 10; if (r < 80) return 9; if (r < 200) return 8; if (r < 500) return 7; if (r < 1000) return 6; return 4; }
 
     function shakeScreen(intensity) {
         const mapEl = document.getElementById('map');
@@ -648,10 +700,7 @@
             const y = (Math.random() - 0.5) * intensity;
             mapEl.style.transform = `translate(${x}px, ${y}px)`;
             shakes++;
-            if (shakes >= maxShakes) {
-                clearInterval(interval);
-                mapEl.style.transform = '';
-            }
+            if (shakes >= maxShakes) { clearInterval(interval); mapEl.style.transform = ''; }
         }, 40);
     }
 
@@ -696,6 +745,8 @@
 
     function drawNukeZone(lat, lng, cfg) {
         const zoneId = 'nuke-zone-' + Date.now();
+        const intensity = parseInt(document.getElementById('rainIntensity').value);
+        const zoneColor = getZoneColorByIntensity(intensity);
         const points = 72;
         const coords = [];
         for (let i = 0; i < points; i++) {
@@ -706,9 +757,9 @@
         }
         coords.push(coords[0]);
         map.addSource(zoneId + '-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } } });
-        map.addLayer({ id: zoneId + '-layer', type: 'fill', source: zoneId + '-source', paint: { 'fill-color': cfg.color, 'fill-opacity': 0.2 } });
+        map.addLayer({ id: zoneId + '-layer', type: 'fill', source: zoneId + '-source', paint: { 'fill-color': zoneColor, 'fill-opacity': 0.25 } });
         map.addLayer({ id: zoneId + '-dark', type: 'fill', source: zoneId + '-source', paint: { 'fill-color': '#0a1a0a', 'fill-opacity': 0.3 } });
-        map.addLayer({ id: zoneId + '-outline', type: 'line', source: zoneId + '-source', paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.7 } });
+        map.addLayer({ id: zoneId + '-outline', type: 'line', source: zoneId + '-source', paint: { 'line-color': zoneColor, 'line-width': 3, 'line-opacity': 0.9 } });
         const innerCoords = [];
         const innerRadius = cfg.radius * 0.6;
         for (let i = 0; i < points; i++) {
@@ -719,7 +770,7 @@
         }
         innerCoords.push(innerCoords[0]);
         map.addSource(zoneId + '-inner-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [innerCoords] } } });
-        map.addLayer({ id: zoneId + '-inner', type: 'fill', source: zoneId + '-inner-source', paint: { 'fill-color': cfg.color, 'fill-opacity': 0.35 } });
+        map.addLayer({ id: zoneId + '-inner', type: 'fill', source: zoneId + '-inner-source', paint: { 'fill-color': zoneColor, 'fill-opacity': 0.35 } });
         const coreRadius = cfg.radius * 0.2;
         const coreCoords = [];
         for (let i = 0; i < 32; i++) {
@@ -730,7 +781,7 @@
         }
         coreCoords.push(coreCoords[0]);
         map.addSource(zoneId + '-core-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coreCoords] } } });
-        map.addLayer({ id: zoneId + '-core', type: 'fill', source: zoneId + '-core-source', paint: { 'fill-color': cfg.color, 'fill-opacity': 0.6 } });
+        map.addLayer({ id: zoneId + '-core', type: 'fill', source: zoneId + '-core-source', paint: { 'fill-color': zoneColor, 'fill-opacity': 0.6 } });
         const extraSpots = [];
         const spotCount = Math.min(Math.floor(cfg.radius * 2), 80);
         for (let i = 0; i < spotCount; i++) {
@@ -749,18 +800,20 @@
             extraSpots.push({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [spotCoords] }, properties: { opacity: 0.3 + Math.random() * 0.5 } });
         }
         map.addSource(zoneId + '-spots-source', { type: 'geojson', data: { type: 'FeatureCollection', features: extraSpots } });
-        map.addLayer({ id: zoneId + '-spots', type: 'fill', source: zoneId + '-spots-source', paint: { 'fill-color': cfg.color, 'fill-opacity': ['get', 'opacity'] } });
+        map.addLayer({ id: zoneId + '-spots', type: 'fill', source: zoneId + '-spots-source', paint: { 'fill-color': zoneColor, 'fill-opacity': ['get', 'opacity'] } });
         const el = document.createElement('div');
         el.className = 'custom-marker';
         el.textContent = '☢️';
         el.style.fontSize = Math.min(30 + cfg.radius / 30, 80) + 'px';
-        el.style.filter = `drop-shadow(0 0 25px ${cfg.color})`;
+        el.style.filter = `drop-shadow(0 0 25px ${zoneColor})`;
         markers.push(new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map));
-        craters.push({ zoneId, lat, lng, radius: cfg.radius, color: cfg.color });
+        craters.push({ zoneId, lat, lng, radius: cfg.radius, color: zoneColor });
     }
 
     function spawnRandomSpots(centerLat, centerLng, cfg) {
         const totalSpots = cfg.spots;
+        const intensity = parseInt(document.getElementById('rainIntensity').value);
+        const spotColor = getZoneColorByIntensity(intensity);
         const bounds = map.getBounds();
         const latSpread = (bounds.getNorth() - bounds.getSouth()) * 0.9;
         const lngSpread = (bounds.getEast() - bounds.getWest()) * 0.9;
@@ -781,9 +834,7 @@
                 circleCoords.push([spotLng + spotRadiusDeg * Math.cos(a) * distortion, spotLat + spotRadiusDeg * Math.sin(a) * distortion]);
             }
             circleCoords.push(circleCoords[0]);
-            const colors = ['#00ff00', '#88ff00', '#ffff00', '#ff8800', '#ff4400', '#aa0000'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            spotPoints.push({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [circleCoords] }, properties: { color: color, opacity: 0.3 + Math.random() * 0.5 } });
+            spotPoints.push({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [circleCoords] }, properties: { color: spotColor, opacity: 0.3 + Math.random() * 0.5 } });
         }
         const sourceId = 'random-spots-' + Date.now();
         map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: spotPoints } });
@@ -811,9 +862,7 @@
         }, 500);
     }
 
-    function closeAlert() {
-        document.getElementById('alertBox').classList.remove('active');
-    }
+    function closeAlert() { document.getElementById('alertBox').classList.remove('active'); }
 
     function launchAnomalyLocal() {
         if (!isAdmin()) return;
@@ -829,10 +878,8 @@
         if (!coordsStr) { alert('Сначала выбери место'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
         const power = parseInt(document.getElementById('nukePower').value);
-        weatherState.nukeLat = lat;
-        weatherState.nukeLng = lng;
-        weatherState.nukePower = power;
-        weatherState.nukeActive = true;
+        weatherState.nukeLat = lat; weatherState.nukeLng = lng;
+        weatherState.nukePower = power; weatherState.nukeActive = true;
         weatherState.nukeId = Date.now();
         sendWeatherToServer();
         launchAnomaly(lat, lng, power);
@@ -841,91 +888,52 @@
 
     const API_URL = window.location.origin;
 
-    function openAuth() {
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('overlay').classList.add('active');
-    }
-
-    function closeAuth() {
-        document.getElementById('authModal').classList.remove('active');
-        if (!document.getElementById('adminPanel').classList.contains('active')) {
-            document.getElementById('overlay').classList.remove('active');
-        }
-    }
-
+    function openAuth() { document.getElementById('authModal').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
+    function closeAuth() { document.getElementById('authModal').classList.remove('active'); if (!document.getElementById('adminPanel').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
     function toggleAuthMode() {
         authMode = authMode === 'login' ? 'register' : 'login';
         document.getElementById('authTitle').textContent = authMode === 'login' ? 'Вход' : 'Регистрация';
         document.getElementById('authSubmit').textContent = authMode === 'login' ? 'Войти' : 'Зарегистрироваться';
         document.getElementById('authSwitch').innerHTML = authMode === 'login' ? 'Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span>' : 'Уже есть аккаунт? <span onclick="toggleAuthMode()">Войти</span>';
     }
-
     async function submitAuth() {
         const login = document.getElementById('authLogin').value.trim();
         const password = document.getElementById('authPassword').value.trim();
         if (!login || !password) { alert('Заполни все поля'); return; }
         const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
         try {
-            const res = await fetch(API_URL + endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ login, password })
-            });
+            const res = await fetch(API_URL + endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ login, password }) });
             const data = await res.json();
             if (!res.ok) { alert('❌ ' + (data.error || 'Ошибка')); return; }
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('login', data.login);
-            updateUserUI(data.login);
-            updateAdminVisibility();
-            closeAuth();
+            localStorage.setItem('token', data.token); localStorage.setItem('login', data.login);
+            updateUserUI(data.login); updateAdminVisibility(); closeAuth();
             alert('✅ Добро пожаловать, ' + data.login + '!');
         } catch (e) { alert('❌ Ошибка соединения'); }
     }
-
     function updateUserUI(login) {
         const btn = document.getElementById('authBtn');
-        btn.textContent = login + ' (выйти)';
-        btn.onclick = logout;
-        if (login === ADMIN_LOGIN) {
-            btn.classList.add('admin-btn');
-            btn.textContent = '👑 ' + login + ' (выйти)';
-        } else {
-            btn.classList.remove('admin-btn');
-        }
+        btn.textContent = login + ' (выйти)'; btn.onclick = logout;
+        if (login === ADMIN_LOGIN) { btn.classList.add('admin-btn'); btn.textContent = '👑 ' + login + ' (выйти)'; }
+        else btn.classList.remove('admin-btn');
     }
-
     function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('login');
+        localStorage.removeItem('token'); localStorage.removeItem('login');
         document.getElementById('authBtn').textContent = 'Войти';
         document.getElementById('authBtn').onclick = openAuth;
         document.getElementById('authBtn').classList.remove('admin-btn');
-        updateAdminVisibility();
-        closeAll();
+        updateAdminVisibility(); closeAll();
     }
-
     window.addEventListener('load', async () => {
-        const token = localStorage.getItem('token');
-        const login = localStorage.getItem('login');
+        const token = localStorage.getItem('token'); const login = localStorage.getItem('login');
         if (token && login) {
             try {
-                const res = await fetch(API_URL + '/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
-                });
+                const res = await fetch(API_URL + '/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
                 const data = await res.json();
-                if (data.success) {
-                    updateUserUI(data.login);
-                    updateAdminVisibility();
-                } else {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('login');
-                }
+                if (data.success) { updateUserUI(data.login); updateAdminVisibility(); }
+                else { localStorage.removeItem('token'); localStorage.removeItem('login'); }
             } catch (e) {}
         }
     });
-
     document.addEventListener('keydown', (e) => {
         if (e.altKey && e.code === 'KeyU') {
             e.preventDefault();
@@ -936,66 +944,45 @@
         }
         if (e.code === 'Escape') closeAll();
     });
-
     function closeAll() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        closeAuth();
-        clickMode = false;
+        closeAuth(); clickMode = false;
         map.getCanvas().style.cursor = '';
         document.getElementById('clickIndicator').classList.remove('active');
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
     }
-
     function searchCity() {
         const query = document.getElementById('citySearch').value.trim();
         if (!query) return;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
-            .then(r => r.json())
-            .then(data => {
+            .then(r => r.json()).then(data => {
                 if (data && data.length > 0) {
                     const { lat, lon } = data[0];
                     map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 10 });
                     loadWeather(parseFloat(lat), parseFloat(lon));
                     getLocationName(parseFloat(lat), parseFloat(lon));
-                } else {
-                    alert('Не найден');
-                }
+                } else alert('Не найден');
             });
     }
-
-    document.getElementById('citySearch').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchCity();
-    });
-
-    function setLayer(layerType, btn) {
-        document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-
+    document.getElementById('citySearch').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCity(); });
+    function setLayer(layerType, btn) { document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
     function toggleRadar(btn) {
         radarActive = !radarActive;
         if (radarActive) {
-            fetch('https://api.rainviewer.com/public/weather-maps.json')
-                .then(r => r.json())
-                .then(data => {
-                    radarHost = data.host;
-                    radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
-                    if (radarFrames.length === 0) { radarActive = false; return; }
-                    const firstFrame = radarFrames[0];
-                    if (map.getSource('radar-source')) map.removeSource('radar-source');
-                    if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
-                    map.addSource('radar-source', {
-                        type: 'raster',
-                        tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`],
-                        tileSize: 512,
-                        maxzoom: 7
-                    });
-                    map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.75 } });
-                    btn.classList.add('active');
-                    document.getElementById('radarTime').classList.add('active');
-                    startRadarAnimation();
-                });
+            fetch('https://api.rainviewer.com/public/weather-maps.json').then(r => r.json()).then(data => {
+                radarHost = data.host;
+                radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
+                if (radarFrames.length === 0) { radarActive = false; return; }
+                const firstFrame = radarFrames[0];
+                if (map.getSource('radar-source')) map.removeSource('radar-source');
+                if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
+                map.addSource('radar-source', { type: 'raster', tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`], tileSize: 512, maxzoom: 7 });
+                map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.75 } });
+                btn.classList.add('active');
+                document.getElementById('radarTime').classList.add('active');
+                startRadarAnimation();
+            });
         } else {
             if (radarAnimationTimer) clearInterval(radarAnimationTimer);
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
@@ -1004,7 +991,6 @@
             btn.classList.remove('active');
         }
     }
-
     function startRadarAnimation() {
         if (radarAnimationTimer) clearInterval(radarAnimationTimer);
         radarFrameIndex = 0;
@@ -1018,15 +1004,10 @@
             document.getElementById('radarTime').textContent = `🌧️ Радар: ${time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
         }, 500);
     }
-
     function toggleSatellite(btn) {
         satelliteActive = !satelliteActive;
         if (satelliteActive) {
-            map.addSource('satellite-source', {
-                type: 'raster',
-                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                tileSize: 256
-            });
+            map.addSource('satellite-source', { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256 });
             map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite-source' });
             btn.classList.add('active');
         } else {
@@ -1035,7 +1016,6 @@
             btn.classList.remove('active');
         }
     }
-
     function enableClickMode() {
         if (!isAdmin()) return;
         clickMode = true;
@@ -1043,39 +1023,18 @@
         document.getElementById('clickIndicator').classList.add('active');
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
     }
-
     function resetAll() {
         if (!isAdmin()) return;
         const style = map.getStyle();
-        if (style && style.layers) {
-            style.layers.forEach(l => {
-                if (l.id && (l.id.includes('random-spots') || l.id.includes('nuke-zone') || l.id.includes('vortex-zone'))) {
-                    if (map.getLayer(l.id)) map.removeLayer(l.id);
-                }
-            });
-        }
-        if (style && style.sources) {
-            Object.keys(style.sources).forEach(src => {
-                if (src.includes('random-spots') || src.includes('nuke-zone') || src.includes('vortex-zone')) {
-                    if (map.getSource(src)) map.removeSource(src);
-                }
-            });
-        }
-        craters = [];
-        vortexMarkers = [];
-        markers.forEach(m => m.remove());
-        markers = [];
+        if (style && style.layers) style.layers.forEach(l => { if (l.id && (l.id.includes('random-spots') || l.id.includes('nuke-zone') || l.id.includes('vortex-zone'))) { if (map.getLayer(l.id)) map.removeLayer(l.id); } });
+        if (style && style.sources) Object.keys(style.sources).forEach(src => { if (src.includes('random-spots') || src.includes('nuke-zone') || src.includes('vortex-zone')) { if (map.getSource(src)) map.removeSource(src); } });
+        craters = []; vortexMarkers = [];
+        markers.forEach(m => m.remove()); markers = [];
         deactivateChernobyl();
-        weatherState = {
-            rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, precipUnit: 'мм', power: 3,
-            windSpeed: 0, temperature: 15, isPrecipActive: false,
-            lastLat: null, lastLng: null,
-            nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
-        };
+        weatherState = { rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, precipUnit: 'мм', power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false, lastLat: null, lastLng: null, nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null };
         sendWeatherToServer();
         alert('🔄 Всё сброшено');
     }
-
     function applyWeather() {
         if (!isAdmin()) return;
         weatherState.rainIntensity = parseInt(document.getElementById('rainIntensity').value);
@@ -1083,7 +1042,6 @@
         sendWeatherToServer();
         alert('✅ Погода применена');
     }
-
     async function loadWeather(lat, lng) {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=relativehumidity_2m`);
@@ -1093,54 +1051,31 @@
             document.getElementById('windValue').textContent = `${w.windspeed} м/с`;
             document.getElementById('precipValue').textContent = `${w.precipitation || 0} мм`;
             document.getElementById('weatherDesc').textContent = getWeatherDesc(w.weathercode);
-            if (data.hourly && data.hourly.relativehumidity_2m) {
-                document.getElementById('humidityValue').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
-            }
+            if (data.hourly && data.hourly.relativehumidity_2m) document.getElementById('humidityValue').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
         } catch (e) {}
     }
-
-    function getWeatherDesc(code) {
-        const codes = { 0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно', 45: 'Туман', 61: 'Дождь', 63: 'Дождь', 65: 'Сильный дождь', 71: 'Снег', 73: 'Снег', 75: 'Сильный снег', 95: 'Гроза' };
-        return codes[code] || 'Неизвестно';
-    }
-
+    function getWeatherDesc(code) { const codes = { 0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно', 45: 'Туман', 61: 'Дождь', 63: 'Дождь', 65: 'Сильный дождь', 71: 'Снег', 73: 'Снег', 75: 'Сильный снег', 95: 'Гроза' }; return codes[code] || 'Неизвестно'; }
     async function getLocationName(lat, lng) {
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&accept-language=ru`);
             const data = await res.json();
             const city = data.address.city || data.address.town || data.address.village || data.address.state || 'Неизвестно';
             document.getElementById('locationName').textContent = city;
-        } catch (e) {
-            document.getElementById('locationName').textContent = 'Локация';
-        }
+        } catch (e) { document.getElementById('locationName').textContent = 'Локация'; }
     }
-
     function autoDetectLocation() {
-        if (!navigator.geolocation) {
-            loadWeather(46.959, 142.738);
-            getLocationName(46.959, 142.738);
-            return;
-        }
+        if (!navigator.geolocation) { loadWeather(46.959, 142.738); getLocationName(46.959, 142.738); return; }
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.flyTo({ center: [lng, lat], zoom: 10 });
-                loadWeather(lat, lng);
-                getLocationName(lat, lng);
-            },
-            () => {
-                loadWeather(46.959, 142.738);
-                getLocationName(46.959, 142.738);
-            },
+            (position) => { const lat = position.coords.latitude; const lng = position.coords.longitude; map.flyTo({ center: [lng, lat], zoom: 10 }); loadWeather(lat, lng); getLocationName(lat, lng); },
+            () => { loadWeather(46.959, 142.738); getLocationName(46.959, 142.738); },
             { timeout: 5000 }
         );
     }
-
     map.on('load', () => {
         console.log('🌍 Weather App готов');
         updateAdminVisibility();
         autoDetectLocation();
+        updateIntensityColor();
         setTimeout(() => {
             const radarBtn = document.querySelector('.layer-item[onclick*="toggleRadar"]');
             if (radarBtn && !radarActive) toggleRadar(radarBtn);
