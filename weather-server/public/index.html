@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,7 +17,6 @@
         }
         #map { width: 100vw; height: 100vh; background: #0a0a1a; transition: filter 1.5s ease; }
 
-        /* ЧЕРНОБЫЛЬСКАЯ ТЕМА */
         body.chernobyl #map {
             filter: sepia(1) hue-rotate(60deg) saturate(2) brightness(0.7) contrast(1.3);
         }
@@ -36,13 +34,7 @@
         body.chernobyl::after {
             content: '';
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 255, 0, 0.03) 0px,
-                rgba(0, 255, 0, 0.03) 1px,
-                transparent 1px,
-                transparent 3px
-            );
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 1px, transparent 1px, transparent 3px);
             pointer-events: none; z-index: 901;
             animation: scanlines 8s linear infinite;
         }
@@ -51,67 +43,27 @@
             100% { background-position: 0 100px; }
         }
 
-        .top-bar {
-            position: fixed; top: 10px; left: 10px; right: 10px;
-            display: flex; align-items: center; gap: 8px; z-index: 1000;
-            pointer-events: none;
-        }
-        .search-box {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            border: 1px solid rgba(100,150,255,0.2);
-            pointer-events: all; flex: 1; max-width: 320px;
-        }
+        .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 8px; z-index: 1000; pointer-events: none; }
+        .search-box { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid rgba(100,150,255,0.2); pointer-events: all; flex: 1; max-width: 320px; }
         body.chernobyl .search-box { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
-        .search-box input {
-            flex: 1; background: transparent; border: none; color: #fff;
-            font-size: 14px; outline: none; min-width: 0;
-        }
+        .search-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; outline: none; min-width: 0; }
         .search-box input::placeholder { color: #888; }
-        .search-box button {
-            background: transparent; border: none; color: #6eb5ff;
-            font-size: 18px; cursor: pointer; padding: 0 4px;
-        }
+        .search-box button { background: transparent; border: none; color: #6eb5ff; font-size: 18px; cursor: pointer; padding: 0 4px; }
         body.chernobyl .search-box button { color: #00ff00; }
 
-        .logo-badge {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all;
-            border: 1px solid rgba(100,150,255,0.2);
-            white-space: nowrap;
-        }
+        .logo-badge { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all; border: 1px solid rgba(100,150,255,0.2); white-space: nowrap; }
         .logo-badge span { color: #ff6b6b; }
         body.chernobyl .logo-badge { border-color: #00ff00; }
         body.chernobyl .logo-badge span { color: #00ff00; }
 
         .user-area { margin-left: auto; display: flex; gap: 8px; pointer-events: all; }
-        .user-btn {
-            background: rgba(15, 15, 30, 0.95); border-radius: 25px;
-            padding: 6px 14px; color: #fff; font-size: 13px; font-weight: bold;
-            border: 1px solid rgba(100,150,255,0.2); cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            white-space: nowrap;
-        }
+        .user-btn { background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-size: 13px; font-weight: bold; border: 1px solid rgba(100,150,255,0.2); cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.5); white-space: nowrap; }
         .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
         .user-btn.admin-btn { border-color: #ff6b6b; color: #ff6b6b; }
 
-        .layers-menu {
-            position: fixed; top: 65px; right: 10px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 15px;
-            padding: 8px; z-index: 1000; width: 68px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.6);
-            border: 1px solid rgba(100,150,255,0.2);
-            display: flex; flex-direction: column; gap: 5px;
-        }
+        .layers-menu { position: fixed; top: 65px; right: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 8px; z-index: 1000; width: 68px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); display: flex; flex-direction: column; gap: 5px; }
         body.chernobyl .layers-menu { border-color: #00ff00; }
-        .layer-item {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 5px 3px; border-radius: 10px; cursor: pointer;
-            transition: background 0.2s; color: #fff;
-        }
+        .layer-item { display: flex; flex-direction: column; align-items: center; padding: 5px 3px; border-radius: 10px; cursor: pointer; transition: background 0.2s; color: #fff; }
         .layer-item:hover { background: rgba(110, 181, 255, 0.2); }
         body.chernobyl .layer-item:hover { background: rgba(0, 255, 0, 0.2); }
         .layer-item.active { background: rgba(110, 181, 255, 0.35); }
@@ -119,14 +71,7 @@
         .layer-item .icon { font-size: 20px; margin-bottom: 1px; }
         .layer-item .label { font-size: 8px; text-align: center; color: #ccc; line-height: 1.1; }
 
-        .weather-panel {
-            position: fixed; top: 65px; left: 10px;
-            background: rgba(15, 15, 30, 0.95); border-radius: 15px;
-            padding: 15px; z-index: 1000; width: 240px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.6);
-            border: 1px solid rgba(100,150,255,0.2);
-            color: #fff;
-        }
+        .weather-panel { position: fixed; top: 65px; left: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 15px; z-index: 1000; width: 240px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); color: #fff; }
         body.chernobyl .weather-panel { border-color: #00ff00; }
         .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
         body.chernobyl .weather-panel h2 { color: #00ff00; }
@@ -135,26 +80,12 @@
         body.chernobyl .weather-panel .temp-big { color: #00ff00; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .weather-panel .desc { color: #aaa; font-size: 12px; margin-bottom: 10px; }
         .weather-panel .details { font-size: 12px; }
-        .weather-panel .details div {
-            display: flex; justify-content: space-between;
-            padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
+        .weather-panel .details div { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
         body.chernobyl .weather-panel .details .val { color: #00ff00; }
 
-        .admin-panel {
-            position: fixed; top: 0; right: 0; height: 100vh;
-            width: 340px; max-width: 95vw;
-            background: rgba(5, 5, 15, 0.98);
-            padding: 20px 18px; color: #fff;
-            z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8);
-            border-left: 2px solid #ff6b6b;
-            overflow-y: auto;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            display: none;
-        }
+        .admin-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 340px; max-width: 95vw; background: rgba(5, 5, 15, 0.98); padding: 20px 18px; color: #fff; z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8); border-left: 2px solid #ff6b6b; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease; display: none; }
         .admin-panel.allowed { display: block; }
         .admin-panel.active { transform: translateX(0); }
         .admin-panel h2 { margin-bottom: 18px; font-size: 18px; color: #ff6b6b; border-bottom: 2px solid #ff6b6b; padding-bottom: 12px; }
@@ -175,104 +106,40 @@
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-full { width: 100%; }
 
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1500;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .overlay.active { opacity: 1; visibility: visible; }
 
-        .auth-modal {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 25, 0.98);
-            border-radius: 20px; padding: 28px; color: #fff;
-            z-index: 3000; box-shadow: 0 20px 80px rgba(0,0,0,0.9);
-            border: 2px solid #6eb5ff; width: 90%; max-width: 380px;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
-        }
+        .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(10, 10, 25, 0.98); border-radius: 20px; padding: 28px; color: #fff; z-index: 3000; box-shadow: 0 20px 80px rgba(0,0,0,0.9); border: 2px solid #6eb5ff; width: 90%; max-width: 380px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .auth-modal.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
         .auth-modal h2 { margin-bottom: 18px; font-size: 20px; color: #6eb5ff; text-align: center; }
-        .auth-modal input {
-            width: 100%; padding: 14px 16px; margin-bottom: 12px;
-            border-radius: 10px; background: #1a1a3e; color: #fff;
-            border: 1px solid #444; font-size: 15px; outline: none;
-        }
+        .auth-modal input { width: 100%; padding: 14px 16px; margin-bottom: 12px; border-radius: 10px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 15px; outline: none; }
         .auth-modal input:focus { border-color: #6eb5ff; }
         .auth-modal .btn { width: 100%; margin-bottom: 10px; padding: 14px; font-size: 15px; }
         .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 10px; cursor: pointer; }
         .auth-modal .switch span { color: #6eb5ff; text-decoration: underline; }
 
-        .hotkey-hint {
-            position: fixed; bottom: 15px; right: 15px;
-            background: rgba(10,10,20,0.9); padding: 8px 12px;
-            border-radius: 10px; color: #888; font-size: 11px; z-index: 1000;
-            display: none;
-        }
+        .hotkey-hint { position: fixed; bottom: 15px; right: 15px; background: rgba(10,10,20,0.9); padding: 8px 12px; border-radius: 10px; color: #888; font-size: 11px; z-index: 1000; display: none; }
         .hotkey-hint.allowed { display: block; }
         .hotkey-hint kbd { background: #333; padding: 2px 6px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
 
         .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
 
-        .click-mode-indicator {
-            position: fixed; top: 12px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 184, 77, 0.95);
-            color: #000; padding: 10px 20px; border-radius: 25px;
-            font-weight: bold; font-size: 13px; z-index: 4000;
-            box-shadow: 0 4px 20px rgba(255,184,77,0.5);
-            display: none;
-        }
+        .click-mode-indicator { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255, 184, 77, 0.95); color: #000; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 13px; z-index: 4000; box-shadow: 0 4px 20px rgba(255,184,77,0.5); display: none; }
         .click-mode-indicator.active { display: block; }
 
-        .connection-status {
-            position: fixed; bottom: 15px; left: 15px;
-            background: rgba(15, 15, 30, 0.95);
-            padding: 6px 14px; border-radius: 20px;
-            font-size: 12px; color: #fff; z-index: 1000;
-            display: flex; align-items: center; gap: 8px;
-            border: 1px solid rgba(100,150,255,0.2);
-        }
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #4ade80; animation: pulse 2s infinite;
-        }
+        .connection-status { position: fixed; bottom: 15px; left: 15px; background: rgba(15, 15, 30, 0.95); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #fff; z-index: 1000; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(100,150,255,0.2); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
         .status-dot.offline { background: #ff6b6b; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        .radar-time {
-            position: fixed; bottom: 50px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15, 15, 30, 0.95);
-            padding: 6px 16px; border-radius: 20px;
-            font-size: 13px; color: #6eb5ff; font-weight: bold;
-            z-index: 1000; display: none;
-            border: 1px solid rgba(100,150,255,0.3);
-        }
+        .radar-time { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 30, 0.95); padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #6eb5ff; font-weight: bold; z-index: 1000; display: none; border: 1px solid rgba(100,150,255,0.3); }
         .radar-time.active { display: block; }
 
-        /* ЭФФЕКТ ПАДЕНИЯ */
-        .falling-nuke {
-            position: fixed; top: -120px;
-            font-size: 60px;
-            z-index: 5000;
-            pointer-events: none;
-            filter: drop-shadow(0 0 20px rgba(0, 255, 0, 0.9));
-            transition: top 1.5s cubic-bezier(0.5, 0, 1, 1), opacity 0.3s;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-        }
+        .falling-nuke { position: fixed; top: -120px; font-size: 60px; z-index: 5000; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0, 255, 0, 0.9)); transition: top 1.5s cubic-bezier(0.5, 0, 1, 1), opacity 0.3s; left: 50%; transform: translateX(-50%); opacity: 0; }
         .falling-nuke.falling { top: 50vh; opacity: 1; }
         .falling-nuke.gone { opacity: 0; }
 
-        /* ВСПЫШКА */
-        .flash {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(0, 255, 0, 0.9) 0%, rgba(0, 100, 0, 0.4) 40%, transparent 70%);
-            z-index: 4999; pointer-events: none;
-            opacity: 0;
-        }
+        .flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0, 255, 0, 0.9) 0%, rgba(0, 100, 0, 0.4) 40%, transparent 70%); z-index: 4999; pointer-events: none; opacity: 0; }
         .flash.active { animation: flashAnim 1s ease-out; }
         @keyframes flashAnim {
             0% { opacity: 0; }
@@ -280,85 +147,32 @@
             100% { opacity: 0; }
         }
 
-        /* ПРЕДУПРЕЖДЕНИЕ */
-        .alert-box {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(5, 20, 5, 0.98);
-            border: 3px solid #00ff00;
-            border-radius: 20px; padding: 30px;
-            color: #fff; z-index: 6000;
-            box-shadow: 0 0 60px rgba(0, 255, 0, 0.8);
-            max-width: 480px; width: 90%;
-            opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
+        .alert-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(5, 20, 5, 0.98); border: 3px solid #00ff00; border-radius: 20px; padding: 30px; color: #fff; z-index: 6000; box-shadow: 0 0 60px rgba(0, 255, 0, 0.8); max-width: 480px; width: 90%; opacity: 0; visibility: hidden; transition: all 0.3s ease; text-align: center; }
         .alert-box.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
         .alert-box h2 { color: #00ff00; margin-bottom: 15px; font-size: 22px; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .alert-box p { font-size: 14px; line-height: 1.5; margin-bottom: 10px; color: #ddd; }
-        .alert-box .warning-text {
-            background: rgba(0, 255, 0, 0.15);
-            padding: 12px; border-radius: 10px;
-            font-size: 13px; color: #88ff88;
-            margin: 15px 0;
-            border: 1px solid #00ff00;
-        }
+        .alert-box .warning-text { background: rgba(0, 255, 0, 0.15); padding: 12px; border-radius: 10px; font-size: 13px; color: #88ff88; margin: 15px 0; border: 1px solid #00ff00; }
 
-        /* ЧАСТИЦЫ */
-        .explosion-particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 4998;
-            border-radius: 50%;
-            animation: explodeParticle 2s ease-out forwards;
-        }
+        .explosion-particle { position: fixed; pointer-events: none; z-index: 4998; border-radius: 50%; animation: explodeParticle 2s ease-out forwards; }
         @keyframes explodeParticle {
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
             100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
 
-        /* УДАРНАЯ ВОЛНА */
-        .shockwave {
-            position: fixed;
-            border: 4px solid rgba(0, 255, 0, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 4997;
-            width: 0;
-            height: 0;
-            animation: shockwaveAnim 1.5s ease-out forwards;
-        }
+        .shockwave { position: fixed; border: 4px solid rgba(0, 255, 0, 0.8); border-radius: 50%; pointer-events: none; z-index: 4997; width: 0; height: 0; animation: shockwaveAnim 1.5s ease-out forwards; }
         @keyframes shockwaveAnim {
             0% { width: 0; height: 0; opacity: 1; border-width: 8px; margin-left: 0; margin-top: 0; }
             100% { width: var(--final-size); height: var(--final-size); opacity: 0; border-width: 1px; margin-left: calc(var(--final-size) / -2); margin-top: calc(var(--final-size) / -2); }
         }
 
-        /* РАДИОАКТИВНЫЙ ДОЖДЬ */
-        .radioactive-drop {
-            position: fixed;
-            width: 3px;
-            height: 15px;
-            background: linear-gradient(to bottom, transparent, #00ff00);
-            pointer-events: none;
-            z-index: 4996;
-            animation: dropFall linear forwards;
-        }
+        .radioactive-drop { position: fixed; width: 3px; height: 15px; background: linear-gradient(to bottom, transparent, #00ff00); pointer-events: none; z-index: 4996; animation: dropFall linear forwards; }
         @keyframes dropFall {
             0% { top: -20px; opacity: 1; }
             100% { top: 100vh; opacity: 0; }
         }
 
-        /* ГЛИТЧ-ЭФФЕКТ */
-        .glitch-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 4995;
-            opacity: 0;
-            mix-blend-mode: screen;
-        }
-        .glitch-overlay.active {
-            animation: glitchAnim 0.3s steps(2) 10;
-        }
+        .glitch-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4995; opacity: 0; mix-blend-mode: screen; }
+        .glitch-overlay.active { animation: glitchAnim 0.3s steps(2) 10; }
         @keyframes glitchAnim {
             0% { background: rgba(0, 255, 0, 0.15); transform: translate(0); }
             25% { background: rgba(255, 0, 255, 0.15); transform: translate(-5px, 3px); }
@@ -367,32 +181,8 @@
             100% { background: rgba(0, 255, 0, 0.15); transform: translate(0); }
         }
 
-        /* ЧЕРЕПА */
-        .skull-icon {
-            position: absolute;
-            font-size: 24px;
-            pointer-events: none;
-            filter: drop-shadow(0 0 10px #00ff00);
-            animation: skullFloat 3s ease-in-out infinite;
-        }
-        @keyframes skullFloat {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* ИНДИКАТОР РАДИАЦИИ */
-        .radiation-indicator {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 200px;
-            pointer-events: none;
-            z-index: 4994;
-            opacity: 0;
-            filter: drop-shadow(0 0 40px #00ff00);
-        }
-        .radiation-indicator.active {
-            animation: radiationPulse 2s ease-out;
-        }
+        .radiation-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; pointer-events: none; z-index: 4994; opacity: 0; filter: drop-shadow(0 0 40px #00ff00); }
+        .radiation-indicator.active { animation: radiationPulse 2s ease-out; }
         @keyframes radiationPulse {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
             50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
@@ -403,12 +193,7 @@
             .top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
             .logo-badge { display: none; }
             .search-box { max-width: none; padding: 8px 14px; }
-            .layers-menu {
-                top: auto; bottom: 10px; right: 10px; left: 10px;
-                width: auto; flex-direction: row;
-                overflow-x: auto;
-                padding: 8px; gap: 4px;
-            }
+            .layers-menu { top: auto; bottom: 10px; right: 10px; left: 10px; width: auto; flex-direction: row; overflow-x: auto; padding: 8px; gap: 4px; }
             .layers-menu::-webkit-scrollbar { display: none; }
             .layer-item { flex-shrink: 0; min-width: 60px; padding: 6px 4px; }
             .weather-panel { top: 55px; left: 8px; width: calc(100% - 16px); max-width: 320px; padding: 12px; }
@@ -449,7 +234,7 @@
         <input type="text" id="citySearch" placeholder="Поиск города...">
         <button onclick="searchCity()">🔍</button>
     </div>
-    <div class="logo-badge">☢️ <span>Chernobyl</span>App</div>
+    <div class="logo-badge">🌍 <span>Weather</span>App</div>
     <div class="user-area">
         <button class="user-btn" id="authBtn" onclick="openAuth()">Войти</button>
     </div>
@@ -466,7 +251,7 @@
 </div>
 
 <div class="weather-panel">
-    <h2>☢️ Радиация</h2>
+    <h2>🌦️ Погода</h2>
     <div class="city" id="locationName">Определение...</div>
     <div class="temp-big" id="tempValue">--°C</div>
     <div class="desc" id="weatherDesc">Загрузка...</div>
@@ -580,7 +365,6 @@
     let craters = [];
     let chernobylActive = false;
 
-    // 9 уровней силы
     const NUKE_CONFIGS = {
         1: { name: 'Мини',         radius: 5,    particles: 50,   flash: 400,  shake: 3,   color: '#88ff88', crater: 0.15, shockwave: 200,  spots: 50 },
         2: { name: 'Малая',        radius: 15,   particles: 100,  flash: 600,  shake: 6,   color: '#aaff66', crater: 0.2,  shockwave: 300,  spots: 100 },
@@ -593,9 +377,6 @@
         9: { name: 'Экстерминатус',radius: 2500, particles: 1500, flash: 4000, shake: 70,  color: '#880000', crater: 0.75, shockwave: 2000, spots: 500 }
     };
 
-    // ============================================
-    // АДМИН-ДОСТУП
-    // ============================================
     const ADMIN_LOGIN = 'weather';
     function isAdmin() { return localStorage.getItem('login') === ADMIN_LOGIN; }
 
@@ -667,15 +448,13 @@
     connectWS();
 
     // ============================================
-    // АКТИВАЦИЯ ТЕМЫ ЧЕРНОБЫЛЬ
+    // ТЕМА ЧЕРНОБЫЛЬ
     // ============================================
     function activateChernobyl() {
         if (chernobylActive) return;
         chernobylActive = true;
         document.body.classList.add('chernobyl');
-        console.log('☢️ Чернобыльская тема активирована');
     }
-
     function deactivateChernobyl() {
         chernobylActive = false;
         document.body.classList.remove('chernobyl');
@@ -687,61 +466,43 @@
     function launchAnomaly(lat, lng, power) {
         const cfg = NUKE_CONFIGS[power] || NUKE_CONFIGS[3];
 
-        // Активируем тему сразу
         activateChernobyl();
 
-        // 1. Предупреждение
         document.getElementById('alertCity').textContent = `${lat.toFixed(2)}, ${lng.toFixed(2)} (${cfg.name})`;
         document.getElementById('alertBox').classList.add('active');
 
-        // 2. Радиационный индикатор
         const radInd = document.getElementById('radiationIndicator');
         radInd.classList.add('active');
         setTimeout(() => radInd.classList.remove('active'), 2000);
 
-        // 3. Глитч
         const glitch = document.getElementById('glitchOverlay');
         glitch.classList.add('active');
         setTimeout(() => glitch.classList.remove('active'), 3000);
 
-        // 4. Радиоактивный дождь
         spawnRadioactiveRain(cfg.particles);
 
-        // 5. Падение
         setTimeout(() => {
             const nuke = document.getElementById('fallingNuke');
             nuke.style.fontSize = (40 + power * 10) + 'px';
             nuke.classList.remove('gone');
             nuke.classList.add('falling');
 
-            // 6. Взрыв
             setTimeout(() => {
                 nuke.classList.add('gone');
                 nuke.classList.remove('falling');
 
-                // Вспышка
                 const flash = document.getElementById('flashEffect');
                 flash.style.animationDuration = cfg.flash + 'ms';
                 flash.style.background = `radial-gradient(circle, ${cfg.color}ee 0%, rgba(0, 255, 0, 0.4) 40%, transparent 70%)`;
                 flash.classList.add('active');
                 setTimeout(() => flash.classList.remove('active'), cfg.flash);
 
-                // Тряска
                 shakeScreen(cfg.shake);
-
-                // Частицы
                 spawnExplosionParticles(lat, lng, cfg);
-
-                // Ударная волна
                 spawnShockwave(cfg.shockwave);
-
-                // Зона + рандомные пятна
                 drawNukeZone(lat, lng, cfg);
-
-                // Пятна по всей карте
                 spawnRandomSpots(lat, lng, cfg);
 
-                // Летим
                 map.flyTo({ center: [lng, lat], zoom: getZoomForRadius(cfg.radius), duration: 2000 });
             }, 1500);
         }, 2000);
@@ -757,7 +518,6 @@
         return 4;
     }
 
-    // Тряска
     function shakeScreen(intensity) {
         const mapEl = document.getElementById('map');
         let shakes = 0;
@@ -774,11 +534,9 @@
         }, 40);
     }
 
-    // Частицы взрыва
     function spawnExplosionParticles(lat, lng, cfg) {
         const screenPos = map.project([lng, lat]);
-        const count = Math.min(cfg.particles, 300); // Ограничиваем 300 одновременно
-
+        const count = Math.min(cfg.particles, 300);
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
             particle.className = 'explosion-particle';
@@ -787,39 +545,28 @@
             const distance = 100 + Math.random() * cfg.shockwave;
             const dx = Math.cos(angle) * distance;
             const dy = Math.sin(angle) * distance;
-
             particle.style.cssText = `
-                left: ${screenPos.x}px;
-                top: ${screenPos.y}px;
-                width: ${size}px;
-                height: ${size}px;
+                left: ${screenPos.x}px; top: ${screenPos.y}px;
+                width: ${size}px; height: ${size}px;
                 background: ${cfg.color};
                 box-shadow: 0 0 ${size * 2}px ${cfg.color};
-                --dx: ${dx}px;
-                --dy: ${dy}px;
+                --dx: ${dx}px; --dy: ${dy}px;
                 animation-duration: ${1.5 + Math.random() * 1.5}s;
             `;
-
             document.body.appendChild(particle);
             setTimeout(() => particle.remove(), 3000);
         }
     }
 
-    // Ударная волна
     function spawnShockwave(maxSize) {
         const wave = document.createElement('div');
         wave.className = 'shockwave';
         const screenPos = map.project(map.getCenter());
-        wave.style.cssText = `
-            left: ${screenPos.x}px;
-            top: ${screenPos.y}px;
-            --final-size: ${maxSize}px;
-        `;
+        wave.style.cssText = `left: ${screenPos.x}px; top: ${screenPos.y}px; --final-size: ${maxSize}px;`;
         document.body.appendChild(wave);
         setTimeout(() => wave.remove(), 2000);
     }
 
-    // Радиоактивный дождь
     function spawnRadioactiveRain(count) {
         const dropCount = Math.min(count, 100);
         for (let i = 0; i < dropCount; i++) {
@@ -833,7 +580,7 @@
         }
     }
 
-    // Зона + кратер
+    // ЗОНА + КРАТЕР
     function drawNukeZone(lat, lng, cfg) {
         const zoneId = 'nuke-zone-' + Date.now();
         const points = 64;
@@ -856,8 +603,6 @@
             source: zoneId + '-source',
             paint: { 'fill-color': cfg.color, 'fill-opacity': 0.15 }
         });
-
-        // Обводка
         map.addLayer({
             id: zoneId + '-outline',
             type: 'line',
@@ -865,7 +610,6 @@
             paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.8 }
         });
 
-        // Кратер
         const craterRadius = cfg.radius * cfg.crater;
         const craterCoords = [];
         for (let i = 0; i < points; i++) {
@@ -887,7 +631,6 @@
             paint: { 'fill-color': '#0a1a0a', 'fill-opacity': 0.8 }
         });
 
-        // Маркер
         const el = document.createElement('div');
         el.className = 'custom-marker';
         el.textContent = '☢️';
@@ -896,46 +639,52 @@
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
 
-        // Черепа вокруг
-        spawnSkulls(lat, lng, Math.min(cfg.spots / 10, 20));
-
         craters.push({ zoneId, lat, lng, radius: cfg.radius, crater: cfg.crater, color: cfg.color });
     }
 
-    // Рандомные пятна по карте
+    // ХАОТИЧНОЕ РАДИОАКТИВНОЕ ОБЛАКО ПО ВСЕЙ КАРТЕ
     function spawnRandomSpots(centerLat, centerLng, cfg) {
-        const totalSpots = cfg.spots; // 50-500
+        const totalSpots = cfg.spots;
+        const bounds = map.getBounds();
+
+        const latSpread = (bounds.getNorth() - bounds.getSouth()) * 0.9;
+        const lngSpread = (bounds.getEast() - bounds.getWest()) * 0.9;
+
         const spotPoints = [];
-        const maxSpread = cfg.radius * 2; // Разбрасываем вокруг эпицентра
 
         for (let i = 0; i < totalSpots; i++) {
-            // Случайное расстояние и угол
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * maxSpread;
-            const dx = distance * Math.cos(angle) / 111;
-            const dy = distance * Math.sin(angle) / 111;
-            const spotLat = centerLat + dy;
-            const spotLng = centerLng + dx;
+            const spotLat = centerLat + (Math.random() - 0.5) * latSpread;
+            const spotLng = centerLng + (Math.random() - 0.5) * lngSpread;
 
-            const spotRadius = (0.5 + Math.random() * 2) / 111; // 0.5-2.5 км
+            const sizeFactor = Math.random();
+            let spotRadius;
+            if (sizeFactor < 0.6) spotRadius = 0.5 + Math.random() * 1.5;
+            else if (sizeFactor < 0.9) spotRadius = 2 + Math.random() * 3;
+            else spotRadius = 5 + Math.random() * 8;
 
-            // Круг из 12 точек
+            const spotRadiusDeg = spotRadius / 111;
+
+            const pointsCount = 16;
             const circleCoords = [];
-            for (let j = 0; j < 12; j++) {
-                const a = (j / 12) * 2 * Math.PI;
+            for (let j = 0; j < pointsCount; j++) {
+                const a = (j / pointsCount) * 2 * Math.PI;
+                const distortion = 0.5 + Math.random() * 0.8;
                 circleCoords.push([
-                    spotLng + spotRadius * Math.cos(a),
-                    spotLat + spotRadius * Math.sin(a)
+                    spotLng + spotRadiusDeg * Math.cos(a) * distortion,
+                    spotLat + spotRadiusDeg * Math.sin(a) * distortion
                 ]);
             }
             circleCoords.push(circleCoords[0]);
+
+            const colors = ['#00ff00', '#88ff00', '#ffff00', '#ff8800', '#ff4400', '#aa0000'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
 
             spotPoints.push({
                 type: 'Feature',
                 geometry: { type: 'Polygon', coordinates: [circleCoords] },
                 properties: {
-                    color: cfg.color,
-                    opacity: 0.3 + Math.random() * 0.4
+                    color: color,
+                    opacity: 0.3 + Math.random() * 0.5
                 }
             });
         }
@@ -947,63 +696,78 @@
         });
 
         map.addLayer({
-            id: sourceId + '-layer',
+            id: sourceId + '-glow',
             type: 'fill',
             source: sourceId,
             paint: {
                 'fill-color': ['get', 'color'],
-                'fill-opacity': ['get', 'opacity']
+                'fill-opacity': ['*', ['get', 'opacity'], 0.4]
             }
-        });
-
-        // Тёмные пятна (кратеры) поверх
-        const darkSpots = spotPoints.map(f => ({
-            ...f,
-            properties: { opacity: 0.5 + Math.random() * 0.4 }
-        }));
-
-        map.addSource(sourceId + '-dark', {
-            type: 'geojson',
-            data: { type: 'FeatureCollection', features: darkSpots }
         });
 
         map.addLayer({
-            id: sourceId + '-dark-layer',
+            id: sourceId + '-dark',
             type: 'fill',
-            source: sourceId + '-dark',
+            source: sourceId,
             paint: {
-                'fill-color': '#0a1a0a',
-                'fill-opacity': ['get', 'opacity']
+                'fill-color': '#000000',
+                'fill-opacity': ['*', ['get', 'opacity'], 0.5]
             }
         });
 
-        console.log(`☢️ Создано ${totalSpots} рандомных пятен`);
+        map.addLayer({
+            id: sourceId + '-outline',
+            type: 'line',
+            source: sourceId,
+            paint: {
+                'line-color': ['get', 'color'],
+                'line-width': 1,
+                'line-opacity': ['get', 'opacity']
+            }
+        });
+
+        console.log(`☢️ Создано ${totalSpots} хаотичных пятен по карте`);
+
+        animateCloudDrift(sourceId, spotPoints);
     }
 
-    // Черепа вокруг
-    function spawnSkulls(lat, lng, count) {
-        for (let i = 0; i < count; i++) {
-            const angle = (i / count) * Math.PI * 2;
-            const dist = 0.005 + Math.random() * 0.02;
-            const sLat = lat + dist * Math.sin(angle);
-            const sLng = lng + dist * Math.cos(angle);
+    // ДРЕЙФ ОБЛАКА
+    function animateCloudDrift(sourceId, spotPoints) {
+        let driftAngle = 0;
+        const driftInterval = setInterval(() => {
+            driftAngle += 0.01;
+            const driftSpeed = 0.0005;
 
-            const skull = document.createElement('div');
-            skull.className = 'custom-marker';
-            skull.textContent = '💀';
-            skull.style.fontSize = '24px';
-            const marker = new maplibregl.Marker({ element: skull })
-                .setLngLat([sLng, sLat])
-                .addTo(map);
-            markers.push(marker);
-        }
+            const newFeatures = spotPoints.map((f, i) => {
+                const coords = f.geometry.coordinates[0];
+                const localAngle = driftAngle + i * 0.1;
+
+                const newCoords = coords.map(([lng, lat]) => [
+                    lng + Math.cos(localAngle) * driftSpeed,
+                    lat + Math.sin(localAngle) * driftSpeed
+                ]);
+
+                return {
+                    ...f,
+                    geometry: { type: 'Polygon', coordinates: [newCoords] }
+                };
+            });
+
+            spotPoints = newFeatures;
+
+            const source = map.getSource(sourceId);
+            if (source) {
+                source.setData({ type: 'FeatureCollection', features: newFeatures });
+            } else {
+                clearInterval(driftInterval);
+            }
+        }, 500);
     }
 
     function closeAlert() {
         document.getElementById('alertBox').classList.remove('active');
     }
 
-    // ЗАПУСК У СЕБЯ (админ)
     function launchAnomalyLocal() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
@@ -1013,7 +777,6 @@
         launchAnomaly(lat, lng, power);
     }
 
-    // ЗАПУСК У ВСЕХ
     function sendNukeToCoords() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
@@ -1032,7 +795,6 @@
         alert(`☢️ ${NUKE_CONFIGS[power].name} запущена У ВСЕХ!`);
     }
 
-    // ЗАПУСК У СЕБЯ (для всех пользователей)
     let userCooldown = 0;
     function userLaunchAnomaly() {
         const now = Date.now();
@@ -1098,7 +860,7 @@
         btn.onclick = logout;
         if (login === ADMIN_LOGIN) {
             btn.classList.add('admin-btn');
-            btn.textContent = '☢️ ' + login + ' (выйти)';
+            btn.textContent = '👑 ' + login + ' (выйти)';
         } else {
             btn.classList.remove('admin-btn');
         }
@@ -1136,9 +898,6 @@
         }
     });
 
-    // ============================================
-    // АДМИНКА
-    // ============================================
     document.addEventListener('keydown', (e) => {
         if (e.altKey && e.code === 'KeyU') {
             e.preventDefault();
@@ -1160,9 +919,6 @@
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
     }
 
-    // ============================================
-    // ПОИСК
-    // ============================================
     function searchCity() {
         const query = document.getElementById('citySearch').value.trim();
         if (!query) return;
@@ -1181,9 +937,6 @@
         if (e.key === 'Enter') searchCity();
     });
 
-    // ============================================
-    // СЛОИ
-    // ============================================
     function setLayer(layerType, btn) {
         document.querySelectorAll('.layer-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1257,9 +1010,6 @@
         }
     }
 
-    // ============================================
-    // КЛИК
-    // ============================================
     map.on('click', (e) => {
         if (clickMode) {
             const { lng, lat } = e.lngLat;
@@ -1287,27 +1037,9 @@
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
     }
 
-    // ============================================
-    // СБРОС
-    // ============================================
     function resetAll() {
         if (!isAdmin()) return;
-        // Убираем все зоны и пятна
-        Object.keys(NUKE_CONFIGS).forEach(() => {});
-        // Убираем кратеры
-        craters.forEach(c => {
-            ['-layer', '-outline', '-crater'].forEach(suffix => {
-                if (map.getLayer(c.zoneId + suffix)) map.removeLayer(c.zoneId + suffix);
-            });
-            ['-source', '-crater-source'].forEach(suffix => {
-                if (map.getSource(c.zoneId + suffix)) map.removeSource(c.zoneId + suffix);
-            });
-        });
-        craters = [];
-        markers.forEach(m => m.remove());
-        markers = [];
 
-        // Убираем рандомные пятна
         const style = map.getStyle();
         if (style && style.layers) {
             style.layers.forEach(layer => {
@@ -1324,10 +1056,11 @@
             });
         }
 
-        // Убираем тему
+        craters = [];
+        markers.forEach(m => m.remove());
+        markers = [];
         deactivateChernobyl();
 
-        // Сброс состояния
         weatherState = {
             rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3,
             windSpeed: 0, temperature: 15, isPrecipActive: false,
@@ -1346,9 +1079,6 @@
         alert('✅ Погода применена');
     }
 
-    // ============================================
-    // ПОГОДА
-    // ============================================
     async function loadWeather(lat, lng) {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=relativehumidity_2m`);
@@ -1403,7 +1133,7 @@
     }
 
     map.on('load', () => {
-        console.log('☢️ Chernobyl App готов');
+        console.log('🌍 Weather App готов');
         updateAdminVisibility();
         autoDetectLocation();
         setTimeout(() => {
