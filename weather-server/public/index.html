@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -229,9 +230,7 @@
             z-index: 4999; pointer-events: none;
             opacity: 0;
         }
-        .flash.active {
-            animation: flashAnim 1s ease-out;
-        }
+        .flash.active { animation: flashAnim 1s ease-out; }
         @keyframes flashAnim {
             0% { opacity: 0; }
             20% { opacity: 1; }
@@ -261,6 +260,33 @@
             font-size: 13px; color: #ff8888;
             margin: 15px 0;
             border: 1px solid #ff3b3b;
+        }
+
+        /* ============ ЧАСТИЦЫ ВЗРЫВА ============ */
+        .explosion-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 4998;
+            border-radius: 50%;
+            animation: explodeParticle 2s ease-out forwards;
+        }
+        @keyframes explodeParticle {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+
+        /* ============ УДАРНАЯ ВОЛНА ============ */
+        .shockwave {
+            position: fixed;
+            border: 4px solid rgba(255, 200, 100, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 4997;
+            animation: shockwaveAnim 1.5s ease-out forwards;
+        }
+        @keyframes shockwaveAnim {
+            0% { width: 0; height: 0; opacity: 1; border-width: 8px; margin-left: 0; margin-top: 0; }
+            100% { width: 800px; height: 800px; opacity: 0; border-width: 1px; margin-left: -400px; margin-top: -400px; }
         }
 
         @media (max-width: 1024px) {
@@ -307,24 +333,6 @@
             .connection-status { bottom: 90px; }
             .radar-time { bottom: 130px; }
         }
-
-        @media (max-width: 380px) {
-            .search-box { padding: 6px 12px; }
-            .search-box input { font-size: 12px; }
-            .layer-item { min-width: 54px; }
-            .layer-item .icon { font-size: 20px; }
-            .layer-item .label { font-size: 8px; }
-        }
-
-        @media (max-height: 500px) and (orientation: landscape) {
-            .layers-menu {
-                top: 55px; bottom: auto; right: 8px; left: auto;
-                flex-direction: column; width: 60px;
-                overflow-x: visible; overflow-y: auto;
-            }
-            .weather-panel { top: 55px; left: 8px; width: 200px; padding: 10px; }
-            .weather-panel .temp-big { font-size: 28px; }
-        }
     </style>
 </head>
 <body>
@@ -332,7 +340,6 @@
 <div id="map"></div>
 
 <div class="click-mode-indicator" id="clickIndicator">📍 Кликни по карте</div>
-
 <div class="radar-time" id="radarTime">🌧️ Радар</div>
 
 <!-- АНИМАЦИЯ ПАДЕНИЯ -->
@@ -370,6 +377,7 @@
     <div class="layer-item" onclick="setLayer('clouds', this)"><div class="icon">☁️</div><div class="label">Облака</div></div>
     <div class="layer-item" onclick="toggleRadar(this)"><div class="icon">📡</div><div class="label">Радар</div></div>
     <div class="layer-item" onclick="toggleSatellite(this)"><div class="icon">🛰️</div><div class="label">Спутник</div></div>
+    <div class="layer-item" onclick="userLaunchAnomaly()"><div class="icon">☢️</div><div class="label">Симуляция</div></div>
 </div>
 
 <div class="weather-panel">
@@ -423,16 +431,21 @@
         <div class="admin-control">
             <label>Сила аномалии:</label>
             <select id="nukePower">
-                <option value="1">🟢 Слабая (радиус 10 км)</option>
-                <option value="2" selected>🟡 Средняя (радиус 30 км)</option>
-                <option value="3">🟠 Сильная (радиус 60 км)</option>
-                <option value="4">🔴 Мега (радиус 120 км)</option>
+                <option value="1">🟢 Мини (радиус 5 км)</option>
+                <option value="2">🟡 Малая (радиус 15 км)</option>
+                <option value="3" selected>🟠 Средняя (радиус 40 км)</option>
+                <option value="4">🔴 Большая (радиус 80 км)</option>
+                <option value="5">💥 Огромная (радиус 150 км)</option>
+                <option value="6">💀 Мега (радиус 300 км)</option>
+                <option value="7">☠️ Апокалипсис (радиус 600 км)</option>
+                <option value="8">🌋 Армагеддон (радиус 1200 км)</option>
+                <option value="9">⚡ Экстерминатус (радиус 2500 км)</option>
             </select>
         </div>
         <div class="btn-group">
             <button class="btn btn-primary btn-full" id="pickBtn" onclick="enableClickMode()">📍 Выбрать на карте</button>
             <button class="btn btn-danger btn-full" onclick="sendNukeToCoords()">☢️ Запустить у ВСЕХ</button>
-            <button class="btn btn-warn btn-full" onclick="launchAnomalyLocal()">👤 Запустить только у себя</button>
+            <button class="btn btn-warn btn-full" onclick="launchAnomalyLocal()">👤 Только у себя</button>
         </div>
     </div>
 
@@ -497,6 +510,24 @@
     let radarAnimationTimer = null;
     let radarHost = '';
 
+    // Кратеры (остаются на карте)
+    let craters = [];
+
+    // ============================================
+    // КОНФИГИ СИЛЫ ВЗРЫВА (9 уровней)
+    // ============================================
+    const NUKE_CONFIGS = {
+        1: { name: 'Мини',         radius: 5,    particles: 30,   flash: 400,  shake: 3,   color: '#88ff88', crater: 0.15, shockwave: 200 },
+        2: { name: 'Малая',        radius: 15,   particles: 60,   flash: 600,  shake: 6,   color: '#aaff66', crater: 0.2,  shockwave: 300 },
+        3: { name: 'Средняя',      radius: 40,   particles: 100,  flash: 900,  shake: 10,  color: '#ffcc44', crater: 0.25, shockwave: 450 },
+        4: { name: 'Большая',      radius: 80,   particles: 150,  flash: 1200, shake: 15,  color: '#ff9944', crater: 0.3,  shockwave: 600 },
+        5: { name: 'Огромная',     radius: 150,  particles: 250,  flash: 1600, shake: 22,  color: '#ff6622', crater: 0.35, shockwave: 800 },
+        6: { name: 'Мега',         radius: 300,  particles: 400,  flash: 2000, shake: 30,  color: '#ff3333', crater: 0.45, shockwave: 1000 },
+        7: { name: 'Апокалипсис',  radius: 600,  particles: 600,  flash: 2500, shake: 40,  color: '#dd0000', crater: 0.55, shockwave: 1300 },
+        8: { name: 'Армагеддон',   radius: 1200, particles: 800,  flash: 3000, shake: 55,  color: '#aa0000', crater: 0.65, shockwave: 1600 },
+        9: { name: 'Экстерминатус',radius: 2500, particles: 1000, flash: 4000, shake: 70,  color: '#770000', crater: 0.75, shockwave: 2000 }
+    };
+
     // ============================================
     // АДМИН-ДОСТУП
     // ============================================
@@ -514,7 +545,6 @@
         if (admin) {
             adminPanel.classList.add('allowed');
             hotkeyHint.classList.add('allowed');
-            console.log('👑 Админ-режим активирован');
         } else {
             adminPanel.classList.remove('allowed');
             hotkeyHint.classList.remove('allowed');
@@ -534,20 +564,19 @@
         windSpeed: 0,
         temperature: 15,
         isPrecipActive: false,
-        tornadoCount: 0,
         lastLat: null,
         lastLng: null,
         nukeLat: null,
         nukeLng: null,
-        nukePower: 2,
-        nukeActive: false
+        nukePower: 3,
+        nukeActive: false,
+        nukeId: null
     };
 
     function connectWS() {
         ws = new WebSocket(SERVER_URL);
 
         ws.onopen = () => {
-            console.log('✅ WebSocket подключён');
             document.getElementById('statusDot').classList.remove('offline');
             document.getElementById('statusText').textContent = 'Онлайн';
             ws.send(JSON.stringify({ type: 'get_state' }));
@@ -564,7 +593,6 @@
         };
 
         ws.onclose = () => {
-            console.log('❌ WS отключён');
             document.getElementById('statusDot').classList.add('offline');
             document.getElementById('statusText').textContent = 'Переподключение...';
             setTimeout(connectWS, 3000);
@@ -580,7 +608,6 @@
             return;
         }
         ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
-        console.log('📤 Отправлено всем:', weatherState);
     }
 
     function applyWeatherFromServer() {
@@ -601,9 +628,12 @@
             if (source) source.setTiles([tileUrl]);
         }
 
-        // Аномалия от другого админа
+        // Аномалия от админа (по ID, чтобы не повторять)
         if (weatherState.nukeActive && weatherState.nukeLat && weatherState.nukeLng) {
-            launchAnomaly(weatherState.nukeLat, weatherState.nukeLng, weatherState.nukePower || 2);
+            if (weatherState.nukeId !== window._lastNukeId) {
+                window._lastNukeId = weatherState.nukeId;
+                launchAnomaly(weatherState.nukeLat, weatherState.nukeLng, weatherState.nukePower || 3);
+            }
             weatherState.nukeActive = false;
         }
 
@@ -623,49 +653,67 @@
     connectWS();
 
     // ============================================
-    // АНИМАЦИЯ АНОМАЛИИ
+    // ЗАПУСК АНОМАЛИИ
     // ============================================
     function launchAnomaly(lat, lng, power) {
-        const configs = {
-            1: { radius: 10,  flashDuration: 600,  nukeSize: '40px',  shakeIntensity: 5,  color: '#88ff88' },
-            2: { radius: 30,  flashDuration: 1000, nukeSize: '60px',  shakeIntensity: 10, color: '#ffcc44' },
-            3: { radius: 60,  flashDuration: 1500, nukeSize: '80px',  shakeIntensity: 20, color: '#ff8844' },
-            4: { radius: 120, flashDuration: 2000, nukeSize: '110px', shakeIntensity: 35, color: '#ff3333' }
-        };
-        const cfg = configs[power] || configs[2];
+        const cfg = NUKE_CONFIGS[power] || NUKE_CONFIGS[3];
 
         // 1. Предупреждение
-        document.getElementById('alertCity').textContent = `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+        document.getElementById('alertCity').textContent = `${lat.toFixed(2)}, ${lng.toFixed(2)} (${cfg.name})`;
         document.getElementById('alertBox').classList.add('active');
 
         // 2. Падение
         setTimeout(() => {
             const nuke = document.getElementById('fallingNuke');
-            nuke.style.fontSize = cfg.nukeSize;
+            nuke.style.fontSize = (40 + power * 10) + 'px';
             nuke.classList.remove('gone');
             nuke.classList.add('falling');
 
-            // 3. Вспышка + тряска + зона
+            // 3. Взрыв
             setTimeout(() => {
                 nuke.classList.add('gone');
                 nuke.classList.remove('falling');
 
+                // Вспышка
                 const flash = document.getElementById('flashEffect');
-                flash.style.animationDuration = cfg.flashDuration + 'ms';
+                flash.style.animationDuration = cfg.flash + 'ms';
                 flash.style.background = `radial-gradient(circle, ${cfg.color}ee 0%, rgba(255,100,0,0.4) 40%, transparent 70%)`;
                 flash.classList.add('active');
-                setTimeout(() => flash.classList.remove('active'), cfg.flashDuration);
+                setTimeout(() => flash.classList.remove('active'), cfg.flash);
 
-                shakeScreen(cfg.shakeIntensity);
-                drawNukeZone(lat, lng, cfg.radius, cfg.color);
+                // Тряска
+                shakeScreen(cfg.shake);
+
+                // Частицы
+                spawnExplosionParticles(lat, lng, cfg);
+
+                // Ударная волна
+                spawnShockwave(cfg.shockwave);
+
+                // Зона + кратер
+                drawNukeZone(lat, lng, cfg);
+
+                // Летим к взрыву
+                map.flyTo({ center: [lng, lat], zoom: getZoomForRadius(cfg.radius), duration: 2000 });
             }, 1500);
         }, 2000);
     }
 
+    function getZoomForRadius(radiusKm) {
+        if (radiusKm < 10) return 11;
+        if (radiusKm < 30) return 10;
+        if (radiusKm < 80) return 9;
+        if (radiusKm < 200) return 8;
+        if (radiusKm < 500) return 7;
+        if (radiusKm < 1000) return 6;
+        return 4;
+    }
+
+    // Тряска экрана
     function shakeScreen(intensity) {
         const mapEl = document.getElementById('map');
         let shakes = 0;
-        const maxShakes = 15;
+        const maxShakes = 15 + intensity;
         const interval = setInterval(() => {
             const x = (Math.random() - 0.5) * intensity;
             const y = (Math.random() - 0.5) * intensity;
@@ -678,73 +726,159 @@
         }, 40);
     }
 
-    function drawNukeZone(lat, lng, radiusKm, color) {
-        ['nuke-zone-layer', 'nuke-zone-outline', 'nuke-zone-inner'].forEach(id => {
-            if (map.getLayer(id)) map.removeLayer(id);
-        });
-        ['nuke-zone-source', 'nuke-zone-inner-source'].forEach(id => {
-            if (map.getSource(id)) map.removeSource(id);
-        });
+    // Частицы взрыва
+    function spawnExplosionParticles(lat, lng, cfg) {
+        const screenPos = map.project([lng, lat]);
+        const count = cfg.particles;
 
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'explosion-particle';
+
+            const size = 4 + Math.random() * 12;
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * cfg.shockwave;
+            const dx = Math.cos(angle) * distance;
+            const dy = Math.sin(angle) * distance;
+
+            particle.style.cssText = `
+                left: ${screenPos.x}px;
+                top: ${screenPos.y}px;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${cfg.color};
+                box-shadow: 0 0 ${size * 2}px ${cfg.color};
+                --dx: ${dx}px;
+                --dy: ${dy}px;
+                animation-duration: ${1.5 + Math.random() * 1.5}s;
+            `;
+
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 3000);
+        }
+    }
+
+    // Ударная волна
+    function spawnShockwave(maxSize) {
+        const wave = document.createElement('div');
+        wave.className = 'shockwave';
+        const screenPos = map.project(map.getCenter());
+        wave.style.cssText = `
+            left: ${screenPos.x}px;
+            top: ${screenPos.y}px;
+            width: 0;
+            height: 0;
+            margin-left: 0;
+            margin-top: 0;
+        `;
+
+        // Устанавливаем финальный размер через CSS переменную
+        wave.style.setProperty('--final-size', maxSize + 'px');
+        wave.style.animation = `shockwaveAnim 1.5s ease-out forwards`;
+
+        document.body.appendChild(wave);
+        setTimeout(() => wave.remove(), 2000);
+    }
+
+    // Зона + кратер
+    function drawNukeZone(lat, lng, cfg) {
+        const zoneId = 'nuke-zone-' + Date.now();
+
+        // Основная зона
         const points = 64;
         const coords = [];
         for (let i = 0; i < points; i++) {
             const angle = (i / points) * 2 * Math.PI;
-            const dx = radiusKm * Math.cos(angle) / 111;
-            const dy = radiusKm * Math.sin(angle) / 111;
+            const dx = cfg.radius * Math.cos(angle) / 111;
+            const dy = cfg.radius * Math.sin(angle) / 111;
             coords.push([lng + dx, lat + dy]);
         }
         coords.push(coords[0]);
 
-        map.addSource('nuke-zone-source', {
+        map.addSource(zoneId + '-source', {
             type: 'geojson',
             data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
         });
 
+        // Внешняя заливка
         map.addLayer({
-            id: 'nuke-zone-layer',
+            id: zoneId + '-layer',
             type: 'fill',
-            source: 'nuke-zone-source',
-            paint: { 'fill-color': color, 'fill-opacity': 0.25 }
+            source: zoneId + '-source',
+            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.15 }
         });
 
+        // Внутренняя (ярче)
         const innerCoords = coords.map(([x, y]) => [lng + (x - lng) * 0.4, lat + (y - lat) * 0.4]);
-        map.addSource('nuke-zone-inner-source', {
+        map.addSource(zoneId + '-inner-source', {
             type: 'geojson',
             data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [innerCoords] } }
         });
         map.addLayer({
-            id: 'nuke-zone-inner',
+            id: zoneId + '-inner',
             type: 'fill',
-            source: 'nuke-zone-inner-source',
-            paint: { 'fill-color': color, 'fill-opacity': 0.45 }
+            source: zoneId + '-inner-source',
+            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.35 }
         });
 
+        // Обводка
         map.addLayer({
-            id: 'nuke-zone-outline',
+            id: zoneId + '-outline',
             type: 'line',
-            source: 'nuke-zone-source',
-            paint: { 'line-color': color, 'line-width': 3, 'line-opacity': 0.9 }
+            source: zoneId + '-source',
+            paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.8 }
         });
 
+        // КРАТЕР (остаётся)
+        const craterRadius = cfg.radius * cfg.crater;
+        const craterCoords = [];
+        for (let i = 0; i < points; i++) {
+            const angle = (i / points) * 2 * Math.PI;
+            const dx = craterRadius * Math.cos(angle) / 111;
+            const dy = craterRadius * Math.sin(angle) / 111;
+            craterCoords.push([lng + dx, lat + dy]);
+        }
+        craterCoords.push(craterCoords[0]);
+
+        map.addSource(zoneId + '-crater-source', {
+            type: 'geojson',
+            data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [craterCoords] } }
+        });
+        map.addLayer({
+            id: zoneId + '-crater',
+            type: 'fill',
+            source: zoneId + '-crater-source',
+            paint: { 'fill-color': '#1a0a00', 'fill-opacity': 0.7 }
+        });
+        map.addLayer({
+            id: zoneId + '-crater-outline',
+            type: 'line',
+            source: zoneId + '-crater-source',
+            paint: { 'line-color': '#000', 'line-width': 2, 'line-opacity': 0.6 }
+        });
+
+        // Маркер ☢️ в центре
         const el = document.createElement('div');
         el.className = 'custom-marker';
         el.textContent = '☢️';
-        el.style.fontSize = '48px';
-        el.style.filter = `drop-shadow(0 0 20px ${color})`;
+        el.style.fontSize = (30 + cfg.radius / 20) + 'px';
+        el.style.filter = `drop-shadow(0 0 25px ${cfg.color})`;
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
 
-        map.flyTo({ center: [lng, lat], zoom: 6, duration: 1500 });
-        console.log(`☢️ Аномалия: lat=${lat}, lng=${lng}, radius=${radiusKm}км, power=${power}`);
+        // Сохраняем в кратеры
+        craters.push({ zoneId, lat, lng, radius: cfg.radius, crater: cfg.crater, color: cfg.color });
+
+        console.log(`☢️ ${cfg.name} (${cfg.radius} км) в ${lat}, ${lng}`);
     }
 
     function closeAlert() {
         document.getElementById('alertBox').classList.remove('active');
     }
 
-    // ЗАПУСК АНОМАЛИИ
+    // ЗАПУСК АНОМАЛИИ ЛОКАЛЬНО
     function launchAnomalyLocal() {
+        if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
         if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
@@ -752,6 +886,7 @@
         launchAnomaly(lat, lng, power);
     }
 
+    // ЗАПУСК У ВСЕХ
     function sendNukeToCoords() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
@@ -764,10 +899,30 @@
         weatherState.nukeLng = lng;
         weatherState.nukePower = power;
         weatherState.nukeActive = true;
-        sendWeatherToServer();
+        weatherState.nukeId = Date.now();
 
+        sendWeatherToServer();
         launchAnomaly(lat, lng, power);
-        alert(`☢️ Аномалия (сила ${power}) запущена у ВСЕХ пользователей`);
+
+        const cfg = NUKE_CONFIGS[power];
+        alert(`☢️ ${cfg.name} (радиус ${cfg.radius} км) запущена у ВСЕХ!`);
+    }
+
+    // ЗАПУСК У СЕБЯ (для всех пользователей)
+    let userCooldown = 0;
+    function userLaunchAnomaly() {
+        const now = Date.now();
+        if (now - userCooldown < 30000) {
+            const left = Math.ceil((30000 - (now - userCooldown)) / 1000);
+            alert(`⏳ Подожди ещё ${left} сек.`);
+            return;
+        }
+        userCooldown = now;
+
+        const center = map.getCenter();
+        // Случайная сила от 1 до 4 (мини-большая)
+        const power = Math.floor(Math.random() * 4) + 1;
+        launchAnomaly(center.lat, center.lng, power);
     }
 
     // ============================================
@@ -878,21 +1033,6 @@
         if (e.code === 'Escape') closeAll();
     });
 
-    let logoClicks = 0;
-    let logoTimer = null;
-    document.querySelector('.logo-badge').addEventListener('click', () => {
-        if (!isAdmin()) return;
-        logoClicks++;
-        if (logoClicks === 3) {
-            const panel = document.getElementById('adminPanel');
-            if (panel.classList.contains('active')) closeAll();
-            else panel.classList.add('active');
-            logoClicks = 0;
-        }
-        clearTimeout(logoTimer);
-        logoTimer = setTimeout(() => { logoClicks = 0; }, 1000);
-    });
-
     function closeAll() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
@@ -901,7 +1041,6 @@
         map.getCanvas().style.cursor = '';
         document.getElementById('clickIndicator').classList.remove('active');
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-        document.getElementById('pickBtn').classList.remove('active');
     }
 
     // ============================================
@@ -919,8 +1058,7 @@
                     loadWeather(parseFloat(lat), parseFloat(lon));
                     getLocationName(parseFloat(lat), parseFloat(lon));
                 } else { alert('Город не найден'); }
-            })
-            .catch(err => { console.error(err); alert('Ошибка поиска'); });
+            });
     }
     document.getElementById('citySearch').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchCity();
@@ -938,12 +1076,10 @@
         const colorMap = { rain: 4, snow: 6, storm: 3, hail: 5, sleet: 2 };
         weatherState.precipColor = colorMap[type] || 4;
         weatherState.phenomenonType = type === 'hail' ? 'storm' : type;
-
         if (radarActive && radarFrames.length > 0) {
             const frame = radarFrames[radarFrameIndex];
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`;
             const source = map.getSource('radar-source');
-            if (source) source.setTiles([tileUrl]);
+            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`]);
         }
         if (isAdmin()) sendWeatherToServer();
     }
@@ -965,54 +1101,42 @@
         try {
             const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
             const data = await res.json();
-
             radarHost = data.host;
             radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
             if (radarFrames.length === 0) { radarActive = false; return; }
 
             const firstFrame = radarFrames[0];
             const colorScheme = weatherState.precipColor || 4;
-            const tileUrl = `${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
-
             if (map.getSource('radar-source')) map.removeSource('radar-source');
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
-
             map.addSource('radar-source', {
                 type: 'raster',
-                tiles: [tileUrl],
+                tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`],
                 tileSize: 512,
                 maxzoom: 7
             });
-
             map.addLayer({
                 id: 'radar-layer',
                 type: 'raster',
                 source: 'radar-source',
                 paint: { 'raster-opacity': 0.75, 'raster-fade-duration': 0 }
             });
-
             btn.classList.add('active');
             document.getElementById('radarTime').classList.add('active');
             startRadarAnimation();
-        } catch (err) {
-            console.error('Ошибка радара:', err);
-            radarActive = false;
-        }
+        } catch (err) { radarActive = false; }
     }
 
     function startRadarAnimation() {
         if (radarAnimationTimer) clearInterval(radarAnimationTimer);
         radarFrameIndex = 0;
-
         radarAnimationTimer = setInterval(() => {
             if (!radarActive || radarFrames.length === 0) return;
             radarFrameIndex = (radarFrameIndex + 1) % radarFrames.length;
             const frame = radarFrames[radarFrameIndex];
             const colorScheme = weatherState.precipColor || 4;
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`;
             const source = map.getSource('radar-source');
-            if (source) source.setTiles([tileUrl]);
-
+            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`]);
             const time = new Date(frame.time * 1000);
             const timeStr = time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             const isForecast = radarFrameIndex >= radarFrames.length - (radarFrames.length / 3);
@@ -1036,18 +1160,10 @@
                 tileSize: 256
             });
             map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite-source', paint: { 'raster-opacity': 1 } });
-            map.addSource('labels-source', {
-                type: 'raster',
-                tiles: ['https://basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'],
-                tileSize: 256
-            });
-            map.addLayer({ id: 'labels-layer', type: 'raster', source: 'labels-source', paint: { 'raster-opacity': 0.9 } });
             btn.classList.add('active');
         } else {
             if (map.getLayer('satellite-layer')) map.removeLayer('satellite-layer');
             if (map.getSource('satellite-source')) map.removeSource('satellite-source');
-            if (map.getLayer('labels-layer')) map.removeLayer('labels-layer');
-            if (map.getSource('labels-source')) map.removeSource('labels-source');
             btn.classList.remove('active');
         }
     }
@@ -1068,7 +1184,6 @@
             map.getCanvas().style.cursor = '';
             document.getElementById('clickIndicator').classList.remove('active');
             document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
-            document.getElementById('pickBtn').classList.remove('active');
             return;
         }
         loadWeather(e.lngLat.lat, e.lngLat.lng);
@@ -1081,7 +1196,6 @@
         map.getCanvas().style.cursor = 'crosshair';
         document.getElementById('clickIndicator').classList.add('active');
         document.getElementById('pickBtn').textContent = '⏳ Кликни по карте...';
-        document.getElementById('pickBtn').classList.add('active');
     }
 
     // ============================================
@@ -1089,27 +1203,22 @@
     // ============================================
     function applyWeather() {
         if (!isAdmin()) return;
-
         weatherState.rainIntensity = parseInt(document.getElementById('rainIntensity').value);
         weatherState.isPrecipActive = weatherState.rainIntensity > 0;
-        weatherState.power = parseInt(document.getElementById('power')?.value || 3);
         weatherState.windSpeed = parseInt(document.getElementById('windSpeed').value);
         weatherState.temperature = parseInt(document.getElementById('temperature').value);
-
         sendWeatherToServer();
-        alert('✅ Погода отправлена ВСЕМ пользователям!');
+        alert('✅ Погода отправлена ВСЕМ!');
     }
 
     function resetWeather() {
         if (!isAdmin()) return;
-
         weatherState = {
             rainIntensity: 0, phenomenonType: 'rain', precipColor: 4,
             power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false,
-            tornadoCount: 0, lastLat: null, lastLng: null,
-            nukeLat: null, nukeLng: null, nukePower: 2, nukeActive: false
+            lastLat: null, lastLng: null,
+            nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
         };
-
         document.getElementById('rainIntensity').value = 0;
         document.getElementById('rainIntensityLabel').textContent = '0';
         document.getElementById('precipType').value = 'rain';
@@ -1118,10 +1227,8 @@
         document.getElementById('temperature').value = 15;
         document.getElementById('tempLabel').textContent = '15';
         document.getElementById('coordsInput').value = '';
-
         markers.forEach(m => m.remove());
         markers = [];
-
         sendWeatherToServer();
         alert('🔄 Погода сброшена для ВСЕХ');
     }
@@ -1195,7 +1302,6 @@
         console.log('🗺️ Карта готова');
         updateAdminVisibility();
         autoDetectLocation();
-
         setTimeout(() => {
             const radarBtn = document.querySelector('.layer-item[onclick*="toggleRadar"]');
             if (radarBtn && !radarActive) toggleRadar(radarBtn);
