@@ -16,7 +16,40 @@
             width: 100%;
             touch-action: manipulation;
         }
-        #map { width: 100vw; height: 100vh; background: #0a0a1a; }
+        #map { width: 100vw; height: 100vh; background: #0a0a1a; transition: filter 1.5s ease; }
+
+        /* ЧЕРНОБЫЛЬСКАЯ ТЕМА */
+        body.chernobyl #map {
+            filter: sepia(1) hue-rotate(60deg) saturate(2) brightness(0.7) contrast(1.3);
+        }
+        body.chernobyl::before {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 900;
+            animation: chernobylPulse 4s infinite;
+        }
+        @keyframes chernobylPulse {
+            0%,100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        body.chernobyl::after {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03) 0px,
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none; z-index: 901;
+            animation: scanlines 8s linear infinite;
+        }
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
 
         .top-bar {
             position: fixed; top: 10px; left: 10px; right: 10px;
@@ -30,6 +63,7 @@
             border: 1px solid rgba(100,150,255,0.2);
             pointer-events: all; flex: 1; max-width: 320px;
         }
+        body.chernobyl .search-box { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
         .search-box input {
             flex: 1; background: transparent; border: none; color: #fff;
             font-size: 14px; outline: none; min-width: 0;
@@ -39,6 +73,7 @@
             background: transparent; border: none; color: #6eb5ff;
             font-size: 18px; cursor: pointer; padding: 0 4px;
         }
+        body.chernobyl .search-box button { color: #00ff00; }
 
         .logo-badge {
             display: flex; align-items: center; gap: 6px;
@@ -49,6 +84,8 @@
             white-space: nowrap;
         }
         .logo-badge span { color: #ff6b6b; }
+        body.chernobyl .logo-badge { border-color: #00ff00; }
+        body.chernobyl .logo-badge span { color: #00ff00; }
 
         .user-area { margin-left: auto; display: flex; gap: 8px; pointer-events: all; }
         .user-btn {
@@ -69,13 +106,16 @@
             border: 1px solid rgba(100,150,255,0.2);
             display: flex; flex-direction: column; gap: 5px;
         }
+        body.chernobyl .layers-menu { border-color: #00ff00; }
         .layer-item {
             display: flex; flex-direction: column; align-items: center;
             padding: 5px 3px; border-radius: 10px; cursor: pointer;
             transition: background 0.2s; color: #fff;
         }
         .layer-item:hover { background: rgba(110, 181, 255, 0.2); }
+        body.chernobyl .layer-item:hover { background: rgba(0, 255, 0, 0.2); }
         .layer-item.active { background: rgba(110, 181, 255, 0.35); }
+        body.chernobyl .layer-item.active { background: rgba(0, 255, 0, 0.3); }
         .layer-item .icon { font-size: 20px; margin-bottom: 1px; }
         .layer-item .label { font-size: 8px; text-align: center; color: #ccc; line-height: 1.1; }
 
@@ -87,9 +127,12 @@
             border: 1px solid rgba(100,150,255,0.2);
             color: #fff;
         }
+        body.chernobyl .weather-panel { border-color: #00ff00; }
         .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
+        body.chernobyl .weather-panel h2 { color: #00ff00; }
         .weather-panel .city { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
         .weather-panel .temp-big { font-size: 38px; font-weight: bold; color: #fff; margin: 5px 0; }
+        body.chernobyl .weather-panel .temp-big { color: #00ff00; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .weather-panel .desc { color: #aaa; font-size: 12px; margin-bottom: 10px; }
         .weather-panel .details { font-size: 12px; }
         .weather-panel .details div {
@@ -98,6 +141,7 @@
         }
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
+        body.chernobyl .weather-panel .details .val { color: #00ff00; }
 
         .admin-panel {
             position: fixed; top: 0; right: 0; height: 100vh;
@@ -109,7 +153,6 @@
             overflow-y: auto;
             transform: translateX(100%);
             transition: transform 0.3s ease;
-            -webkit-overflow-scrolling: touch;
             display: none;
         }
         .admin-panel.allowed { display: block; }
@@ -208,13 +251,13 @@
         }
         .radar-time.active { display: block; }
 
-        /* ============ ЭФФЕКТ ПАДЕНИЯ ============ */
+        /* ЭФФЕКТ ПАДЕНИЯ */
         .falling-nuke {
             position: fixed; top: -120px;
             font-size: 60px;
             z-index: 5000;
             pointer-events: none;
-            filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.9));
+            filter: drop-shadow(0 0 20px rgba(0, 255, 0, 0.9));
             transition: top 1.5s cubic-bezier(0.5, 0, 1, 1), opacity 0.3s;
             left: 50%;
             transform: translateX(-50%);
@@ -223,10 +266,10 @@
         .falling-nuke.falling { top: 50vh; opacity: 1; }
         .falling-nuke.gone { opacity: 0; }
 
-        /* ============ ВСПЫШКА ============ */
+        /* ВСПЫШКА */
         .flash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(255, 200, 100, 0.9) 0%, rgba(255, 100, 0, 0.4) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.9) 0%, rgba(0, 100, 0, 0.4) 40%, transparent 70%);
             z-index: 4999; pointer-events: none;
             opacity: 0;
         }
@@ -237,32 +280,32 @@
             100% { opacity: 0; }
         }
 
-        /* ============ ПРЕДУПРЕЖДЕНИЕ ============ */
+        /* ПРЕДУПРЕЖДЕНИЕ */
         .alert-box {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(20, 5, 5, 0.98);
-            border: 3px solid #ff3b3b;
+            background: rgba(5, 20, 5, 0.98);
+            border: 3px solid #00ff00;
             border-radius: 20px; padding: 30px;
             color: #fff; z-index: 6000;
-            box-shadow: 0 0 60px rgba(255, 50, 50, 0.8);
+            box-shadow: 0 0 60px rgba(0, 255, 0, 0.8);
             max-width: 480px; width: 90%;
             opacity: 0; visibility: hidden;
             transition: all 0.3s ease;
             text-align: center;
         }
         .alert-box.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-        .alert-box h2 { color: #ff3b3b; margin-bottom: 15px; font-size: 22px; }
+        .alert-box h2 { color: #00ff00; margin-bottom: 15px; font-size: 22px; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .alert-box p { font-size: 14px; line-height: 1.5; margin-bottom: 10px; color: #ddd; }
         .alert-box .warning-text {
-            background: rgba(255, 59, 59, 0.2);
+            background: rgba(0, 255, 0, 0.15);
             padding: 12px; border-radius: 10px;
-            font-size: 13px; color: #ff8888;
+            font-size: 13px; color: #88ff88;
             margin: 15px 0;
-            border: 1px solid #ff3b3b;
+            border: 1px solid #00ff00;
         }
 
-        /* ============ ЧАСТИЦЫ ВЗРЫВА ============ */
+        /* ЧАСТИЦЫ */
         .explosion-particle {
             position: fixed;
             pointer-events: none;
@@ -275,61 +318,103 @@
             100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
 
-        /* ============ УДАРНАЯ ВОЛНА ============ */
+        /* УДАРНАЯ ВОЛНА */
         .shockwave {
             position: fixed;
-            border: 4px solid rgba(255, 200, 100, 0.8);
+            border: 4px solid rgba(0, 255, 0, 0.8);
             border-radius: 50%;
             pointer-events: none;
             z-index: 4997;
+            width: 0;
+            height: 0;
             animation: shockwaveAnim 1.5s ease-out forwards;
         }
         @keyframes shockwaveAnim {
             0% { width: 0; height: 0; opacity: 1; border-width: 8px; margin-left: 0; margin-top: 0; }
-            100% { width: 800px; height: 800px; opacity: 0; border-width: 1px; margin-left: -400px; margin-top: -400px; }
+            100% { width: var(--final-size); height: var(--final-size); opacity: 0; border-width: 1px; margin-left: calc(var(--final-size) / -2); margin-top: calc(var(--final-size) / -2); }
         }
 
-        @media (max-width: 1024px) {
-            .search-box { max-width: 260px; }
+        /* РАДИОАКТИВНЫЙ ДОЖДЬ */
+        .radioactive-drop {
+            position: fixed;
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(to bottom, transparent, #00ff00);
+            pointer-events: none;
+            z-index: 4996;
+            animation: dropFall linear forwards;
+        }
+        @keyframes dropFall {
+            0% { top: -20px; opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* ГЛИТЧ-ЭФФЕКТ */
+        .glitch-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 4995;
+            opacity: 0;
+            mix-blend-mode: screen;
+        }
+        .glitch-overlay.active {
+            animation: glitchAnim 0.3s steps(2) 10;
+        }
+        @keyframes glitchAnim {
+            0% { background: rgba(0, 255, 0, 0.15); transform: translate(0); }
+            25% { background: rgba(255, 0, 255, 0.15); transform: translate(-5px, 3px); }
+            50% { background: rgba(0, 255, 255, 0.15); transform: translate(5px, -3px); }
+            75% { background: rgba(255, 255, 0, 0.15); transform: translate(-3px, 5px); }
+            100% { background: rgba(0, 255, 0, 0.15); transform: translate(0); }
+        }
+
+        /* ЧЕРЕПА */
+        .skull-icon {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px #00ff00);
+            animation: skullFloat 3s ease-in-out infinite;
+        }
+        @keyframes skullFloat {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* ИНДИКАТОР РАДИАЦИИ */
+        .radiation-indicator {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 200px;
+            pointer-events: none;
+            z-index: 4994;
+            opacity: 0;
+            filter: drop-shadow(0 0 40px #00ff00);
+        }
+        .radiation-indicator.active {
+            animation: radiationPulse 2s ease-out;
+        }
+        @keyframes radiationPulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
 
         @media (max-width: 600px) {
             .top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
             .logo-badge { display: none; }
             .search-box { max-width: none; padding: 8px 14px; }
-            .search-box input { font-size: 13px; }
-            .user-btn { padding: 8px 14px; font-size: 12px; }
-
             .layers-menu {
                 top: auto; bottom: 10px; right: 10px; left: 10px;
                 width: auto; flex-direction: row;
-                overflow-x: auto; justify-content: flex-start;
+                overflow-x: auto;
                 padding: 8px; gap: 4px;
-                -webkit-overflow-scrolling: touch;
             }
             .layers-menu::-webkit-scrollbar { display: none; }
             .layer-item { flex-shrink: 0; min-width: 60px; padding: 6px 4px; }
-            .layer-item .icon { font-size: 22px; }
-            .layer-item .label { font-size: 9px; }
-
-            .weather-panel {
-                top: 55px; left: 8px;
-                width: calc(100% - 16px); max-width: 320px;
-                padding: 12px;
-            }
-            .weather-panel .city { font-size: 18px; }
+            .weather-panel { top: 55px; left: 8px; width: calc(100% - 16px); max-width: 320px; padding: 12px; }
             .weather-panel .temp-big { font-size: 34px; }
-
-            .admin-panel {
-                width: 100%; max-width: 100%;
-                padding: 20px 16px 80px 16px;
-                border-left: none;
-                border-top: 2px solid #ff6b6b;
-            }
-
+            .admin-panel { width: 100%; max-width: 100%; padding: 20px 16px 80px 16px; border-left: none; }
             .hotkey-hint { display: none !important; }
-            .click-mode-indicator { top: auto; bottom: 90px; font-size: 12px; padding: 8px 16px; }
-            .custom-marker { font-size: 28px; }
             .connection-status { bottom: 90px; }
             .radar-time { bottom: 130px; }
         }
@@ -342,13 +427,13 @@
 <div class="click-mode-indicator" id="clickIndicator">📍 Кликни по карте</div>
 <div class="radar-time" id="radarTime">🌧️ Радар</div>
 
-<!-- АНИМАЦИЯ ПАДЕНИЯ -->
 <div class="falling-nuke" id="fallingNuke">☢️</div>
 <div class="flash" id="flashEffect"></div>
+<div class="glitch-overlay" id="glitchOverlay"></div>
+<div class="radiation-indicator" id="radiationIndicator">☢️</div>
 
-<!-- ПРЕДУПРЕЖДЕНИЕ -->
 <div class="alert-box" id="alertBox">
-    <h2>⚠️ ВНИМАНИЕ! ⚠️</h2>
+    <h2>☢️ РАДИАЦИОННАЯ ТРЕВОГА ☢️</h2>
     <p>В районе <span id="alertCity">выбранной точки</span> зафиксирована аномалия.</p>
     <p>Это <b>игровое событие</b>, часть симуляции.</p>
     <div class="warning-text">
@@ -364,7 +449,7 @@
         <input type="text" id="citySearch" placeholder="Поиск города...">
         <button onclick="searchCity()">🔍</button>
     </div>
-    <div class="logo-badge">🌍 <span>Weather</span>App</div>
+    <div class="logo-badge">☢️ <span>Chernobyl</span>App</div>
     <div class="user-area">
         <button class="user-btn" id="authBtn" onclick="openAuth()">Войти</button>
     </div>
@@ -381,7 +466,7 @@
 </div>
 
 <div class="weather-panel">
-    <h2>🌦️ Погода</h2>
+    <h2>☢️ Радиация</h2>
     <div class="city" id="locationName">Определение...</div>
     <div class="temp-big" id="tempValue">--°C</div>
     <div class="desc" id="weatherDesc">Загрузка...</div>
@@ -411,13 +496,13 @@
             <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="document.getElementById('rainIntensityLabel').textContent=this.value">
         </div>
         <div class="admin-control">
-            <label>Тип осадков (цвет радара):</label>
+            <label>Тип осадков:</label>
             <select id="precipType" onchange="onPrecipTypeChange(this.value)">
-                <option value="rain">🌧️ Дождь (синий)</option>
-                <option value="snow">❄️ Снег (белый)</option>
-                <option value="storm">⛈️ Гроза (фиолетовый)</option>
-                <option value="hail">🧊 Град (красный)</option>
-                <option value="sleet">🌨️ Мокрый снег (голубой)</option>
+                <option value="rain">🌧️ Дождь</option>
+                <option value="snow">❄️ Снег</option>
+                <option value="storm">⛈️ Гроза</option>
+                <option value="hail">🧊 Град</option>
+                <option value="sleet">🌨️ Мокрый снег</option>
             </select>
         </div>
     </div>
@@ -429,17 +514,17 @@
             <input type="text" id="coordsInput" placeholder="Нажми 'Выбрать на карте'" readonly>
         </div>
         <div class="admin-control">
-            <label>Сила аномалии:</label>
+            <label>Сила:</label>
             <select id="nukePower">
-                <option value="1">🟢 Мини (радиус 5 км)</option>
-                <option value="2">🟡 Малая (радиус 15 км)</option>
-                <option value="3" selected>🟠 Средняя (радиус 40 км)</option>
-                <option value="4">🔴 Большая (радиус 80 км)</option>
-                <option value="5">💥 Огромная (радиус 150 км)</option>
-                <option value="6">💀 Мега (радиус 300 км)</option>
-                <option value="7">☠️ Апокалипсис (радиус 600 км)</option>
-                <option value="8">🌋 Армагеддон (радиус 1200 км)</option>
-                <option value="9">⚡ Экстерминатус (радиус 2500 км)</option>
+                <option value="1">🟢 Мини (5 км)</option>
+                <option value="2">🟡 Малая (15 км)</option>
+                <option value="3" selected>🟠 Средняя (40 км)</option>
+                <option value="4">🔴 Большая (80 км)</option>
+                <option value="5">💥 Огромная (150 км)</option>
+                <option value="6">💀 Мега (300 км)</option>
+                <option value="7">☠️ Апокалипсис (600 км)</option>
+                <option value="8">🌋 Армагеддон (1200 км)</option>
+                <option value="9">⚡ Экстерминатус (2500 км)</option>
             </select>
         </div>
         <div class="btn-group">
@@ -449,25 +534,9 @@
         </div>
     </div>
 
-    <div class="admin-section">
-        <h3>💨 Ветер</h3>
-        <div class="admin-control">
-            <label>Скорость: <span id="windSpeedLabel">0</span> м/с</label>
-            <input type="range" id="windSpeed" min="0" max="50" value="0" oninput="document.getElementById('windSpeedLabel').textContent=this.value">
-        </div>
-    </div>
-
-    <div class="admin-section">
-        <h3>🌡️ Температура</h3>
-        <div class="admin-control">
-            <label>Значение: <span id="tempLabel">15</span>°C</label>
-            <input type="range" id="temperature" min="-50" max="50" value="15" oninput="document.getElementById('tempLabel').textContent=this.value">
-        </div>
-    </div>
-
     <div class="btn-group">
-        <button class="btn btn-success btn-full" onclick="applyWeather()">✅ Применить для всех</button>
-        <button class="btn btn-danger btn-full" onclick="resetWeather()">🔄 Сбросить у всех</button>
+        <button class="btn btn-success btn-full" onclick="applyWeather()">✅ Применить</button>
+        <button class="btn btn-danger btn-full" onclick="resetAll()">🔄 Сбросить всё</button>
         <button class="btn btn-danger btn-full" onclick="closeAll()">❌ Закрыть</button>
     </div>
 </div>
@@ -504,52 +573,36 @@
     let markers = [];
     let authMode = 'login';
     let ws = null;
-
     let radarFrames = [];
     let radarFrameIndex = 0;
     let radarAnimationTimer = null;
     let radarHost = '';
-
-    // Кратеры (остаются на карте)
     let craters = [];
+    let chernobylActive = false;
 
-    // ============================================
-    // КОНФИГИ СИЛЫ ВЗРЫВА (9 уровней)
-    // ============================================
+    // 9 уровней силы
     const NUKE_CONFIGS = {
-        1: { name: 'Мини',         radius: 5,    particles: 30,   flash: 400,  shake: 3,   color: '#88ff88', crater: 0.15, shockwave: 200 },
-        2: { name: 'Малая',        radius: 15,   particles: 60,   flash: 600,  shake: 6,   color: '#aaff66', crater: 0.2,  shockwave: 300 },
-        3: { name: 'Средняя',      radius: 40,   particles: 100,  flash: 900,  shake: 10,  color: '#ffcc44', crater: 0.25, shockwave: 450 },
-        4: { name: 'Большая',      radius: 80,   particles: 150,  flash: 1200, shake: 15,  color: '#ff9944', crater: 0.3,  shockwave: 600 },
-        5: { name: 'Огромная',     radius: 150,  particles: 250,  flash: 1600, shake: 22,  color: '#ff6622', crater: 0.35, shockwave: 800 },
-        6: { name: 'Мега',         radius: 300,  particles: 400,  flash: 2000, shake: 30,  color: '#ff3333', crater: 0.45, shockwave: 1000 },
-        7: { name: 'Апокалипсис',  radius: 600,  particles: 600,  flash: 2500, shake: 40,  color: '#dd0000', crater: 0.55, shockwave: 1300 },
-        8: { name: 'Армагеддон',   radius: 1200, particles: 800,  flash: 3000, shake: 55,  color: '#aa0000', crater: 0.65, shockwave: 1600 },
-        9: { name: 'Экстерминатус',radius: 2500, particles: 1000, flash: 4000, shake: 70,  color: '#770000', crater: 0.75, shockwave: 2000 }
+        1: { name: 'Мини',         radius: 5,    particles: 50,   flash: 400,  shake: 3,   color: '#88ff88', crater: 0.15, shockwave: 200,  spots: 50 },
+        2: { name: 'Малая',        radius: 15,   particles: 100,  flash: 600,  shake: 6,   color: '#aaff66', crater: 0.2,  shockwave: 300,  spots: 100 },
+        3: { name: 'Средняя',      radius: 40,   particles: 200,  flash: 900,  shake: 10,  color: '#ccff44', crater: 0.25, shockwave: 450,  spots: 150 },
+        4: { name: 'Большая',      radius: 80,   particles: 350,  flash: 1200, shake: 15,  color: '#ffdd22', crater: 0.3,  shockwave: 600,  spots: 200 },
+        5: { name: 'Огромная',     radius: 150,  particles: 500,  flash: 1600, shake: 22,  color: '#ffaa22', crater: 0.35, shockwave: 800,  spots: 250 },
+        6: { name: 'Мега',         radius: 300,  particles: 700,  flash: 2000, shake: 30,  color: '#ff6622', crater: 0.45, shockwave: 1000, spots: 300 },
+        7: { name: 'Апокалипсис',  radius: 600,  particles: 900,  flash: 2500, shake: 40,  color: '#ff3322', crater: 0.55, shockwave: 1300, spots: 350 },
+        8: { name: 'Армагеддон',   radius: 1200, particles: 1100, flash: 3000, shake: 55,  color: '#dd0000', crater: 0.65, shockwave: 1600, spots: 450 },
+        9: { name: 'Экстерминатус',radius: 2500, particles: 1500, flash: 4000, shake: 70,  color: '#880000', crater: 0.75, shockwave: 2000, spots: 500 }
     };
 
     // ============================================
     // АДМИН-ДОСТУП
     // ============================================
     const ADMIN_LOGIN = 'weather';
-
-    function isAdmin() {
-        return localStorage.getItem('login') === ADMIN_LOGIN;
-    }
+    function isAdmin() { return localStorage.getItem('login') === ADMIN_LOGIN; }
 
     function updateAdminVisibility() {
         const admin = isAdmin();
-        const adminPanel = document.getElementById('adminPanel');
-        const hotkeyHint = document.getElementById('hotkeyHint');
-
-        if (admin) {
-            adminPanel.classList.add('allowed');
-            hotkeyHint.classList.add('allowed');
-        } else {
-            adminPanel.classList.remove('allowed');
-            hotkeyHint.classList.remove('allowed');
-            adminPanel.classList.remove('active');
-        }
+        document.getElementById('adminPanel').classList.toggle('allowed', admin);
+        document.getElementById('hotkeyHint').classList.toggle('allowed', admin);
     }
 
     // ============================================
@@ -557,31 +610,19 @@
     // ============================================
     const SERVER_URL = 'wss://' + window.location.host;
     let weatherState = {
-        rainIntensity: 0,
-        phenomenonType: 'rain',
-        precipColor: 4,
-        power: 3,
-        windSpeed: 0,
-        temperature: 15,
-        isPrecipActive: false,
-        lastLat: null,
-        lastLng: null,
-        nukeLat: null,
-        nukeLng: null,
-        nukePower: 3,
-        nukeActive: false,
-        nukeId: null
+        rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3,
+        windSpeed: 0, temperature: 15, isPrecipActive: false,
+        lastLat: null, lastLng: null,
+        nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
     };
 
     function connectWS() {
         ws = new WebSocket(SERVER_URL);
-
         ws.onopen = () => {
             document.getElementById('statusDot').classList.remove('offline');
             document.getElementById('statusText').textContent = 'Онлайн';
             ws.send(JSON.stringify({ type: 'get_state' }));
         };
-
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data);
@@ -589,24 +630,17 @@
                     weatherState = msg.state;
                     applyWeatherFromServer();
                 }
-            } catch (e) { console.error('WS parse:', e); }
+            } catch (e) { console.error(e); }
         };
-
         ws.onclose = () => {
             document.getElementById('statusDot').classList.add('offline');
             document.getElementById('statusText').textContent = 'Переподключение...';
             setTimeout(connectWS, 3000);
         };
-
-        ws.onerror = (e) => console.error('WS error:', e);
     }
 
     function sendWeatherToServer() {
-        if (!isAdmin()) return;
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert('❌ Нет соединения с сервером');
-            return;
-        }
+        if (!isAdmin() || !ws || ws.readyState !== WebSocket.OPEN) return;
         ws.send(JSON.stringify({ type: 'weather_update', state: weatherState }));
     }
 
@@ -621,14 +655,6 @@
             document.getElementById('tempValue').textContent = weatherState.temperature + '°C';
         }
 
-        if (radarActive && radarFrames.length > 0) {
-            const frame = radarFrames[radarFrameIndex];
-            const tileUrl = `${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`;
-            const source = map.getSource('radar-source');
-            if (source) source.setTiles([tileUrl]);
-        }
-
-        // Аномалия от админа (по ID, чтобы не повторять)
         if (weatherState.nukeActive && weatherState.nukeLat && weatherState.nukeLng) {
             if (weatherState.nukeId !== window._lastNukeId) {
                 window._lastNukeId = weatherState.nukeId;
@@ -636,21 +662,24 @@
             }
             weatherState.nukeActive = false;
         }
-
-        if (weatherState.lastLat && weatherState.lastLng) {
-            const icons = { rain: '🌧️', snow: '❄️', storm: '⛈️', hurricane: '🌀', tornado: '🌪️', whirlwind: '💨' };
-            const el = document.createElement('div');
-            el.className = 'custom-marker';
-            el.textContent = icons[weatherState.phenomenonType] || '🌪️';
-            el.style.fontSize = (20 + weatherState.power * 4) + 'px';
-            const marker = new maplibregl.Marker({ element: el })
-                .setLngLat([weatherState.lastLng, weatherState.lastLat])
-                .addTo(map);
-            markers.push(marker);
-        }
     }
 
     connectWS();
+
+    // ============================================
+    // АКТИВАЦИЯ ТЕМЫ ЧЕРНОБЫЛЬ
+    // ============================================
+    function activateChernobyl() {
+        if (chernobylActive) return;
+        chernobylActive = true;
+        document.body.classList.add('chernobyl');
+        console.log('☢️ Чернобыльская тема активирована');
+    }
+
+    function deactivateChernobyl() {
+        chernobylActive = false;
+        document.body.classList.remove('chernobyl');
+    }
 
     // ============================================
     // ЗАПУСК АНОМАЛИИ
@@ -658,18 +687,34 @@
     function launchAnomaly(lat, lng, power) {
         const cfg = NUKE_CONFIGS[power] || NUKE_CONFIGS[3];
 
+        // Активируем тему сразу
+        activateChernobyl();
+
         // 1. Предупреждение
         document.getElementById('alertCity').textContent = `${lat.toFixed(2)}, ${lng.toFixed(2)} (${cfg.name})`;
         document.getElementById('alertBox').classList.add('active');
 
-        // 2. Падение
+        // 2. Радиационный индикатор
+        const radInd = document.getElementById('radiationIndicator');
+        radInd.classList.add('active');
+        setTimeout(() => radInd.classList.remove('active'), 2000);
+
+        // 3. Глитч
+        const glitch = document.getElementById('glitchOverlay');
+        glitch.classList.add('active');
+        setTimeout(() => glitch.classList.remove('active'), 3000);
+
+        // 4. Радиоактивный дождь
+        spawnRadioactiveRain(cfg.particles);
+
+        // 5. Падение
         setTimeout(() => {
             const nuke = document.getElementById('fallingNuke');
             nuke.style.fontSize = (40 + power * 10) + 'px';
             nuke.classList.remove('gone');
             nuke.classList.add('falling');
 
-            // 3. Взрыв
+            // 6. Взрыв
             setTimeout(() => {
                 nuke.classList.add('gone');
                 nuke.classList.remove('falling');
@@ -677,7 +722,7 @@
                 // Вспышка
                 const flash = document.getElementById('flashEffect');
                 flash.style.animationDuration = cfg.flash + 'ms';
-                flash.style.background = `radial-gradient(circle, ${cfg.color}ee 0%, rgba(255,100,0,0.4) 40%, transparent 70%)`;
+                flash.style.background = `radial-gradient(circle, ${cfg.color}ee 0%, rgba(0, 255, 0, 0.4) 40%, transparent 70%)`;
                 flash.classList.add('active');
                 setTimeout(() => flash.classList.remove('active'), cfg.flash);
 
@@ -690,26 +735,29 @@
                 // Ударная волна
                 spawnShockwave(cfg.shockwave);
 
-                // Зона + кратер
+                // Зона + рандомные пятна
                 drawNukeZone(lat, lng, cfg);
 
-                // Летим к взрыву
+                // Пятна по всей карте
+                spawnRandomSpots(lat, lng, cfg);
+
+                // Летим
                 map.flyTo({ center: [lng, lat], zoom: getZoomForRadius(cfg.radius), duration: 2000 });
             }, 1500);
         }, 2000);
     }
 
-    function getZoomForRadius(radiusKm) {
-        if (radiusKm < 10) return 11;
-        if (radiusKm < 30) return 10;
-        if (radiusKm < 80) return 9;
-        if (radiusKm < 200) return 8;
-        if (radiusKm < 500) return 7;
-        if (radiusKm < 1000) return 6;
+    function getZoomForRadius(r) {
+        if (r < 10) return 11;
+        if (r < 30) return 10;
+        if (r < 80) return 9;
+        if (r < 200) return 8;
+        if (r < 500) return 7;
+        if (r < 1000) return 6;
         return 4;
     }
 
-    // Тряска экрана
+    // Тряска
     function shakeScreen(intensity) {
         const mapEl = document.getElementById('map');
         let shakes = 0;
@@ -729,13 +777,12 @@
     // Частицы взрыва
     function spawnExplosionParticles(lat, lng, cfg) {
         const screenPos = map.project([lng, lat]);
-        const count = cfg.particles;
+        const count = Math.min(cfg.particles, 300); // Ограничиваем 300 одновременно
 
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
             particle.className = 'explosion-particle';
-
-            const size = 4 + Math.random() * 12;
+            const size = 3 + Math.random() * 10;
             const angle = Math.random() * Math.PI * 2;
             const distance = 100 + Math.random() * cfg.shockwave;
             const dx = Math.cos(angle) * distance;
@@ -766,25 +813,29 @@
         wave.style.cssText = `
             left: ${screenPos.x}px;
             top: ${screenPos.y}px;
-            width: 0;
-            height: 0;
-            margin-left: 0;
-            margin-top: 0;
+            --final-size: ${maxSize}px;
         `;
-
-        // Устанавливаем финальный размер через CSS переменную
-        wave.style.setProperty('--final-size', maxSize + 'px');
-        wave.style.animation = `shockwaveAnim 1.5s ease-out forwards`;
-
         document.body.appendChild(wave);
         setTimeout(() => wave.remove(), 2000);
+    }
+
+    // Радиоактивный дождь
+    function spawnRadioactiveRain(count) {
+        const dropCount = Math.min(count, 100);
+        for (let i = 0; i < dropCount; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'radioactive-drop';
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.animationDuration = (1 + Math.random() * 2) + 's';
+            drop.style.animationDelay = (Math.random() * 3) + 's';
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), 6000);
+        }
     }
 
     // Зона + кратер
     function drawNukeZone(lat, lng, cfg) {
         const zoneId = 'nuke-zone-' + Date.now();
-
-        // Основная зона
         const points = 64;
         const coords = [];
         for (let i = 0; i < points; i++) {
@@ -799,26 +850,11 @@
             type: 'geojson',
             data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
         });
-
-        // Внешняя заливка
         map.addLayer({
             id: zoneId + '-layer',
             type: 'fill',
             source: zoneId + '-source',
             paint: { 'fill-color': cfg.color, 'fill-opacity': 0.15 }
-        });
-
-        // Внутренняя (ярче)
-        const innerCoords = coords.map(([x, y]) => [lng + (x - lng) * 0.4, lat + (y - lat) * 0.4]);
-        map.addSource(zoneId + '-inner-source', {
-            type: 'geojson',
-            data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [innerCoords] } }
-        });
-        map.addLayer({
-            id: zoneId + '-inner',
-            type: 'fill',
-            source: zoneId + '-inner-source',
-            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.35 }
         });
 
         // Обводка
@@ -829,7 +865,7 @@
             paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.8 }
         });
 
-        // КРАТЕР (остаётся)
+        // Кратер
         const craterRadius = cfg.radius * cfg.crater;
         const craterCoords = [];
         for (let i = 0; i < points; i++) {
@@ -848,16 +884,10 @@
             id: zoneId + '-crater',
             type: 'fill',
             source: zoneId + '-crater-source',
-            paint: { 'fill-color': '#1a0a00', 'fill-opacity': 0.7 }
-        });
-        map.addLayer({
-            id: zoneId + '-crater-outline',
-            type: 'line',
-            source: zoneId + '-crater-source',
-            paint: { 'line-color': '#000', 'line-width': 2, 'line-opacity': 0.6 }
+            paint: { 'fill-color': '#0a1a0a', 'fill-opacity': 0.8 }
         });
 
-        // Маркер ☢️ в центре
+        // Маркер
         const el = document.createElement('div');
         el.className = 'custom-marker';
         el.textContent = '☢️';
@@ -866,21 +896,118 @@
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
 
-        // Сохраняем в кратеры
-        craters.push({ zoneId, lat, lng, radius: cfg.radius, crater: cfg.crater, color: cfg.color });
+        // Черепа вокруг
+        spawnSkulls(lat, lng, Math.min(cfg.spots / 10, 20));
 
-        console.log(`☢️ ${cfg.name} (${cfg.radius} км) в ${lat}, ${lng}`);
+        craters.push({ zoneId, lat, lng, radius: cfg.radius, crater: cfg.crater, color: cfg.color });
+    }
+
+    // Рандомные пятна по карте
+    function spawnRandomSpots(centerLat, centerLng, cfg) {
+        const totalSpots = cfg.spots; // 50-500
+        const spotPoints = [];
+        const maxSpread = cfg.radius * 2; // Разбрасываем вокруг эпицентра
+
+        for (let i = 0; i < totalSpots; i++) {
+            // Случайное расстояние и угол
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * maxSpread;
+            const dx = distance * Math.cos(angle) / 111;
+            const dy = distance * Math.sin(angle) / 111;
+            const spotLat = centerLat + dy;
+            const spotLng = centerLng + dx;
+
+            const spotRadius = (0.5 + Math.random() * 2) / 111; // 0.5-2.5 км
+
+            // Круг из 12 точек
+            const circleCoords = [];
+            for (let j = 0; j < 12; j++) {
+                const a = (j / 12) * 2 * Math.PI;
+                circleCoords.push([
+                    spotLng + spotRadius * Math.cos(a),
+                    spotLat + spotRadius * Math.sin(a)
+                ]);
+            }
+            circleCoords.push(circleCoords[0]);
+
+            spotPoints.push({
+                type: 'Feature',
+                geometry: { type: 'Polygon', coordinates: [circleCoords] },
+                properties: {
+                    color: cfg.color,
+                    opacity: 0.3 + Math.random() * 0.4
+                }
+            });
+        }
+
+        const sourceId = 'random-spots-' + Date.now();
+        map.addSource(sourceId, {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: spotPoints }
+        });
+
+        map.addLayer({
+            id: sourceId + '-layer',
+            type: 'fill',
+            source: sourceId,
+            paint: {
+                'fill-color': ['get', 'color'],
+                'fill-opacity': ['get', 'opacity']
+            }
+        });
+
+        // Тёмные пятна (кратеры) поверх
+        const darkSpots = spotPoints.map(f => ({
+            ...f,
+            properties: { opacity: 0.5 + Math.random() * 0.4 }
+        }));
+
+        map.addSource(sourceId + '-dark', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: darkSpots }
+        });
+
+        map.addLayer({
+            id: sourceId + '-dark-layer',
+            type: 'fill',
+            source: sourceId + '-dark',
+            paint: {
+                'fill-color': '#0a1a0a',
+                'fill-opacity': ['get', 'opacity']
+            }
+        });
+
+        console.log(`☢️ Создано ${totalSpots} рандомных пятен`);
+    }
+
+    // Черепа вокруг
+    function spawnSkulls(lat, lng, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = (i / count) * Math.PI * 2;
+            const dist = 0.005 + Math.random() * 0.02;
+            const sLat = lat + dist * Math.sin(angle);
+            const sLng = lng + dist * Math.cos(angle);
+
+            const skull = document.createElement('div');
+            skull.className = 'custom-marker';
+            skull.textContent = '💀';
+            skull.style.fontSize = '24px';
+            const marker = new maplibregl.Marker({ element: skull })
+                .setLngLat([sLng, sLat])
+                .addTo(map);
+            markers.push(marker);
+        }
     }
 
     function closeAlert() {
         document.getElementById('alertBox').classList.remove('active');
     }
 
-    // ЗАПУСК АНОМАЛИИ ЛОКАЛЬНО
+    // ЗАПУСК У СЕБЯ (админ)
     function launchAnomalyLocal() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
-        if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
+        if (!coordsStr) { alert('Сначала выбери место'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
         const power = parseInt(document.getElementById('nukePower').value);
         launchAnomaly(lat, lng, power);
@@ -890,8 +1017,7 @@
     function sendNukeToCoords() {
         if (!isAdmin()) return;
         const coordsStr = document.getElementById('coordsInput').value;
-        if (!coordsStr) { alert('Сначала выбери место на карте'); return; }
-
+        if (!coordsStr) { alert('Сначала выбери место'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
         const power = parseInt(document.getElementById('nukePower').value);
 
@@ -900,12 +1026,10 @@
         weatherState.nukePower = power;
         weatherState.nukeActive = true;
         weatherState.nukeId = Date.now();
-
         sendWeatherToServer();
-        launchAnomaly(lat, lng, power);
 
-        const cfg = NUKE_CONFIGS[power];
-        alert(`☢️ ${cfg.name} (радиус ${cfg.radius} км) запущена у ВСЕХ!`);
+        launchAnomaly(lat, lng, power);
+        alert(`☢️ ${NUKE_CONFIGS[power].name} запущена У ВСЕХ!`);
     }
 
     // ЗАПУСК У СЕБЯ (для всех пользователей)
@@ -914,13 +1038,11 @@
         const now = Date.now();
         if (now - userCooldown < 30000) {
             const left = Math.ceil((30000 - (now - userCooldown)) / 1000);
-            alert(`⏳ Подожди ещё ${left} сек.`);
+            alert(`⏳ Подожди ${left} сек.`);
             return;
         }
         userCooldown = now;
-
         const center = map.getCenter();
-        // Случайная сила от 1 до 4 (мини-большая)
         const power = Math.floor(Math.random() * 4) + 1;
         launchAnomaly(center.lat, center.lng, power);
     }
@@ -929,7 +1051,6 @@
     // АВТОРИЗАЦИЯ
     // ============================================
     const API_URL = window.location.origin;
-
     function openAuth() {
         document.getElementById('authModal').classList.add('active');
         document.getElementById('overlay').classList.add('active');
@@ -942,15 +1063,11 @@
     }
     function toggleAuthMode() {
         authMode = authMode === 'login' ? 'register' : 'login';
-        if (authMode === 'login') {
-            document.getElementById('authTitle').textContent = 'Вход';
-            document.getElementById('authSubmit').textContent = 'Войти';
-            document.getElementById('authSwitch').innerHTML = 'Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span>';
-        } else {
-            document.getElementById('authTitle').textContent = 'Регистрация';
-            document.getElementById('authSubmit').textContent = 'Зарегистрироваться';
-            document.getElementById('authSwitch').innerHTML = 'Уже есть аккаунт? <span onclick="toggleAuthMode()">Войти</span>';
-        }
+        document.getElementById('authTitle').textContent = authMode === 'login' ? 'Вход' : 'Регистрация';
+        document.getElementById('authSubmit').textContent = authMode === 'login' ? 'Войти' : 'Зарегистрироваться';
+        document.getElementById('authSwitch').innerHTML = authMode === 'login'
+            ? 'Нет аккаунта? <span onclick="toggleAuthMode()">Зарегистрироваться</span>'
+            : 'Уже есть аккаунт? <span onclick="toggleAuthMode()">Войти</span>';
     }
 
     async function submitAuth() {
@@ -972,7 +1089,7 @@
             updateAdminVisibility();
             closeAuth();
             alert('✅ Добро пожаловать, ' + data.login + '!');
-        } catch (e) { console.error(e); alert('❌ Ошибка соединения'); }
+        } catch (e) { alert('❌ Ошибка соединения'); }
     }
 
     function updateUserUI(login) {
@@ -981,7 +1098,7 @@
         btn.onclick = logout;
         if (login === ADMIN_LOGIN) {
             btn.classList.add('admin-btn');
-            btn.textContent = '👑 ' + login + ' (выйти)';
+            btn.textContent = '☢️ ' + login + ' (выйти)';
         } else {
             btn.classList.remove('admin-btn');
         }
@@ -1015,14 +1132,14 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('login');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {}
         }
     });
 
     // ============================================
-    // АДМИНКА — ALT+U
+    // АДМИНКА
     // ============================================
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', (e) => {
         if (e.altKey && e.code === 'KeyU') {
             e.preventDefault();
             if (!isAdmin()) return;
@@ -1057,7 +1174,7 @@
                     map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 10 });
                     loadWeather(parseFloat(lat), parseFloat(lon));
                     getLocationName(parseFloat(lat), parseFloat(lon));
-                } else { alert('Город не найден'); }
+                } else { alert('Не найден'); }
             });
     }
     document.getElementById('citySearch').addEventListener('keypress', (e) => {
@@ -1076,55 +1193,36 @@
         const colorMap = { rain: 4, snow: 6, storm: 3, hail: 5, sleet: 2 };
         weatherState.precipColor = colorMap[type] || 4;
         weatherState.phenomenonType = type === 'hail' ? 'storm' : type;
-        if (radarActive && radarFrames.length > 0) {
-            const frame = radarFrames[radarFrameIndex];
-            const source = map.getSource('radar-source');
-            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor}/1_1.png`]);
-        }
         if (isAdmin()) sendWeatherToServer();
     }
 
     function toggleRadar(btn) {
         radarActive = !radarActive;
         if (radarActive) {
-            loadRadarFrames(btn);
+            fetch('https://api.rainviewer.com/public/weather-maps.json').then(r => r.json()).then(data => {
+                radarHost = data.host;
+                radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
+                if (radarFrames.length === 0) { radarActive = false; return; }
+                const firstFrame = radarFrames[0];
+                if (map.getSource('radar-source')) map.removeSource('radar-source');
+                if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
+                map.addSource('radar-source', {
+                    type: 'raster',
+                    tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`],
+                    tileSize: 512, maxzoom: 7
+                });
+                map.addLayer({ id: 'radar-layer', type: 'raster', source: 'radar-source', paint: { 'raster-opacity': 0.75 } });
+                btn.classList.add('active');
+                document.getElementById('radarTime').classList.add('active');
+                startRadarAnimation();
+            });
         } else {
-            stopRadarAnimation();
+            if (radarAnimationTimer) clearInterval(radarAnimationTimer);
             if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
             if (map.getSource('radar-source')) map.removeSource('radar-source');
             document.getElementById('radarTime').classList.remove('active');
             btn.classList.remove('active');
         }
-    }
-
-    async function loadRadarFrames(btn) {
-        try {
-            const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-            const data = await res.json();
-            radarHost = data.host;
-            radarFrames = [...data.radar.past, ...(data.radar.nowcast || [])];
-            if (radarFrames.length === 0) { radarActive = false; return; }
-
-            const firstFrame = radarFrames[0];
-            const colorScheme = weatherState.precipColor || 4;
-            if (map.getSource('radar-source')) map.removeSource('radar-source');
-            if (map.getLayer('radar-layer')) map.removeLayer('radar-layer');
-            map.addSource('radar-source', {
-                type: 'raster',
-                tiles: [`${radarHost}${firstFrame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`],
-                tileSize: 512,
-                maxzoom: 7
-            });
-            map.addLayer({
-                id: 'radar-layer',
-                type: 'raster',
-                source: 'radar-source',
-                paint: { 'raster-opacity': 0.75, 'raster-fade-duration': 0 }
-            });
-            btn.classList.add('active');
-            document.getElementById('radarTime').classList.add('active');
-            startRadarAnimation();
-        } catch (err) { radarActive = false; }
     }
 
     function startRadarAnimation() {
@@ -1134,21 +1232,12 @@
             if (!radarActive || radarFrames.length === 0) return;
             radarFrameIndex = (radarFrameIndex + 1) % radarFrames.length;
             const frame = radarFrames[radarFrameIndex];
-            const colorScheme = weatherState.precipColor || 4;
             const source = map.getSource('radar-source');
-            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${colorScheme}/1_1.png`]);
+            if (source) source.setTiles([`${radarHost}${frame.path}/512/{z}/{x}/{y}/${weatherState.precipColor || 4}/1_1.png`]);
             const time = new Date(frame.time * 1000);
             const timeStr = time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            const isForecast = radarFrameIndex >= radarFrames.length - (radarFrames.length / 3);
-            document.getElementById('radarTime').textContent = `🌧️ ${isForecast ? 'Прогноз' : 'Радар'}: ${timeStr}`;
+            document.getElementById('radarTime').textContent = `🌧️ Радар: ${timeStr}`;
         }, 500);
-    }
-
-    function stopRadarAnimation() {
-        if (radarAnimationTimer) {
-            clearInterval(radarAnimationTimer);
-            radarAnimationTimer = null;
-        }
     }
 
     function toggleSatellite(btn) {
@@ -1159,7 +1248,7 @@
                 tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256
             });
-            map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite-source', paint: { 'raster-opacity': 1 } });
+            map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite-source' });
             btn.classList.add('active');
         } else {
             if (map.getLayer('satellite-layer')) map.removeLayer('satellite-layer');
@@ -1169,7 +1258,7 @@
     }
 
     // ============================================
-    // КЛИК ПО КАРТЕ
+    // КЛИК
     // ============================================
     map.on('click', (e) => {
         if (clickMode) {
@@ -1199,38 +1288,62 @@
     }
 
     // ============================================
-    // АДМИНКА
+    // СБРОС
     // ============================================
+    function resetAll() {
+        if (!isAdmin()) return;
+        // Убираем все зоны и пятна
+        Object.keys(NUKE_CONFIGS).forEach(() => {});
+        // Убираем кратеры
+        craters.forEach(c => {
+            ['-layer', '-outline', '-crater'].forEach(suffix => {
+                if (map.getLayer(c.zoneId + suffix)) map.removeLayer(c.zoneId + suffix);
+            });
+            ['-source', '-crater-source'].forEach(suffix => {
+                if (map.getSource(c.zoneId + suffix)) map.removeSource(c.zoneId + suffix);
+            });
+        });
+        craters = [];
+        markers.forEach(m => m.remove());
+        markers = [];
+
+        // Убираем рандомные пятна
+        const style = map.getStyle();
+        if (style && style.layers) {
+            style.layers.forEach(layer => {
+                if (layer.id && (layer.id.includes('random-spots') || layer.id.includes('nuke-zone'))) {
+                    if (map.getLayer(layer.id)) map.removeLayer(layer.id);
+                }
+            });
+        }
+        if (style && style.sources) {
+            Object.keys(style.sources).forEach(src => {
+                if (src.includes('random-spots') || src.includes('nuke-zone')) {
+                    if (map.getSource(src)) map.removeSource(src);
+                }
+            });
+        }
+
+        // Убираем тему
+        deactivateChernobyl();
+
+        // Сброс состояния
+        weatherState = {
+            rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3,
+            windSpeed: 0, temperature: 15, isPrecipActive: false,
+            lastLat: null, lastLng: null,
+            nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
+        };
+        sendWeatherToServer();
+        alert('🔄 Всё сброшено');
+    }
+
     function applyWeather() {
         if (!isAdmin()) return;
         weatherState.rainIntensity = parseInt(document.getElementById('rainIntensity').value);
         weatherState.isPrecipActive = weatherState.rainIntensity > 0;
-        weatherState.windSpeed = parseInt(document.getElementById('windSpeed').value);
-        weatherState.temperature = parseInt(document.getElementById('temperature').value);
         sendWeatherToServer();
-        alert('✅ Погода отправлена ВСЕМ!');
-    }
-
-    function resetWeather() {
-        if (!isAdmin()) return;
-        weatherState = {
-            rainIntensity: 0, phenomenonType: 'rain', precipColor: 4,
-            power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false,
-            lastLat: null, lastLng: null,
-            nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
-        };
-        document.getElementById('rainIntensity').value = 0;
-        document.getElementById('rainIntensityLabel').textContent = '0';
-        document.getElementById('precipType').value = 'rain';
-        document.getElementById('windSpeed').value = 0;
-        document.getElementById('windSpeedLabel').textContent = '0';
-        document.getElementById('temperature').value = 15;
-        document.getElementById('tempLabel').textContent = '15';
-        document.getElementById('coordsInput').value = '';
-        markers.forEach(m => m.remove());
-        markers = [];
-        sendWeatherToServer();
-        alert('🔄 Погода сброшена для ВСЕХ');
+        alert('✅ Погода применена');
     }
 
     // ============================================
@@ -1248,17 +1361,11 @@
             if (data.hourly && data.hourly.relativehumidity_2m) {
                 document.getElementById('humidityValue').textContent = `${data.hourly.relativehumidity_2m[0]}%`;
             }
-        } catch (e) { console.error('Ошибка погоды:', e); }
+        } catch (e) {}
     }
 
     function getWeatherDesc(code) {
-        const codes = {
-            0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно',
-            45: 'Туман', 48: 'Туман с изморозью', 51: 'Лёгкая морось', 53: 'Морось',
-            55: 'Сильная морось', 61: 'Небольшой дождь', 63: 'Дождь', 65: 'Сильный дождь',
-            71: 'Небольшой снег', 73: 'Снег', 75: 'Сильный снег', 80: 'Ливень',
-            95: 'Гроза', 96: 'Гроза с градом', 99: 'Сильная гроза с градом'
-        };
+        const codes = { 0: 'Ясно', 1: 'Преимущественно ясно', 2: 'Переменная облачность', 3: 'Пасмурно', 45: 'Туман', 61: 'Дождь', 63: 'Дождь', 65: 'Сильный дождь', 71: 'Снег', 73: 'Снег', 75: 'Сильный снег', 95: 'Гроза' };
         return codes[code] || 'Неизвестно';
     }
 
@@ -1295,11 +1402,8 @@
         );
     }
 
-    // ============================================
-    // ЗАПУСК
-    // ============================================
     map.on('load', () => {
-        console.log('🗺️ Карта готова');
+        console.log('☢️ Chernobyl App готов');
         updateAdminVisibility();
         autoDetectLocation();
         setTimeout(() => {
