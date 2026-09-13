@@ -366,15 +366,15 @@
     let chernobylActive = false;
 
     const NUKE_CONFIGS = {
-        1: { name: 'Мини',         radius: 5,    particles: 50,   flash: 400,  shake: 3,   color: '#88ff88', crater: 0.15, shockwave: 200,  spots: 50 },
-        2: { name: 'Малая',        radius: 15,   particles: 100,  flash: 600,  shake: 6,   color: '#aaff66', crater: 0.2,  shockwave: 300,  spots: 100 },
-        3: { name: 'Средняя',      radius: 40,   particles: 200,  flash: 900,  shake: 10,  color: '#ccff44', crater: 0.25, shockwave: 450,  spots: 150 },
-        4: { name: 'Большая',      radius: 80,   particles: 350,  flash: 1200, shake: 15,  color: '#ffdd22', crater: 0.3,  shockwave: 600,  spots: 200 },
-        5: { name: 'Огромная',     radius: 150,  particles: 500,  flash: 1600, shake: 22,  color: '#ffaa22', crater: 0.35, shockwave: 800,  spots: 250 },
-        6: { name: 'Мега',         radius: 300,  particles: 700,  flash: 2000, shake: 30,  color: '#ff6622', crater: 0.45, shockwave: 1000, spots: 300 },
-        7: { name: 'Апокалипсис',  radius: 600,  particles: 900,  flash: 2500, shake: 40,  color: '#ff3322', crater: 0.55, shockwave: 1300, spots: 350 },
-        8: { name: 'Армагеддон',   radius: 1200, particles: 1100, flash: 3000, shake: 55,  color: '#dd0000', crater: 0.65, shockwave: 1600, spots: 450 },
-        9: { name: 'Экстерминатус',radius: 2500, particles: 1500, flash: 4000, shake: 70,  color: '#880000', crater: 0.75, shockwave: 2000, spots: 500 }
+        1: { name: 'Мини',         radius: 5,    particles: 50,   flash: 400,  shake: 3,   color: '#88ff88', shockwave: 200,  spots: 50 },
+        2: { name: 'Малая',        radius: 15,   particles: 100,  flash: 600,  shake: 6,   color: '#aaff66', shockwave: 300,  spots: 100 },
+        3: { name: 'Средняя',      radius: 40,   particles: 200,  flash: 900,  shake: 10,  color: '#ccff44', shockwave: 450,  spots: 150 },
+        4: { name: 'Большая',      radius: 80,   particles: 350,  flash: 1200, shake: 15,  color: '#ffdd22', shockwave: 600,  spots: 200 },
+        5: { name: 'Огромная',     radius: 150,  particles: 500,  flash: 1600, shake: 22,  color: '#ffaa22', shockwave: 800,  spots: 250 },
+        6: { name: 'Мега',         radius: 300,  particles: 700,  flash: 2000, shake: 30,  color: '#ff6622', shockwave: 1000, spots: 300 },
+        7: { name: 'Апокалипсис',  radius: 600,  particles: 900,  flash: 2500, shake: 40,  color: '#ff3322', shockwave: 1300, spots: 350 },
+        8: { name: 'Армагеддон',   radius: 1200, particles: 1100, flash: 3000, shake: 55,  color: '#dd0000', shockwave: 1600, spots: 450 },
+        9: { name: 'Экстерминатус',radius: 2500, particles: 1500, flash: 4000, shake: 70,  color: '#880000', shockwave: 2000, spots: 500 }
     };
 
     const ADMIN_LOGIN = 'weather';
@@ -580,15 +580,21 @@
         }
     }
 
-    // ЗОНА + КРАТЕР
+    // ============================================
+    // РВАНАЯ ЗОНА (РАДИОАКТИВНЫЙ ПЕПЕЛ)
+    // ============================================
     function drawNukeZone(lat, lng, cfg) {
         const zoneId = 'nuke-zone-' + Date.now();
-        const points = 64;
+
+        // 1. ВНЕШНЯЯ РВАНАЯ ЗОНА
+        const points = 72;
         const coords = [];
         for (let i = 0; i < points; i++) {
             const angle = (i / points) * 2 * Math.PI;
-            const dx = cfg.radius * Math.cos(angle) / 111;
-            const dy = cfg.radius * Math.sin(angle) / 111;
+            const distortion = 0.4 + Math.random() * 0.6;
+            const r = cfg.radius * distortion;
+            const dx = r * Math.cos(angle) / 111;
+            const dy = r * Math.sin(angle) / 111;
             coords.push([lng + dx, lat + dy]);
         }
         coords.push(coords[0]);
@@ -597,59 +603,139 @@
             type: 'geojson',
             data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
         });
+
         map.addLayer({
             id: zoneId + '-layer',
             type: 'fill',
             source: zoneId + '-source',
-            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.15 }
+            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.2 }
         });
+
+        map.addLayer({
+            id: zoneId + '-dark',
+            type: 'fill',
+            source: zoneId + '-source',
+            paint: { 'fill-color': '#0a1a0a', 'fill-opacity': 0.3 }
+        });
+
         map.addLayer({
             id: zoneId + '-outline',
             type: 'line',
             source: zoneId + '-source',
-            paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.8 }
+            paint: { 'line-color': cfg.color, 'line-width': 2, 'line-opacity': 0.7 }
         });
 
-        const craterRadius = cfg.radius * cfg.crater;
-        const craterCoords = [];
+        // 2. ВНУТРЕННЯЯ ЗОНА (рваная)
+        const innerCoords = [];
+        const innerRadius = cfg.radius * 0.6;
         for (let i = 0; i < points; i++) {
             const angle = (i / points) * 2 * Math.PI;
-            const dx = craterRadius * Math.cos(angle) / 111;
-            const dy = craterRadius * Math.sin(angle) / 111;
-            craterCoords.push([lng + dx, lat + dy]);
+            const distortion = 0.5 + Math.random() * 0.5;
+            const r = innerRadius * distortion;
+            const dx = r * Math.cos(angle) / 111;
+            const dy = r * Math.sin(angle) / 111;
+            innerCoords.push([lng + dx, lat + dy]);
         }
-        craterCoords.push(craterCoords[0]);
+        innerCoords.push(innerCoords[0]);
 
-        map.addSource(zoneId + '-crater-source', {
+        map.addSource(zoneId + '-inner-source', {
             type: 'geojson',
-            data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [craterCoords] } }
-        });
-        map.addLayer({
-            id: zoneId + '-crater',
-            type: 'fill',
-            source: zoneId + '-crater-source',
-            paint: { 'fill-color': '#0a1a0a', 'fill-opacity': 0.8 }
+            data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [innerCoords] } }
         });
 
+        map.addLayer({
+            id: zoneId + '-inner',
+            type: 'fill',
+            source: zoneId + '-inner-source',
+            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.35 }
+        });
+
+        // 3. ЯДРО (совсем маленькое)
+        const coreRadius = cfg.radius * 0.2;
+        const coreCoords = [];
+        for (let i = 0; i < 32; i++) {
+            const angle = (i / 32) * 2 * Math.PI;
+            const distortion = 0.6 + Math.random() * 0.4;
+            const r = coreRadius * distortion;
+            const dx = r * Math.cos(angle) / 111;
+            const dy = r * Math.sin(angle) / 111;
+            coreCoords.push([lng + dx, lat + dy]);
+        }
+        coreCoords.push(coreCoords[0]);
+
+        map.addSource(zoneId + '-core-source', {
+            type: 'geojson',
+            data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coreCoords] } }
+        });
+
+        map.addLayer({
+            id: zoneId + '-core',
+            type: 'fill',
+            source: zoneId + '-core-source',
+            paint: { 'fill-color': cfg.color, 'fill-opacity': 0.6 }
+        });
+
+        // 4. ДОПОЛНИТЕЛЬНЫЕ ОЧАГИ (мелкие рваные пятна)
+        const extraSpots = [];
+        const spotCount = Math.min(Math.floor(cfg.radius * 2), 80);
+
+        for (let i = 0; i < spotCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * cfg.radius * 0.9;
+            const spotLat = lat + (distance * Math.sin(angle)) / 111;
+            const spotLng = lng + (distance * Math.cos(angle)) / 111;
+            const spotRadius = (0.3 + Math.random() * 0.8) / 111;
+            const spotCoords = [];
+
+            for (let j = 0; j < 10; j++) {
+                const a = (j / 10) * 2 * Math.PI;
+                const dist = spotRadius * (0.5 + Math.random() * 0.8);
+                spotCoords.push([
+                    spotLng + dist * Math.cos(a),
+                    spotLat + dist * Math.sin(a)
+                ]);
+            }
+            spotCoords.push(spotCoords[0]);
+
+            extraSpots.push({
+                type: 'Feature',
+                geometry: { type: 'Polygon', coordinates: [spotCoords] },
+                properties: { opacity: 0.3 + Math.random() * 0.5 }
+            });
+        }
+
+        map.addSource(zoneId + '-spots-source', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: extraSpots }
+        });
+
+        map.addLayer({
+            id: zoneId + '-spots',
+            type: 'fill',
+            source: zoneId + '-spots-source',
+            paint: { 'fill-color': cfg.color, 'fill-opacity': ['get', 'opacity'] }
+        });
+
+        // 5. МАРКЕР ☢️
         const el = document.createElement('div');
         el.className = 'custom-marker';
         el.textContent = '☢️';
-        el.style.fontSize = (30 + cfg.radius / 20) + 'px';
+        el.style.fontSize = Math.min(30 + cfg.radius / 30, 80) + 'px';
         el.style.filter = `drop-shadow(0 0 25px ${cfg.color})`;
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
         markers.push(marker);
 
-        craters.push({ zoneId, lat, lng, radius: cfg.radius, crater: cfg.crater, color: cfg.color });
+        craters.push({ zoneId, lat, lng, radius: cfg.radius, color: cfg.color });
+
+        console.log(`☢️ Рваная зона: ${cfg.name} (${cfg.radius} км)`);
     }
 
-    // ХАОТИЧНОЕ РАДИОАКТИВНОЕ ОБЛАКО ПО ВСЕЙ КАРТЕ
+    // ХАОТИЧНОЕ ОБЛАКО ПО ВСЕЙ КАРТЕ
     function spawnRandomSpots(centerLat, centerLng, cfg) {
         const totalSpots = cfg.spots;
         const bounds = map.getBounds();
-
         const latSpread = (bounds.getNorth() - bounds.getSouth()) * 0.9;
         const lngSpread = (bounds.getEast() - bounds.getWest()) * 0.9;
-
         const spotPoints = [];
 
         for (let i = 0; i < totalSpots; i++) {
@@ -663,11 +749,10 @@
             else spotRadius = 5 + Math.random() * 8;
 
             const spotRadiusDeg = spotRadius / 111;
-
-            const pointsCount = 16;
             const circleCoords = [];
-            for (let j = 0; j < pointsCount; j++) {
-                const a = (j / pointsCount) * 2 * Math.PI;
+
+            for (let j = 0; j < 16; j++) {
+                const a = (j / 16) * 2 * Math.PI;
                 const distortion = 0.5 + Math.random() * 0.8;
                 circleCoords.push([
                     spotLng + spotRadiusDeg * Math.cos(a) * distortion,
@@ -682,10 +767,7 @@
             spotPoints.push({
                 type: 'Feature',
                 geometry: { type: 'Polygon', coordinates: [circleCoords] },
-                properties: {
-                    color: color,
-                    opacity: 0.3 + Math.random() * 0.5
-                }
+                properties: { color: color, opacity: 0.3 + Math.random() * 0.5 }
             });
         }
 
@@ -699,39 +781,28 @@
             id: sourceId + '-glow',
             type: 'fill',
             source: sourceId,
-            paint: {
-                'fill-color': ['get', 'color'],
-                'fill-opacity': ['*', ['get', 'opacity'], 0.4]
-            }
+            paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['*', ['get', 'opacity'], 0.4] }
         });
 
         map.addLayer({
             id: sourceId + '-dark',
             type: 'fill',
             source: sourceId,
-            paint: {
-                'fill-color': '#000000',
-                'fill-opacity': ['*', ['get', 'opacity'], 0.5]
-            }
+            paint: { 'fill-color': '#000000', 'fill-opacity': ['*', ['get', 'opacity'], 0.5] }
         });
 
         map.addLayer({
             id: sourceId + '-outline',
             type: 'line',
             source: sourceId,
-            paint: {
-                'line-color': ['get', 'color'],
-                'line-width': 1,
-                'line-opacity': ['get', 'opacity']
-            }
+            paint: { 'line-color': ['get', 'color'], 'line-width': 1, 'line-opacity': ['get', 'opacity'] }
         });
 
-        console.log(`☢️ Создано ${totalSpots} хаотичных пятен по карте`);
+        console.log(`☢️ Создано ${totalSpots} хаотичных пятен`);
 
         animateCloudDrift(sourceId, spotPoints);
     }
 
-    // ДРЕЙФ ОБЛАКА
     function animateCloudDrift(sourceId, spotPoints) {
         let driftAngle = 0;
         const driftInterval = setInterval(() => {
@@ -741,26 +812,17 @@
             const newFeatures = spotPoints.map((f, i) => {
                 const coords = f.geometry.coordinates[0];
                 const localAngle = driftAngle + i * 0.1;
-
                 const newCoords = coords.map(([lng, lat]) => [
                     lng + Math.cos(localAngle) * driftSpeed,
                     lat + Math.sin(localAngle) * driftSpeed
                 ]);
-
-                return {
-                    ...f,
-                    geometry: { type: 'Polygon', coordinates: [newCoords] }
-                };
+                return { ...f, geometry: { type: 'Polygon', coordinates: [newCoords] } };
             });
 
             spotPoints = newFeatures;
-
             const source = map.getSource(sourceId);
-            if (source) {
-                source.setData({ type: 'FeatureCollection', features: newFeatures });
-            } else {
-                clearInterval(driftInterval);
-            }
+            if (source) source.setData({ type: 'FeatureCollection', features: newFeatures });
+            else clearInterval(driftInterval);
         }, 500);
     }
 
@@ -1039,7 +1101,6 @@
 
     function resetAll() {
         if (!isAdmin()) return;
-
         const style = map.getStyle();
         if (style && style.layers) {
             style.layers.forEach(layer => {
@@ -1055,12 +1116,10 @@
                 }
             });
         }
-
         craters = [];
         markers.forEach(m => m.remove());
         markers = [];
         deactivateChernobyl();
-
         weatherState = {
             rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, power: 3,
             windSpeed: 0, temperature: 15, isPrecipActive: false,
