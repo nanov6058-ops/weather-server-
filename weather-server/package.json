@@ -1,12 +1,14 @@
 {
   "name": "weather-server",
   "version": "3.2.0",
-  "description": "Weather App with admin panel, radar, nukes and vortices",
+  "description": "Weather App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:prod": "node server.js",
+    "prod": "node server.js",
     "dev": "node server.js",
-    "prod": "node server.js"
+    "serve": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
