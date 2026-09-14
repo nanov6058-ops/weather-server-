@@ -12,6 +12,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'weather_app_secret_key_change_me';
+const INIT_SECRET = process.env.INIT_SECRET || 'MySuperSecretKey2026_ChangeMe';
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -20,6 +21,9 @@ const pool = new Pool({
         : false
 });
 
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ БД
+// ============================================
 async function initDB() {
     try {
         await pool.query(`
@@ -31,7 +35,8 @@ async function initDB() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log('✅ База данных готова (таблица users)');
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;`);
+        console.log('✅ База данных готова');
     } catch (e) {
         console.error('❌ Ошибка инициализации БД:', e.message);
     }
@@ -41,6 +46,29 @@ initDB();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ============================================
+// РАЗОВЫЙ ЭНДПОИНТ — СДЕЛАТЬ ПЕРВОГО АДМИНА
+// ============================================
+app.get('/api/init-admin', async (req, res) => {
+    const { key, login } = req.query;
+    if (key !== INIT_SECRET) {
+        return res.status(403).json({ error: 'Неверный ключ' });
+    }
+    const targetLogin = login || 'weather';
+    try {
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;`);
+        const userExists = await pool.query('SELECT id FROM users WHERE login = $1', [targetLogin]);
+        if (userExists.rows.length === 0) {
+            return res.status(404).json({ error: `Пользователь ${targetLogin} не найден. Сначала зарегистрируй его.` });
+        }
+        await pool.query(`UPDATE users SET is_admin = TRUE WHERE login = $1`, [targetLogin]);
+        const check = await pool.query(`SELECT login, is_admin FROM users ORDER BY id`);
+        res.json({ success: true, promoted: targetLogin, users: check.rows });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 
 // ============================================
 // РЕГИСТРАЦИЯ
@@ -60,7 +88,6 @@ app.post('/api/register', async (req, res) => {
             [login, hash]
         );
         const token = jwt.sign({ id: result.rows[0].id, login }, JWT_SECRET, { expiresIn: '7d' });
-
         console.log(`✅ Новый пользователь: ${login}`);
         res.json({ success: true, token, login, is_admin: false });
     } catch (e) {
@@ -114,7 +141,7 @@ app.post('/api/verify', async (req, res) => {
 });
 
 // ============================================
-// ВЫДАТЬ / ЗАБРАТЬ АДМИНКУ
+// ВЫДАТЬ / ЗАБРАТЬ АДМИНКУ (через админку)
 // ============================================
 app.post('/api/grant-admin', async (req, res) => {
     const { adminLogin, adminPassword, targetLogin, action } = req.body;
@@ -155,24 +182,35 @@ app.post('/api/grant-admin', async (req, res) => {
 });
 
 // ============================================
+// СПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (только для админа)
+// ============================================
+app.post('/api/users-list', async (req, res) => {
+    const { adminLogin, adminPassword } = req.body;
+
+    try {
+        const admin = await pool.query('SELECT * FROM users WHERE login = $1', [adminLogin]);
+        if (admin.rows.length === 0 || !admin.rows[0].is_admin) {
+            return res.status(403).json({ error: 'Ты не админ' });
+        }
+
+        const match = await bcrypt.compare(adminPassword, admin.rows[0].password);
+        if (!match) return res.status(403).json({ error: 'Неверный пароль' });
+
+        const users = await pool.query('SELECT login, is_admin, created_at FROM users ORDER BY id');
+        res.json({ success: true, users: users.rows });
+    } catch (e) {
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
+// ============================================
 // WEBSOCKET
 // ============================================
 let weatherState = {
-    rainIntensity: 0,
-    phenomenonType: 'rain',
-    precipColor: 4,
-    precipUnit: 'мм',
-    power: 3,
-    windSpeed: 0,
-    temperature: 15,
-    isPrecipActive: false,
-    lastLat: null,
-    lastLng: null,
-    nukeLat: null,
-    nukeLng: null,
-    nukePower: 3,
-    nukeActive: false,
-    nukeId: null
+    rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, precipUnit: 'мм', power: 3,
+    windSpeed: 0, temperature: 15, isPrecipActive: false,
+    lastLat: null, lastLng: null,
+    nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null
 };
 
 const clients = new Map();
@@ -180,8 +218,7 @@ const clients = new Map();
 wss.on('connection', (ws) => {
     const clientId = 'client_' + Math.random().toString(36).substr(2, 9);
     clients.set(clientId, { ws });
-
-    console.log(`✅ Подключен клиент: ${clientId} (всего: ${clients.size})`);
+    console.log(`✅ Подключен: ${clientId} (всего: ${clients.size})`);
     ws.send(JSON.stringify({ type: 'init', clientId, state: weatherState, onlineCount: clients.size }));
 
     ws.on('message', (data) => {
@@ -198,7 +235,7 @@ wss.on('connection', (ws) => {
                 ws.send(JSON.stringify({ type: 'pong' }));
             }
         } catch (e) {
-            console.error('Ошибка WebSocket:', e.message);
+            console.error('Ошибка WS:', e.message);
         }
     });
 
@@ -206,8 +243,6 @@ wss.on('connection', (ws) => {
         clients.delete(clientId);
         console.log(`❌ Отключен: ${clientId} (осталось: ${clients.size})`);
     });
-
-    ws.on('error', (e) => console.error('WebSocket error:', e.message));
 });
 
 function broadcast(msg) {
@@ -217,9 +252,6 @@ function broadcast(msg) {
     });
 }
 
-// ============================================
-// REST
-// ============================================
 app.get('/api/weather', (req, res) => {
     res.json({ success: true, state: weatherState, onlineCount: clients.size });
 });
@@ -229,7 +261,7 @@ app.get('/api/status', (req, res) => {
         status: 'online',
         uptime: process.uptime(),
         onlineCount: clients.size,
-        version: '3.0.0',
+        version: '3.2.0',
         db: process.env.DATABASE_URL ? 'connected' : 'not configured'
     });
 });
@@ -239,18 +271,16 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════╗');
-    console.log('║  🌦️  WEATHER SERVER v3.0               ║');
+    console.log('║  🌦️  WEATHER SERVER v3.2               ║');
     console.log('╠════════════════════════════════════════╣');
     console.log(`║  🚀 Порт: ${PORT}                          ║`);
     console.log(`║  🗄️  БД: ${process.env.DATABASE_URL ? 'подключена' : 'НЕ подключена'}              ║`);
-    console.log('║  🔐 /api/register /api/login /api/verify║');
-    console.log('║  👑 /api/grant-admin                    ║');
-    console.log('║  📡 WebSocket активен                   ║');
+    console.log('║  👑 Управление админами — в админке     ║');
     console.log('╚════════════════════════════════════════╝');
 });
 
 process.on('SIGTERM', () => {
-    console.log('Завершение работы...');
+    console.log('Завершение...');
     wss.clients.forEach(c => c.close());
     server.close(() => { pool.end(); process.exit(0); });
 });
