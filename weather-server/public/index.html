@@ -14,6 +14,7 @@
         @keyframes chernobylPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.7; } }
         body.chernobyl::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 1px, transparent 1px, transparent 3px); pointer-events: none; z-index: 901; animation: scanlines 8s linear infinite; }
         @keyframes scanlines { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+
         .top-bar { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 8px; z-index: 1000; pointer-events: none; }
         .search-box { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid rgba(100,150,255,0.2); pointer-events: all; flex: 1; max-width: 320px; }
         body.chernobyl .search-box { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
@@ -21,14 +22,17 @@
         .search-box input::placeholder { color: #888; }
         .search-box button { background: transparent; border: none; color: #6eb5ff; font-size: 18px; cursor: pointer; padding: 0 4px; }
         body.chernobyl .search-box button { color: #00ff00; }
-        .logo-badge { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all; border: 1px solid rgba(100,150,255,0.2); white-space: nowrap; }
+
+        .logo-badge { display: flex; align-items: center; gap: 6px; background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: all; border: 1px solid rgba(100,150,255,0.2); white-space: nowrap; cursor: pointer; user-select: none; }
         .logo-badge span { color: #ff6b6b; }
         body.chernobyl .logo-badge { border-color: #00ff00; }
         body.chernobyl .logo-badge span { color: #00ff00; }
+
         .user-area { margin-left: auto; display: flex; gap: 8px; pointer-events: all; }
         .user-btn { background: rgba(15, 15, 30, 0.95); border-radius: 25px; padding: 6px 14px; color: #fff; font-size: 13px; font-weight: bold; border: 1px solid rgba(100,150,255,0.2); cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.5); white-space: nowrap; }
         .user-btn:hover { background: rgba(30, 30, 60, 0.95); }
         .user-btn.admin-btn { border-color: #ff6b6b; color: #ff6b6b; }
+
         .layers-menu { position: fixed; top: 65px; right: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 8px; z-index: 1000; width: 68px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); display: flex; flex-direction: column; gap: 5px; }
         body.chernobyl .layers-menu { border-color: #00ff00; }
         .layer-item { display: flex; flex-direction: column; align-items: center; padding: 5px 3px; border-radius: 10px; cursor: pointer; transition: background 0.2s; color: #fff; }
@@ -38,6 +42,7 @@
         body.chernobyl .layer-item.active { background: rgba(0, 255, 0, 0.3); }
         .layer-item .icon { font-size: 20px; margin-bottom: 1px; }
         .layer-item .label { font-size: 8px; text-align: center; color: #ccc; line-height: 1.1; }
+
         .weather-panel { position: fixed; top: 65px; left: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 15px; z-index: 1000; width: 240px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); color: #fff; }
         body.chernobyl .weather-panel { border-color: #00ff00; }
         .weather-panel h2 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
@@ -51,16 +56,19 @@
         .weather-panel .details div:last-child { border-bottom: none; }
         .weather-panel .details .val { color: #6eb5ff; font-weight: bold; }
         body.chernobyl .weather-panel .details .val { color: #00ff00; }
+
         .precip-panel { position: fixed; top: 290px; left: 10px; background: rgba(15, 15, 30, 0.95); border-radius: 15px; padding: 15px; z-index: 1000; width: 240px; box-shadow: 0 4px 30px rgba(0,0,0,0.6); border: 1px solid rgba(100,150,255,0.2); color: #fff; }
         body.chernobyl .precip-panel { border-color: #00ff00; }
         .precip-panel h3 { font-size: 14px; color: #6eb5ff; margin-bottom: 10px; }
         body.chernobyl .precip-panel h3 { color: #00ff00; }
         .precip-type-display { text-align: center; font-size: 13px; color: #6eb5ff; font-weight: bold; margin-bottom: 10px; padding: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; }
         body.chernobyl .precip-type-display { color: #00ff00; }
+
         .intensity-bar { width: 100%; height: 12px; background: linear-gradient(to right, #00ff00 0%, #88ff00 25%, #ffff00 50%, #ff8800 75%, #ff0000 100%); border-radius: 6px; margin: 6px 0; position: relative; overflow: hidden; }
         .intensity-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: rgba(255, 255, 255, 0.3); border-right: 3px solid #fff; transition: width 0.2s ease; }
         .intensity-scale { display: flex; justify-content: space-between; font-size: 9px; color: #888; margin-top: 4px; }
         .intensity-value { text-align: center; font-size: 12px; color: #fff; font-weight: bold; margin-top: 6px; padding: 6px; border-radius: 6px; background: rgba(0, 0, 0, 0.3); }
+
         .admin-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 340px; max-width: 95vw; background: rgba(5, 5, 15, 0.98); padding: 20px 18px; color: #fff; z-index: 2000; box-shadow: -10px 0 40px rgba(0,0,0,0.8); border-left: 2px solid #ff6b6b; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease; display: none; }
         .admin-panel.allowed { display: block; }
         .admin-panel.active { transform: translateX(0); }
@@ -72,6 +80,7 @@
         .admin-control input[type="range"] { width: 100%; height: 6px; }
         .admin-control input[type="text"], .admin-control input[type="password"] { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
         .admin-control select { padding: 10px; border-radius: 8px; background: #1a1a3e; color: #fff; border: 1px solid #444; font-size: 13px; }
+
         .btn { padding: 12px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: linear-gradient(135deg, #6eb5ff, #4a90d9); color: #fff; }
         .btn-danger { background: linear-gradient(135deg, #ff6b6b, #d94a4a); color: #fff; }
@@ -79,6 +88,7 @@
         .btn-success { background: linear-gradient(135deg, #4ade80, #22a855); color: #fff; }
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-full { width: 100%; }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .overlay.active { opacity: 1; visibility: visible; }
         .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(10, 10, 25, 0.98); border-radius: 20px; padding: 28px; color: #fff; z-index: 3000; box-shadow: 0 20px 80px rgba(0,0,0,0.9); border: 2px solid #6eb5ff; width: 90%; max-width: 380px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -89,9 +99,11 @@
         .auth-modal .btn { width: 100%; margin-bottom: 10px; padding: 14px; font-size: 15px; }
         .auth-modal .switch { text-align: center; font-size: 13px; color: #888; margin-top: 10px; cursor: pointer; }
         .auth-modal .switch span { color: #6eb5ff; text-decoration: underline; }
+
         .hotkey-hint { position: fixed; bottom: 15px; right: 15px; background: rgba(10,10,20,0.9); padding: 8px 12px; border-radius: 10px; color: #888; font-size: 11px; z-index: 1000; display: none; }
         .hotkey-hint.allowed { display: block; }
         .hotkey-hint kbd { background: #333; padding: 2px 6px; border-radius: 5px; font-family: monospace; color: #6eb5ff; }
+
         .custom-marker { font-size: 32px; filter: drop-shadow(0 0 12px rgba(255,107,107,0.9)); cursor: pointer; }
         .vortex-marker { font-size: 40px; filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.9)); animation: vortexSpin 1s linear infinite; cursor: pointer; }
         .vortex-marker.tornado { filter: drop-shadow(0 0 25px rgba(255, 100, 0, 0.9)); }
@@ -100,6 +112,7 @@
         .vortex-marker.dust_devil { filter: drop-shadow(0 0 20px rgba(200, 180, 100, 0.9)); }
         @keyframes vortexSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .vortex-info { position: fixed; background: rgba(10, 10, 20, 0.95); border: 2px solid #00ccff; border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 13px; z-index: 4500; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.7); max-width: 240px; }
+
         .click-mode-indicator { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255, 184, 77, 0.95); color: #000; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 13px; z-index: 4000; box-shadow: 0 4px 20px rgba(255,184,77,0.5); display: none; }
         .click-mode-indicator.active { display: block; }
         .connection-status { position: fixed; bottom: 15px; left: 15px; background: rgba(15, 15, 30, 0.95); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #fff; z-index: 1000; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(100,150,255,0.2); }
@@ -108,6 +121,7 @@
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
         .radar-time { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 30, 0.95); padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #6eb5ff; font-weight: bold; z-index: 1000; display: none; border: 1px solid rgba(100,150,255,0.3); }
         .radar-time.active { display: block; }
+
         .falling-nuke { position: fixed; top: -120px; font-size: 60px; z-index: 5000; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0, 255, 0, 0.9)); transition: top 1.5s cubic-bezier(0.5, 0, 1, 1), opacity 0.3s; left: 50%; transform: translateX(-50%); opacity: 0; }
         .falling-nuke.falling { top: 50vh; opacity: 1; }
         .falling-nuke.gone { opacity: 0; }
@@ -119,6 +133,7 @@
         .alert-box h2 { color: #00ff00; margin-bottom: 15px; font-size: 22px; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
         .alert-box p { font-size: 14px; line-height: 1.5; margin-bottom: 10px; color: #ddd; }
         .alert-box .warning-text { background: rgba(0, 255, 0, 0.15); padding: 12px; border-radius: 10px; font-size: 13px; color: #88ff88; margin: 15px 0; border: 1px solid #00ff00; }
+
         .explosion-particle { position: fixed; pointer-events: none; z-index: 4998; border-radius: 50%; animation: explodeParticle 2s ease-out forwards; }
         @keyframes explodeParticle { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
         .shockwave { position: fixed; border: 4px solid rgba(0, 255, 0, 0.8); border-radius: 50%; pointer-events: none; z-index: 4997; width: 0; height: 0; animation: shockwaveAnim 1.5s ease-out forwards; }
@@ -131,6 +146,7 @@
         .radiation-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; pointer-events: none; z-index: 4994; opacity: 0; filter: drop-shadow(0 0 40px #00ff00); }
         .radiation-indicator.active { animation: radiationPulse 2s ease-out; }
         @keyframes radiationPulse { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2); } }
+
         @media (max-width: 600px) {
             .top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
             .logo-badge { display: none; }
@@ -176,7 +192,7 @@
         <input type="text" id="citySearch" placeholder="Поиск города...">
         <button onclick="searchCity()">🔍</button>
     </div>
-    <div class="logo-badge">🌍 <span>Weather</span>App</div>
+    <div class="logo-badge" id="logoBadge">🌍 <span>Weather</span>App</div>
     <div class="user-area">
         <button class="user-btn" id="authBtn" onclick="openAuth()">Войти</button>
     </div>
@@ -218,7 +234,7 @@
     <div class="intensity-value" id="intensityValue">0 мм — нет осадков</div>
 </div>
 
-<div class="hotkey-hint" id="hotkeyHint"><kbd>Alt</kbd> + <kbd>U</kbd> — Админка</div>
+<div class="hotkey-hint" id="hotkeyHint"><kbd>Alt</kbd> + <kbd>U</kbd> — Админка (или 3 тапа по логотипу)</div>
 <div class="connection-status">
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Подключение...</span>
@@ -247,8 +263,7 @@
         </div>
         <div class="admin-control">
             <label>Интенсивность: <span id="rainIntensityLabel">0</span> <span id="rainUnit">мм</span></label>
-            <input type="range" id="rainIntensity" min="0" max="100" value="0"
-                   oninput="onIntensityChange(this.value)">
+            <input type="range" id="rainIntensity" min="0" max="100" value="0" oninput="onIntensityChange(this.value)">
         </div>
     </div>
 
@@ -259,7 +274,7 @@
             <input type="text" id="grantLogin" placeholder="Введи логин">
         </div>
         <div class="admin-control">
-            <label>Твой пароль (для подтверждения):</label>
+            <label>Твой пароль:</label>
             <input type="password" id="grantPassword" placeholder="Пароль админа">
         </div>
         <div class="btn-group">
@@ -282,8 +297,7 @@
         </div>
         <div class="admin-control">
             <label>Сила вихря: <span id="vortexPowerLabel">3</span></label>
-            <input type="range" id="vortexPower" min="1" max="10" value="3"
-                   oninput="document.getElementById('vortexPowerLabel').textContent=this.value">
+            <input type="range" id="vortexPower" min="1" max="10" value="3" oninput="document.getElementById('vortexPowerLabel').textContent=this.value">
         </div>
         <div class="btn-group">
             <button class="btn btn-primary btn-full" onclick="enableVortexClickMode()">📍 Выбрать место для вихря</button>
@@ -393,6 +407,32 @@
         document.getElementById('adminPanel').classList.toggle('allowed', admin);
         document.getElementById('hotkeyHint').classList.toggle('allowed', admin);
     }
+
+    // ============================================
+    // ТРОЙНОЙ ТАП ПО ЛОГОТИПУ — ОТКРЫТИЕ АДМИНКИ
+    // ============================================
+    let logoTapCount = 0;
+    let logoTapTimer = null;
+
+    function handleLogoTap() {
+        if (!isAdmin()) return;
+        logoTapCount++;
+        clearTimeout(logoTapTimer);
+        logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 800);
+        if (logoTapCount >= 3) {
+            logoTapCount = 0;
+            const panel = document.getElementById('adminPanel');
+            if (panel.classList.contains('active')) closeAll();
+            else panel.classList.add('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const badge = document.getElementById('logoBadge');
+        if (!badge) return;
+        badge.addEventListener('touchstart', handleLogoTap, { passive: true });
+        badge.addEventListener('click', handleLogoTap);
+    });
 
     const SERVER_URL = 'wss://' + window.location.host;
     let weatherState = {
@@ -647,7 +687,9 @@
         const info = document.createElement('div');
         info.className = 'vortex-info';
         info.innerHTML = `<b style="color:${v.color}">${v.name}</b><br>Сила: ${v.power}/10<br>Радиус: ${v.radius.toFixed(1)} км<br>Урон: ${v.damage} ед.`;
-        info.style.left = '50%'; info.style.top = '50%'; info.style.transform = 'translate(-50%, -50%)';
+        info.style.left = '50%';
+        info.style.top = '50%';
+        info.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(info);
         setTimeout(() => info.remove(), 3000);
     }
@@ -889,8 +931,10 @@
         if (!coordsStr) { alert('Сначала выбери место'); return; }
         const [lat, lng] = coordsStr.split(',').map(s => parseFloat(s.trim()));
         const power = parseInt(document.getElementById('nukePower').value);
-        weatherState.nukeLat = lat; weatherState.nukeLng = lng;
-        weatherState.nukePower = power; weatherState.nukeActive = true;
+        weatherState.nukeLat = lat;
+        weatherState.nukeLng = lng;
+        weatherState.nukePower = power;
+        weatherState.nukeActive = true;
         weatherState.nukeId = Date.now();
         sendWeatherToServer();
         launchAnomaly(lat, lng, power);
@@ -919,34 +963,45 @@
             localStorage.setItem('token', data.token);
             localStorage.setItem('login', data.login);
             localStorage.setItem('is_admin', data.is_admin ? 'true' : 'false');
-            updateUserUI(data.login); updateAdminVisibility(); closeAuth();
+            updateUserUI(data.login);
+            updateAdminVisibility();
+            closeAuth();
             alert('✅ Добро пожаловать, ' + data.login + '!');
         } catch (e) { alert('❌ Ошибка соединения'); }
     }
     function updateUserUI(login) {
         const btn = document.getElementById('authBtn');
-        btn.textContent = login + ' (выйти)'; btn.onclick = logout;
+        btn.textContent = login + ' (выйти)';
+        btn.onclick = logout;
         if (isAdmin()) { btn.classList.add('admin-btn'); btn.textContent = '👑 ' + login + ' (выйти)'; }
         else btn.classList.remove('admin-btn');
     }
     function logout() {
-        localStorage.removeItem('token'); localStorage.removeItem('login'); localStorage.removeItem('is_admin');
+        localStorage.removeItem('token');
+        localStorage.removeItem('login');
+        localStorage.removeItem('is_admin');
         document.getElementById('authBtn').textContent = 'Войти';
         document.getElementById('authBtn').onclick = openAuth;
         document.getElementById('authBtn').classList.remove('admin-btn');
-        updateAdminVisibility(); closeAll();
+        updateAdminVisibility();
+        closeAll();
     }
     window.addEventListener('load', async () => {
-        const token = localStorage.getItem('token'); const login = localStorage.getItem('login');
+        const token = localStorage.getItem('token');
+        const login = localStorage.getItem('login');
         if (token && login) {
             try {
                 const res = await fetch(API_URL + '/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
                 const data = await res.json();
                 if (data.success) {
                     localStorage.setItem('is_admin', data.is_admin ? 'true' : 'false');
-                    updateUserUI(data.login); updateAdminVisibility(); updateIntensityDisplay();
+                    updateUserUI(data.login);
+                    updateAdminVisibility();
+                    updateIntensityDisplay();
                 } else {
-                    localStorage.removeItem('token'); localStorage.removeItem('login'); localStorage.removeItem('is_admin');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('login');
+                    localStorage.removeItem('is_admin');
                 }
             } catch (e) {}
         }
@@ -986,7 +1041,8 @@
     function closeAll() {
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        closeAuth(); clickMode = false;
+        closeAuth();
+        clickMode = false;
         map.getCanvas().style.cursor = '';
         document.getElementById('clickIndicator').classList.remove('active');
         document.getElementById('pickBtn').textContent = '📍 Выбрать на карте';
@@ -995,7 +1051,8 @@
         const query = document.getElementById('citySearch').value.trim();
         if (!query) return;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
-            .then(r => r.json()).then(data => {
+            .then(r => r.json())
+            .then(data => {
                 if (data && data.length > 0) {
                     const { lat, lon } = data[0];
                     map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 10 });
@@ -1067,8 +1124,10 @@
         const style = map.getStyle();
         if (style && style.layers) style.layers.forEach(l => { if (l.id && (l.id.includes('random-spots') || l.id.includes('nuke-zone') || l.id.includes('vortex-zone'))) { if (map.getLayer(l.id)) map.removeLayer(l.id); } });
         if (style && style.sources) Object.keys(style.sources).forEach(src => { if (src.includes('random-spots') || src.includes('nuke-zone') || src.includes('vortex-zone')) { if (map.getSource(src)) map.removeSource(src); } });
-        craters = []; vortexMarkers = [];
-        markers.forEach(m => m.remove()); markers = [];
+        craters = [];
+        vortexMarkers = [];
+        markers.forEach(m => m.remove());
+        markers = [];
         deactivateChernobyl();
         weatherState = { rainIntensity: 0, phenomenonType: 'rain', precipColor: 4, precipUnit: 'мм', power: 3, windSpeed: 0, temperature: 15, isPrecipActive: false, lastLat: null, lastLng: null, nukeLat: null, nukeLng: null, nukePower: 3, nukeActive: false, nukeId: null };
         updateIntensityDisplay();
